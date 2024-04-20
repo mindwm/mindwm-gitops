@@ -19,9 +19,15 @@ argoCdOrder = ArgoCdOrder.make({
 })
 
 manifests.yaml_stream([
-    argoCdOrder
     k8core.Namespace {
         metadata.name = "test-n2"
+    }
+    k8core.Namespace {
+        metadata.name = "test-n2"
+        metadata.annotations = {
+            "argocd.argoproj.io/sync-wave" = "0"
+            "argocd.argoproj.io/hook" = "sync"
+        }
     }
 ])
 
