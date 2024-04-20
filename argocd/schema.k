@@ -22,10 +22,12 @@ schema argoHelmRelease[release: helmSchema.HelmRelease](argoproj.Application):
                 releaseName = release.name
             }
 
-                
+
         }
         syncPolicy = {
-            automated = {}
+            automated = {
+                selfHeal = True
+            }
             syncOptions = [
                 "CreateNamespace=true"
             ]
