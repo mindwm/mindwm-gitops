@@ -64,6 +64,9 @@ argoCdOrder = ArgoCdOrder.make({
             name = "cert-manager"
             chart = charts.cert_manager
             version = "1.14.4"
+            values = {
+                installCRDs = True
+            }
         })
         argocdSchema.argoHelmRelease({
             namespace = "redpanda"
