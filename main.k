@@ -17,15 +17,15 @@ argoCdOrder = ArgoCdOrder.make({
     Sync = [
         k8core.Namespace {
             metadata.name = istio.system.namespace
-            metadata.labels = {
-                "istio-injection" = "enalbed"
-            } 
+            #metadata.labels = {
+            #    "istio-injection" = "enalbed"
+            #} 
         }
         k8core.Namespace {
             metadata.name = istio.gateway.namespace
-            metadata.labels = {
-                "istio-injection" = "enalbed"
-            } 
+            #metadata.labels = {
+            #    "istio-injection" = "enalbed"
+            #} 
         }
         argocdSchema.argoHelmRelease({
             namespace = istio.system.namespace,
