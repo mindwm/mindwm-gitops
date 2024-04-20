@@ -87,8 +87,9 @@ argoCdOrder = ArgoCdOrder.make({
             metadata.name = "knative-eventing"
             metadata.namespace = knativeConfig.eventing.namespace
         } 
+        
 
-    ]
+    ] + yaml.decode_all(file.read("manifests/net-istio.yaml"))
 
     PostSync = []
 })
