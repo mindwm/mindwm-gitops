@@ -33,7 +33,7 @@ manifests.yaml_stream([
         metadata.name = "2test-n"
         metadata.annotations = {
             "argocd.argoproj.io/hook" = "Sync"
-            "argocd.argoproj.io/sync-wave" = "2"
+            "argocd.argoproj.io/sync-wave" = "5"
         }
     }
 ])
