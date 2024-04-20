@@ -23,10 +23,10 @@ manifests.yaml_stream([
         metadata.name = "test-n2"
     }
     k8core.Namespace {
-        metadata.name = "test-n2"
+        metadata.name = "test-n3"
         metadata.annotations = {
             "argocd.argoproj.io/sync-wave" = "0"
-            "argocd.argoproj.io/hook" = "sync"
+            "argocd.argoproj.io/hook" = "Sync"
         }
     }
 ])
