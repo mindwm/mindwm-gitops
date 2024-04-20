@@ -19,7 +19,9 @@ argoCdOrder = ArgoCdOrder.make({
 })
 
 manifests.yaml_stream([
-    argoCdOrder
+    k8core.Namespace {
+        metadata.name = "test-n"
+    }
 ])
 
 
