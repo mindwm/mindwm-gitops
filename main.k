@@ -24,11 +24,13 @@ argoCdOrder = ArgoCdOrder.make({
         k8core.Namespace {
             metadata.name = "order-test-n4"
         }
-    ] + yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+    ]
+
     PostSync = []
 })
 
 manifests.yaml_stream([
+    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
     argoCdOrder
 ])
 
