@@ -12,13 +12,20 @@ argoCdOrder = ArgoCdOrder.make({
     PreSync = []    
     Sync = [
         k8core.Namespace {
-            metadata.name = "test-n"
+            metadata.name = "order-test-n"
+        }
+        k8core.Namespace {
+            metadata.name = "order-test-n2"
+        }
+        k8core.Namespace {
+            metadata.name = "order-test-n4"
         }
     ]
     PostSync = []
 })
 
 manifests.yaml_stream([
+    argoCdOrder
     k8core.Namespace {
         metadata.name = "test-n"
     }
