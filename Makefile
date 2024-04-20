@@ -1,4 +1,4 @@
-argocd: 
+argocd:
 	helm repo add argocd https://argoproj.github.io/argo-helm && \
     helm repo update argocd && \
     helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --wait --timeout 5m && \
@@ -7,7 +7,6 @@ argocd:
     kubectl wait --for=condition=ready pod -n argocd -l app.kubernetes.io/name=argocd-repo-server --timeout=600s
 
 kubectl_proxy:
-	pkill -9 -f 'kubectl port-forward service/argocd-server -n argocd 8080:443' || :
 	kubectl port-forward service/argocd-server -n argocd 8080:443 &
 argocd_password:
 	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
