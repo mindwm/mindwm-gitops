@@ -1,8 +1,8 @@
 import .argo_cd_order as ArgoCdOrder
-#import yaml
+import yaml
 import manifests
 import k8s.api.core.v1 as k8core
-#import file
+import file
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -24,7 +24,7 @@ argoCdOrder = ArgoCdOrder.make({
         k8core.Namespace {
             metadata.name = "order-test-n4"
         }
-    ]
+    ] + yaml.decode_all(file.read("manifests/knative-operator.yaml"))
     PostSync = []
 })
 
