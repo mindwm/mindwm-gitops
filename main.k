@@ -6,6 +6,8 @@ import manifests
 import k8s.api.core.v1 as k8core
 import file
 import .istio as istio
+import knative_operator.v1beta1 as knative
+import knative as knativeConfig
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -66,6 +68,19 @@ argoCdOrder = ArgoCdOrder.make({
             chart = charts.redpanda_operator
             version = "0.4.20"
         })
+
+        knative.KnativeServing {
+            metadata.name = "knative-serving"
+            metadata.namespace = knativeConfig.serving.namespace
+            spec.config.istio = {
+                "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
+            } 
+        } 
+
+        knative.KnativeEventing {
+            metadata.name = "knative-eventing"
+            metadata.namespace = knativeConfig.eventing.namespace
+        } 
 
     ]
 
