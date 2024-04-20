@@ -2,9 +2,13 @@ import json_merge_patch as p
 WAVE_MIN = 0
 
 validatedAnnotations = lambda a: {str:str} {
-    #assert a["argocd.argoproj.io/hook"] in ["PreSync", "Sync", "PostSync", "SyncFail", "SyncFail"]
+    assert a["argocd.argoproj.io/hook"] in ["PreSync", "Sync", "PostSync", "SyncFail", "SyncFail"]
     assert int(a["argocd.argoproj.io/sync-wave"]) >= WAVE_MIN
-    a
+    if a["argocd.argoproj.io/hook"] == "Sync":
+    	r = { "argocd.argoproj.io/sync-wave" = a["argocd.argoproj.io/sync-wave"]}
+    else: 
+    	r = a
+    r
 }
 
 schema ArgoCdManifest:
@@ -32,7 +36,7 @@ preparePhase = lambda phase: str, phaseResources: [any] -> [ArgoCdManifest] {
     [
         p.merge(resource, { metadata.annotations = validatedAnnotations({
            "argocd.argoproj.io/sync-wave" = str(sync_wave)
-           #"argocd.argoproj.io/hook" = phase
+           "argocd.argoproj.io/hook" = phase
         })})
         for sync_wave, resource in phaseResources if resource != None
 

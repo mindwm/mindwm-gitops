@@ -9,7 +9,11 @@ import k8s.api.core.v1 as k8core
 ns = "test-namespace"
 
 argoCdOrder = ArgoCdOrder.make({
-    PreSync = []    
+    PreSync = [
+        k8core.Namespace {
+            metadata.name = "pre-test-n"
+        }
+    ]
     Sync = [
         k8core.Namespace {
             metadata.name = "order-test-n"
@@ -26,13 +30,6 @@ argoCdOrder = ArgoCdOrder.make({
 
 manifests.yaml_stream([
     argoCdOrder
-    k8core.Namespace {
-        metadata.name = "2test-n"
-        metadata.annotations = {
-            "argocd.argoproj.io/hook" = "Sync"
-            "argocd.argoproj.io/sync-wave" = "5"
-        }
-    }
 ])
 
 
