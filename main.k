@@ -1,8 +1,11 @@
 import .argo_cd_order as ArgoCdOrder
+import .argocd.schema as argocdSchema
+import .helm.chart as charts
 import yaml
 import manifests
 import k8s.api.core.v1 as k8core
 import file
+import .istio as istio
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -13,14 +16,29 @@ argoCdOrder = ArgoCdOrder.make({
     ]
     Sync = [
         k8core.Namespace {
-            metadata.name = "order-test-n"
+            metadata.name = istio.system.namespace
         }
         k8core.Namespace {
-            metadata.name = "order-test-n2"
+            metadata.name = istio.gateway.namespace
+            metadata.labels = {
+                "istio-injection" = "enalbed"
+            } 
         }
-        k8core.Namespace {
-            metadata.name = "order-test-n4"
-        }
+        argocdSchema.argoHelmRelease({
+            namespace = istio.system.namespace,
+            name = "istio-base"
+            chart = charts.istio_base
+            version = istio.version
+        }) | {
+        spec.ignoreDifferences = [
+            {
+                group = "admissionregistration.k8s.io"
+                kind = "ValidatingWebhookConfiguration"
+                name = "istiod-default-validator"
+                jsonPointers = ["/webhooks/0/failurePolicy"]
+            }
+        ]
+        } 
     ]
 
     PostSync = []
