@@ -54,6 +54,20 @@ argoCdOrder = ArgoCdOrder.make({
             chart = charts.istio_gateway
             version = istio.version
         }) 
+        argocdSchema.argoHelmRelease({
+            namespace = "redpanda"
+            name = "redpanda-operator"
+            chart = charts.redpanda_operator
+            version = "0.4.20"
+        })
+
+        argocdSchema.argoHelmRelease({
+            namespace = "cert-manager"
+            name = "cert-manager"
+            chart = charts.cert_manager
+            version = "1.14.4"
+        })
+
     ]
 
     PostSync = []
