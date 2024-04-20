@@ -10,9 +10,6 @@ ns = "test-namespace"
 
 argoCdOrder = ArgoCdOrder.make({
     PreSync = [
-        k8core.Namespace {
-            metadata.name = "pre-test-n"
-        }
     ]
     Sync = [
         k8core.Namespace {
@@ -30,7 +27,7 @@ argoCdOrder = ArgoCdOrder.make({
 })
 
 manifests.yaml_stream([
-    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+    #yaml.decode_all(file.read("manifests/knative-operator.yaml"))
     argoCdOrder
 ])
 
