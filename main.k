@@ -27,9 +27,6 @@ argoCdOrder = ArgoCdOrder.make({
 manifests.yaml_stream([
     argoCdOrder
     k8core.Namespace {
-        metadata.name = "test-n"
-    }
-    k8core.Namespace {
         metadata.name = "2test-n"
         metadata.annotations = {
             "argocd.argoproj.io/hook" = "Sync"
