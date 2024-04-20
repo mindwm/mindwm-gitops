@@ -29,6 +29,15 @@ argoCdOrder = ArgoCdOrder.make({
             #    "istio-injection" = "enalbed"
             #} 
         }
+        k8core.Namespace {
+            metadata.name = knativeConfig.serving.namespace
+            metadata.labels = {
+                "istio-injection" = "enalbed"
+            } 
+        }
+        k8core.Namespace {
+            metadata.name = knativeConfig.eventing.namespace
+        }
         argocdSchema.argoHelmRelease({
             namespace = istio.system.namespace,
             name = "istio-base"
