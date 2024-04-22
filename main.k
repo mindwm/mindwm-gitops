@@ -78,6 +78,9 @@ argoCdOrder = ArgoCdOrder.make({
         knative.KnativeServing {
             metadata.name = "knative-serving"
             metadata.namespace = knativeConfig.serving.namespace
+            metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+            }
             spec.config.istio = {
                 "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
             } 
@@ -86,8 +89,11 @@ argoCdOrder = ArgoCdOrder.make({
         knative.KnativeEventing {
             metadata.name = "knative-eventing"
             metadata.namespace = knativeConfig.eventing.namespace
+            metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+            }
+
         } 
-        
 
     ] + yaml.decode_all(file.read("manifests/net-istio.yaml"))
 
