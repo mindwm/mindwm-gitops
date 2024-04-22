@@ -95,7 +95,7 @@ argoCdOrder = ArgoCdOrder.make({
 
         } 
 
-    ] + yaml.decode_all(file.read("manifests/net-istio.yaml"))
+    ] #+ yaml.decode_all(file.read("manifests/net-istio.yaml"))
 
     PostSync = []
 })
