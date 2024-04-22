@@ -5,6 +5,9 @@ spec:
       - name: my-plugin
         command: [/var/run/argocd/argocd-cmp-server] # Entrypoint should be Argo CD lightweight CMP server i.e. argocd-cmp-server
         image: kcllang/kcl # This can be off-the-shelf or custom-built image
+        env:
+          - name: KCL_GO_DISABLE_INSTALL_ARTIFACT
+            value: "true"
         securityContext:
           runAsNonRoot: true
           runAsUser: 999
@@ -17,7 +20,7 @@ spec:
           - mountPath: /home/argocd/cmp-server/config/plugin.yaml
             subPath: plugin.yaml
             name: kcl-plugin-config
-          # Starting with v2.4, do NOT mount the same tmp volume as the repo-server container. The filesystem separation helps 
+          # Starting with v2.4, do NOT mount the same tmp volume as the repo-server container. The filesystem separation helps
           # mitigate path traversal attacks.
           - mountPath: /tmp
             name: cmp-tmp

@@ -10,6 +10,12 @@ argocd:
 .PHONY: kubectl_proxy
 kubectl_proxy:
 	kubectl port-forward service/argocd-server -n argocd 8080:443 &
+kcl_plugin_context:
+	kubectl -n argocd exec -it `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin -- /bin/bash
+kcl_log:
+	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c repo-server
+my_plugin:
+	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin
 .PHONY: argocd_password
 argocd_password:
 	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
@@ -18,7 +24,23 @@ argocd_login: kubectl_proxy argocd_password
 	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
 .PHONY: argocd_app
-argocd_app: #argocd_login
+argocd_app: argocd_login
+	argocd app create mindwm \
+		--repo https://github.com/mindwm/mindwm-gitops \
+		--path . \
+		--dest-namespace default \
+		--dest-server https://kubernetes.default.svc \
+		--revision master \
+		--config-management-plugin kcl-v1.0
+.PHONY: argocd_password
+argocd_password:
+	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
+.PHONY: argocd_login
+argocd_login: kubectl_proxy argocd_password
+	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
+
+.PHONY: argocd_app
+argocd_app: argocd_login
 	argocd app create mindwm \
                 --repo https://github.com/mindwm/mindwm-gitops \
                 --path . \
