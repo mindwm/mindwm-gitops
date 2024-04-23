@@ -15,11 +15,14 @@ data:
         command: ["sh", "-c"]
         args:
           - |
-            tempfile=$(mktemp)
-            kcl run -q -o $tempfile
+            temp_dir=$(mktemp -d /tmp/debug.XXXXXXXXXX)
+            tempfile="$temp_dir/output.txt"
+            modupdate="$temp_dir/modupdate.txt"
+            err_file="$temp_dir/err_file.txt"
+            kcl mod update >$modupdate 2>&1
+            kcl run >$tempfile 2>$err_file
             error=$?
             if [ $error -eq 0 ]; then
               cat $tempfile
-              rm $tempfile
             fi
             exit $error
