@@ -1,0 +1,10 @@
+global:
+  image:
+    tag: "v2.9.12"
+controller:
+  extraArgs:
+    - --repo-server-timeout-seconds=180
+repoServer:
+  extraArgs:
+    - --repo-cache-expiration=1m
+    - --default-cache-expiration=1m
