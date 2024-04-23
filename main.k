@@ -8,6 +8,7 @@ import file
 import .istio as istio
 import knative_operator.v1beta1 as knative
 import knative as knativeConfig
+import json_merge_patch as p
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -95,7 +96,13 @@ argoCdOrder = ArgoCdOrder.make({
 
         }
 
-    ] + yaml.decode_all(file.read("manifests/net-istio.yaml"))
+    ] + [
+        p.merge(resource, { 
+            metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+            }
+        })
+    for resource in yaml.decode_all(file.read("manifests/net-istio.yaml")) ]
 
     PostSync = []
 })
