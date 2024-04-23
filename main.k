@@ -27,7 +27,7 @@ argoCdOrder = ArgoCdOrder.make({
             metadata.name = knativeConfig.serving.namespace
             metadata.labels = {
                 "istio-injection" = "enalbed"
-            } 
+            }
         }
         k8core.Namespace {
             metadata.name = knativeConfig.eventing.namespace
@@ -46,7 +46,7 @@ argoCdOrder = ArgoCdOrder.make({
                 jsonPointers = ["/webhooks/0/failurePolicy"]
             }
         ]
-        } 
+        }
         argocdSchema.argoHelmRelease({
             namespace = istio.system.namespace,
             name = "istiod"
@@ -58,7 +58,7 @@ argoCdOrder = ArgoCdOrder.make({
             name = "gateway"
             chart = charts.istio_gateway
             version = istio.version
-        }) 
+        })
         argocdSchema.argoHelmRelease({
             namespace = "cert-manager"
             name = "cert-manager"
@@ -83,8 +83,8 @@ argoCdOrder = ArgoCdOrder.make({
             }
             spec.config.istio = {
                 "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
-            } 
-        } 
+            }
+        }
 
         knative.KnativeEventing {
             metadata.name = "knative-eventing"
@@ -93,9 +93,9 @@ argoCdOrder = ArgoCdOrder.make({
                 "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
             }
 
-        } 
+        }
 
-    ] #+ yaml.decode_all(file.read("manifests/net-istio.yaml"))
+    ] + yaml.decode_all(file.read("manifests/net-istio.yaml"))
 
     PostSync = []
 })
