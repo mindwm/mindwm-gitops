@@ -102,7 +102,8 @@ argoCdOrder = ArgoCdOrder.make({
                 "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
             }
         })
-    for resource in yaml.decode_all(file.read("manifests/net-istio.yaml")) ]
+        for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
+    ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
 
     PostSync = []
 })

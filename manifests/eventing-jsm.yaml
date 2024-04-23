@@ -1,0 +1,1438 @@
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nats-webhook-admission
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+rules:
+  # webhook deployment watches these to
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - "mutatingwebhookconfigurations"
+      - "validatingwebhookconfigurations"
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: nats-webhook
+  namespace: knative-eventing
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+rules:
+  # webhook requires access to manage the nats-webhook-cert, the informers uses the system namespace scope so only
+  # requires to be a Role and not a ClusterRole
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  # required for leader election in case of multiple controller replicas
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - "leases"
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - patch
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - "namespaces"
+    verbs:
+      - get
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nats-webhook
+  namespace: knative-eventing
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nats-webhook-admission
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nats-webhook-admission
+subjects:
+  - kind: ServiceAccount
+    name: nats-webhook
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: nats-webhook-configmap-reader
+  namespace: knative-eventing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: eventing-config-reader
+subjects:
+  - kind: ServiceAccount
+    name: nats-webhook
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: nats-webhook
+  namespace: knative-eventing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: nats-webhook
+subjects:
+  - kind: ServiceAccount
+    name: nats-webhook
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nats-webhook-certs
+  namespace: knative-eventing
+  labels:
+    nats.messaging.knative.dev/release: devel
+# The data is populated at install time.
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: defaulting.webhook.nats.messaging.knative.dev
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+webhooks:
+  - admissionReviewVersions: ["v1beta1"]
+    clientConfig:
+      service:
+        name: nats-webhook
+        namespace: knative-eventing
+    sideEffects: None
+    failurePolicy: Fail
+    name: defaulting.webhook.nats.messaging.knative.dev
+    timeoutSeconds: 2
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-webhook
+  namespace: knative-eventing
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats-webhook
+      role: nats-webhook
+  template:
+    metadata:
+      labels:
+        app: nats-webhook
+        role: nats-webhook
+    spec:
+      # To avoid node becoming SPOF, spread our replicas to different nodes.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: nats-webhook
+                    role: nats-webhook
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+      serviceAccountName: nats-webhook
+      containers:
+        - name: nats-webhook
+          terminationMessagePolicy: FallbackToLogsOnError
+          # This is the Go import path for the binary that is containerized
+          # and substituted here.
+          image: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/webhook@sha256:37da199d0c05ad3604c7240f50f28ef53f54d087bd2caed02eb9b5cad85d1c8d
+          resources:
+            requests:
+              # taken from serving.
+              cpu: 20m
+              memory: 20Mi
+            limits:
+              # taken from serving.
+              cpu: 200m
+              memory: 200Mi
+          env:
+            - name: SYSTEM_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CONFIG_LOGGING_NAME
+              value: config-logging
+            - name: METRICS_DOMAIN
+              value: knative.dev/channels
+            - name: WEBHOOK_NAME
+              value: nats-webhook
+            - name: WEBHOOK_PORT
+              value: "8443"
+          securityContext:
+            allowPrivilegeEscalation: false
+          ports:
+            - name: https-webhook
+              containerPort: 8443
+            - name: metrics
+              containerPort: 9090
+            - name: profiling
+              containerPort: 8008
+          readinessProbe:
+            periodSeconds: 1
+            httpGet:
+              scheme: HTTPS
+              port: https-webhook
+              httpHeaders:
+                - name: k-kubelet-probe
+                  value: "webhook"
+          livenessProbe:
+            periodSeconds: 1
+            httpGet:
+              scheme: HTTPS
+              port: https-webhook
+              httpHeaders:
+                - name: k-kubelet-probe
+                  value: "webhook"
+            initialDelaySeconds: 120
+      # Our webhook should gracefully terminate by lame ducking first, set this to a sufficiently
+      # high value that we respect whatever value it has configured for the lame duck grace period.
+      terminationGracePeriodSeconds: 300
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validation.webhook.nats.messaging.knative.dev
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+webhooks:
+  - admissionReviewVersions: ["v1beta1"]
+    clientConfig:
+      service:
+        name: nats-webhook
+        namespace: knative-eventing
+    sideEffects: None
+    failurePolicy: Fail
+    name: validation.webhook.nats.messaging.knative.dev
+    timeoutSeconds: 2
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+    role: nats-webhook
+  name: nats-webhook
+  namespace: knative-eventing
+spec:
+  ports:
+    - name: https-webhook
+      port: 443
+      targetPort: https-webhook
+  selector:
+    role: nats-webhook
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nats-jsm-addressable-resolver
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+    duck.knative.dev/addressable: "true"
+# Do not use this role directly. These rules will be added to the "addressable-resolver" role.
+rules:
+  - apiGroups:
+      - messaging.knative.dev
+    resources:
+      - natsjetstreamchannels
+      - natsjetstreamchannels/status
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nats-jsm-channelable-manipulator
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+    duck.knative.dev/channelable: "true"
+# Do not use this role directly. These rules will be added to the "channelable-manipulator" role.
+rules:
+  - apiGroups:
+      - messaging.knative.dev
+    resources:
+      - natsjetstreamchannels
+      - natsjetstreamchannels/status
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+      - patch
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jetstream-ch-controller
+rules:
+  # get/list/watch to trigger reconciles, and update for adding subscribers
+  - apiGroups:
+      - messaging.knative.dev
+    resources:
+      - natsjetstreamchannels
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  # update status and finalizers
+  - apiGroups:
+      - messaging.knative.dev
+    resources:
+      - natsjetstreamchannels/status
+      - natsjetstreamchannels/finalizers
+    verbs:
+      - update
+  # list and watch all deployments
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - rolebindings
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+  # required to log events
+  - apiGroups:
+      - ""
+    resources:
+      - "events"
+    verbs:
+      - create
+      - patch
+      - update
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+    verbs:
+      - get
+    resourceNames:
+      - jetstream-ch-controller
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jetstream-ch-controller
+  namespace: knative-eventing
+rules:
+  # required for leader election in case of multiple controller replicas
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - "leases"
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - patch
+      - watch
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jetstream-ch-controller
+  namespace: knative-eventing
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This ClusterRole needs a ClusterRoleBinding to the dispatcher when running in cluster-scoped mode, and a RoleBinding
+# to the target namespace when running in namespace-scoped mode.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jetstream-ch-dispatcher
+rules:
+  - apiGroups:
+      - messaging.knative.dev
+    resources:
+      - natsjetstreamchannels
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - messaging.knative.dev
+    resources:
+      - natsjetstreamchannels/status
+      - natsjetstreamchannels/finalizers
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  # required to log events
+  - apiGroups:
+      - ""
+    resources:
+      - "events"
+    verbs:
+      - create
+      - patch
+      - update
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This Role is to grant the dispatcher ServiceAccount any necessary permissions within the knative-eventing namespace
+# when the dispatcher is scoped to another namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jetstream-ch-dispatcher-eventing
+  namespace: knative-eventing
+rules:
+  # required for leader election in case of multiple controller replicas
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - "leases"
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - patch
+      - watch
+  # copy/paste of eventing-configmap-reader - saves us creating an extra RoleBinding during reconcile.
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jetstream-ch-dispatcher
+  namespace: knative-eventing
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# jetstream-ch-controller requires the permissions to do its own job
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jetstream-ch-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jetstream-ch-controller
+subjects:
+  - kind: ServiceAccount
+    name: jetstream-ch-controller
+    namespace: knative-eventing
+---
+# then it also requires the permissions for the dispatcher, in order to grant RBAC permissions to scoped dispatchers
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jetstream-ch-controller-grant
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jetstream-ch-dispatcher
+subjects:
+  - kind: ServiceAccount
+    name: jetstream-ch-controller
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jetstream-ch-controller-configmap-reader
+  namespace: knative-eventing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: eventing-config-reader
+subjects:
+  - kind: ServiceAccount
+    name: jetstream-ch-controller
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jetstream-ch-controller
+  namespace: knative-eventing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: jetstream-ch-controller
+subjects:
+  - kind: ServiceAccount
+    name: jetstream-ch-controller
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jetstream-ch-dispatcher
+  namespace: knative-eventing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jetstream-ch-dispatcher
+subjects:
+  - kind: ServiceAccount
+    name: jetstream-ch-dispatcher
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jetstream-ch-dispatcher-configmap-reader
+  namespace: knative-eventing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: eventing-config-reader
+subjects:
+  - kind: ServiceAccount
+    name: jetstream-ch-dispatcher
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jetstream-ch-dispatcher-eventing
+  namespace: knative-eventing
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: jetstream-ch-dispatcher-eventing
+subjects:
+  - kind: ServiceAccount
+    name: jetstream-ch-dispatcher
+    namespace: knative-eventing
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: natsjetstreamchannels.messaging.knative.dev
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+    knative.dev/crd-install: "true"
+    messaging.knative.dev/subscribable: "true"
+    duck.knative.dev/addressable: "true"
+spec:
+  scope: Namespaced
+  group: messaging.knative.dev
+  names:
+    kind: NatsJetStreamChannel
+    plural: natsjetstreamchannels
+    singular: natsjetstreamchannel
+    categories:
+      - all
+      - knative
+      - messaging
+      - channel
+    shortNames:
+      - natsjsmc
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              description: Spec defines the desired state of the Channel.
+              type: object
+              properties:
+                deploymentSpecTemplate:
+                  description: Deployment configurations to apply to programmatically created dispatcher.
+                  type: object
+                  properties:
+                    resources:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    affinity:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    nodeSelector:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    labels:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    annotations:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                consumerConfigTemplate:
+                  type: object
+                  properties:
+                    ackWait:
+                      description: AckWait denotes the duration for which delivered messages should wait for an acknowledgement before attempting redelivery.
+                      type: string
+                    deliverPolicy:
+                      description: DeliverPolicy defines the DeliverPolicy for the consumer.
+                      type: string
+                    filterSubject:
+                      description: FilterSubject configures the source to only include messages matching this subject.
+                      type: string
+                    maxAckPending:
+                      description: MaxAckPending is the maximum number of messages without an acknowledgement that can be outstanding, once this limit is reached message delivery will be suspended.
+                      type: integer
+                      format: int32
+                    maxDeliver:
+                      description: MaxDeliver denotes the maximum number of times a message will be redelivered before being dropped (or delivered to the dead-letter queue if configured).
+                      type: integer
+                      format: int32
+                    optStartSeq:
+                      description: OptStartSeq denotes the message sequence number which this consumer should start from. This is only applicable when DeliverPolicy is set to ByStartSequenceDeliverPolicy.
+                      type: integer
+                      format: int64
+                      minimum: 0
+                    optStartTime:
+                      description: OptStartTime configures the consumer to deliver messages from the stream starting at the first message after this timestamp. This is only applicable when DeliverPolicy is set to ByStartTimeDeliverPolicy.
+                      type: string
+                    rateLimitBPS:
+                      description: RateLimitBPS will throttle delivery to the client in bits-per-second.
+                      type: integer
+                      format: int64
+                      minimum: 0
+                    replayPolicy:
+                      description: ReplayPolicy defines the ReplayPolicy for the consumer.
+                      type: string
+                    sampleFrequency:
+                      description: SampleFrequency sets the percentage of acknowledgements that should be sampled for observability. Valid values are in the range 0-100 and, for example, allows both formats of "30" and "30%".
+                      type: string
+                delivery:
+                  description: DeliverySpec contains the default delivery spec for each subscription to this Channelable. Each subscription delivery spec, if any, overrides this global delivery spec.
+                  type: object
+                  properties:
+                    backoffDelay:
+                      description: 'BackoffDelay is the delay before retrying. More information on Duration format: - https://www.iso.org/iso-8601-date-and-time-format.html - https://en.wikipedia.org/wiki/ISO_8601  For linear policy, backoff delay is backoffDelay*<numberOfRetries>. For exponential policy, backoff delay is backoffDelay*2^<numberOfRetries>.'
+                      type: string
+                    backoffPolicy:
+                      description: BackoffPolicy is the retry backoff policy (linear, exponential).
+                      type: string
+                    deadLetterSink:
+                      description: DeadLetterSink is the sink receiving event that could not be sent to a destination.
+                      type: object
+                      properties:
+                        ref:
+                          description: Ref points to an Addressable.
+                          type: object
+                          properties:
+                            apiVersion:
+                              description: API version of the referent.
+                              type: string
+                            group:
+                              description: 'Group of the API, without the version of the group. This can be used as an alternative to the APIVersion, and then resolved using ResolveGroup. Note: This API is EXPERIMENTAL and might break anytime. For more details: https://github.com/knative/eventing/issues/5086'
+                              type: string
+                            kind:
+                              description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                              type: string
+                            name:
+                              description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                              type: string
+                            namespace:
+                              description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/ This is optional field, it gets defaulted to the object holding it if left out.'
+                              type: string
+                        uri:
+                          description: URI can be an absolute URL(non-empty scheme and non-empty host) pointing to the target or a relative URI. Relative URIs will be resolved using the base URI retrieved from Ref.
+                          type: string
+                    retry:
+                      description: Retry is the minimum number of retries the sender should attempt when sending an event before moving it to the dead letter sink.
+                      type: integer
+                      format: int32
+                    timeout:
+                      description: 'Timeout is the timeout of each single request. The value must be greater than 0. More information on Duration format: - https://www.iso.org/iso-8601-date-and-time-format.html - https://en.wikipedia.org/wiki/ISO_8601  Note: This API is EXPERIMENTAL and might break anytime. For more details: https://github.com/knative/eventing/issues/5148'
+                      type: string
+                stream:
+                  type: object
+                  properties:
+                    config:
+                      description: Config defines the StreamConfig for the stream.
+                      type: object
+                      properties:
+                        additionalSubjects:
+                          description: AdditionalSubjects allows adding additional subjects which this stream will subscribe to. The stream will always subscribe to a generated subject which the eventing-jetstream controller uses internally.
+                          type: array
+                          items:
+                            type: string
+                        discard:
+                          description: Discard defines the DiscardPolicy for this stream.
+                          type: string
+                        duplicateWindow:
+                          description: DuplicateWindow defines the duration of which messages should be tracked for detecting duplicates.
+                          type: string
+                        maxAge:
+                          description: MaxAge defines the maximum age of a message which is allowed in the stream.
+                          type: string
+                        maxBytes:
+                          description: MaxBytes defines how many bytes this stream can store spanning all messages in the stream.
+                          type: integer
+                          format: int64
+                        maxConsumers:
+                          description: MaxConsumers defines how many consumers this stream can be bound to it.
+                          type: integer
+                          format: int32
+                        maxMsgSize:
+                          description: MaxMsgSize defines the maximum size in bytes of an individual message. JetStream includes a hard-limit of 1MB so if defined should be less than 2^20=1048576.
+                          type: integer
+                          format: int32
+                        maxMsgs:
+                          description: MaxMsgs defines how many messages this stream can store.
+                          type: integer
+                          format: int64
+                        mirror:
+                          description: Mirror configures the stream to mirror another stream.
+                          type: object
+                          properties:
+                            filterSubject:
+                              description: FilterSubject configures the source to only include messages matching this subject.
+                              type: string
+                            name:
+                              description: Name is the stream name which this source is referencing
+                              type: string
+                            optStartSeq:
+                              description: OptStartSeq denotes the message sequence number which this source should start from. This takes precedence over OptStartTime if defined.
+                              type: integer
+                              format: int64
+                              minimum: 0
+                            optStartTime:
+                              description: OptStartTime configures the source to deliver messages from the stream starting at the first message after this timestamp.
+                              type: string
+                        noAck:
+                          description: NoAck disables acknowledgement of messages when true.
+                          type: boolean
+                        placement:
+                          description: Placement allows configuring which JetStream server the stream should be placed on.
+                          type: object
+                          properties:
+                            cluster:
+                              description: Cluster denotes the cluster name which this stream should be placed on.
+                              type: string
+                            tags:
+                              description: Tags will restrict this stream to only be stored on servers matching these tags.
+                              type: array
+                              items:
+                                type: string
+                        replicas:
+                          description: Replicas defines how many replicas of each message should be stored. This is only applicable for clustered JetStream instances.
+                          type: integer
+                          format: int32
+                        retention:
+                          description: Retention defines the RetentionPolicy for this stream.
+                          type: string
+                        sources:
+                          description: Sources allows aggregating messages from other streams into a new stream.
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              filterSubject:
+                                description: FilterSubject configures the source to only include messages matching this subject.
+                                type: string
+                              name:
+                                description: Name is the stream name which this source is referencing
+                                type: string
+                              optStartSeq:
+                                description: OptStartSeq denotes the message sequence number which this source should start from. This takes precedence over OptStartTime if defined.
+                                type: integer
+                                format: int64
+                                minimum: 0
+                              optStartTime:
+                                description: OptStartTime configures the source to deliver messages from the stream starting at the first message after this timestamp.
+                                type: string
+                        storage:
+                          description: Storage defines the Storage mechanism for this stream.
+                          type: string
+                    overrideName:
+                      description: OverrideName allows defining a custom stream name, by default a generated name based on the namespace and name of the NatsJetStreamChannel is used.
+                      type: string
+                subscribers:
+                  description: This is the list of subscriptions for this subscribable.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      delivery:
+                        description: DeliverySpec contains options controlling the event delivery
+                        type: object
+                        properties:
+                          backoffDelay:
+                            description: 'BackoffDelay is the delay before retrying. More information on Duration format: - https://www.iso.org/iso-8601-date-and-time-format.html - https://en.wikipedia.org/wiki/ISO_8601  For linear policy, backoff delay is backoffDelay*<numberOfRetries>. For exponential policy, backoff delay is backoffDelay*2^<numberOfRetries>.'
+                            type: string
+                          backoffPolicy:
+                            description: BackoffPolicy is the retry backoff policy (linear, exponential).
+                            type: string
+                          deadLetterSink:
+                            description: DeadLetterSink is the sink receiving event that could not be sent to a destination.
+                            type: object
+                            properties:
+                              ref:
+                                description: Ref points to an Addressable.
+                                type: object
+                                properties:
+                                  apiVersion:
+                                    description: API version of the referent.
+                                    type: string
+                                  group:
+                                    description: 'Group of the API, without the version of the group. This can be used as an alternative to the APIVersion, and then resolved using ResolveGroup. Note: This API is EXPERIMENTAL and might break anytime. For more details: https://github.com/knative/eventing/issues/5086'
+                                    type: string
+                                  kind:
+                                    description: 'Kind of the referent. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+                                    type: string
+                                  name:
+                                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                                    type: string
+                                  namespace:
+                                    description: 'Namespace of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/ This is optional field, it gets defaulted to the object holding it if left out.'
+                                    type: string
+                              uri:
+                                description: URI can be an absolute URL(non-empty scheme and non-empty host) pointing to the target or a relative URI. Relative URIs will be resolved using the base URI retrieved from Ref.
+                                type: string
+                          retry:
+                            description: Retry is the minimum number of retries the sender should attempt when sending an event before moving it to the dead letter sink.
+                            type: integer
+                            format: int32
+                          timeout:
+                            description: 'Timeout is the timeout of each single request. The value must be greater than 0. More information on Duration format: - https://www.iso.org/iso-8601-date-and-time-format.html - https://en.wikipedia.org/wiki/ISO_8601  Note: This API is EXPERIMENTAL and might break anytime. For more details: https://github.com/knative/eventing/issues/5148'
+                            type: string
+                      generation:
+                        description: Generation of the origin of the subscriber with uid:UID.
+                        type: integer
+                        format: int64
+                      replyUri:
+                        description: ReplyURI is the endpoint for the reply
+                        type: string
+                      subscriberUri:
+                        description: SubscriberURI is the endpoint for the subscriber
+                        type: string
+                      uid:
+                        description: UID is used to understand the origin of the subscriber.
+                        type: string
+            status:
+              description: Status represents the current state of the NatssChannel. This data may be out of date.
+              type: object
+              properties:
+                address:
+                  type: object
+                  required:
+                    - url
+                  properties:
+                    url:
+                      type: string
+                annotations:
+                  description: Annotations is additional Status fields for the Resource to save some additional State as well as convey more information to the user. This is roughly akin to Annotations on any k8s resource, just the reconciler conveying richer information outwards.
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                conditions:
+                  description: Conditions the latest available observations of a resource's current state.
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - type
+                      - status
+                    properties:
+                      lastTransitionTime:
+                        description: LastTransitionTime is the last time the condition transitioned from one status to another. We use VolatileTime in place of metav1.Time to exclude this from creating equality.Semantic differences (all other things held constant).
+                        type: string
+                      message:
+                        description: A human readable message indicating details about the transition.
+                        type: string
+                      reason:
+                        description: The reason for the condition's last transition.
+                        type: string
+                      severity:
+                        description: Severity with which to treat failures of this type of condition. When this is not specified, it defaults to Error.
+                        type: string
+                      status:
+                        description: Status of the condition, one of True, False, Unknown.
+                        type: string
+                      type:
+                        description: Type of condition.
+                        type: string
+                deadLetterSinkUri:
+                  description: DeadLetterSink is a KReference that is the reference to the native, platform specific channel where failed events are sent to.
+                  type: string
+                observedGeneration:
+                  description: ObservedGeneration is the 'Generation' of the Service that was last processed by the controller.
+                  type: integer
+                  format: int64
+                subscribers:
+                  description: This is the list of subscription's statuses for this channel.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      message:
+                        description: A human readable message indicating details of Ready status.
+                        type: string
+                      observedGeneration:
+                        description: Generation of the origin of the subscriber with uid:UID.
+                        type: integer
+                        format: int64
+                      ready:
+                        description: Status of the subscriber.
+                        type: string
+                      uid:
+                        description: UID is used to understand the origin of the subscriber.
+                        type: string
+      additionalPrinterColumns:
+        - name: Ready
+          type: string
+          jsonPath: ".status.conditions[?(@.type==\"Ready\")].status"
+        - name: Reason
+          type: string
+          jsonPath: ".status.conditions[?(@.type==\"Ready\")].reason"
+        - name: URL
+          type: string
+          jsonPath: .status.address.url
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+
+---
+# Copyright 2021 The Knative Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jetstream-ch-controller
+  namespace: knative-eventing
+  labels:
+    nats.eventing.knative.dev/release: "v1.10.8"
+    messaging.knative.dev/channel: nats-jetstream-channel
+    messaging.knative.dev/role: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      messaging.knative.dev/channel: nats-jetstream-channel
+      messaging.knative.dev/role: controller
+  template:
+    metadata:
+      labels:
+        messaging.knative.dev/channel: nats-jetstream-channel
+        messaging.knative.dev/role: controller
+    spec:
+      serviceAccountName: jetstream-ch-controller
+      containers:
+        - name: controller
+          image: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/jetstream/controller@sha256:2fc48ed151bab12fb6d4cd6321df140397130d21d4e3298967fa977b4247b935
+          env:
+            - name: CONFIG_LOGGING_NAME
+              value: config-logging
+            - name: METRICS_DOMAIN
+              value: knative.dev/eventing
+            - name: DISPATCHER_IMAGE
+              value: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/jetstream/dispatcher@sha256:0ca30ab7d2cf1c1e3f090a8a8f5c6ebc6094ad23c88aab3a37a3c81b8a37fd56
+            - name: DISPATCHER_SERVICE_ACCOUNT
+              value: jetstream-ch-dispatcher
+            - name: SYSTEM_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - containerPort: 9090
+              name: metrics
+          volumeMounts:
+            - name: config-logging
+              mountPath: /etc/config-logging
+      volumes:
+        - name: config-logging
+          configMap:
+            name: config-logging
+
+---
