@@ -3,7 +3,7 @@
 #    tag: "v2.9.12"
 controller:
   extraArgs:
-    - --repo-server-timeout-seconds=600s
+    - --repo-server-timeout-seconds=600
     - --request-timeout=0
 repoServer:
   extraArgs:
