@@ -4,6 +4,8 @@ spec:
       containers:
       - name: my-plugin
         command: [/var/run/argocd/argocd-cmp-server] # Entrypoint should be Argo CD lightweight CMP server i.e. argocd-cmp-server
+        args:
+          - --loglevel=debug
         image: kcllang/kcl # This can be off-the-shelf or custom-built image
         env:
           - name: ARGOCD_EXEC_TIMEOUT

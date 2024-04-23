@@ -8,7 +8,6 @@ cluster:
 	kubectl -n kube-system get configmap coredns -o yaml | sed 's,forward . /etc/resolv.conf,forward \. 8.8.8.8,' | kubectl apply -f - && \
 	kubectl delete pod -n kube-system -l k8s-app=kube-dns
 
-
 argocd:
 	helm repo add argocd https://argoproj.github.io/argo-helm && \
 	helm repo update argocd && \
@@ -27,6 +26,7 @@ kcl_log:
 	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c repo-server
 my_plugin:
 	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin
+
 .PHONY: argocd_password
 argocd_password:
 	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
