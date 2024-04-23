@@ -6,6 +6,8 @@ spec:
         command: [/var/run/argocd/argocd-cmp-server] # Entrypoint should be Argo CD lightweight CMP server i.e. argocd-cmp-server
         image: kcllang/kcl # This can be off-the-shelf or custom-built image
         env:
+          - name: ARGOCD_EXEC_TIMEOUT
+            value: 10m
           - name: KCL_GO_DISABLE_INSTALL_ARTIFACT
             value: "true"
         securityContext:

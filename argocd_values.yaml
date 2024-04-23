@@ -3,8 +3,19 @@ global:
     tag: "v2.9.12"
 controller:
   extraArgs:
-    - --repo-server-timeout-seconds=180
+    - --repo-server-timeout-seconds=600s
+    - --request-timeout=0
 repoServer:
   extraArgs:
     - --repo-cache-expiration=1m
     - --default-cache-expiration=1m
+  env: 
+    - name: ARGOCD_EXEC_TIMEOUT
+      value: 10m
+configs:
+  cm:  
+    timeout.reconciliation: 10m
+    timeout.hard.reconciliation: 0s
+    server.repo.server.timeout.seconds: 600
+    controller.repo.server.timeout.seconds: 600
+
