@@ -1,6 +1,6 @@
-global:
-  image:
-    tag: "v2.9.12"
+#global:
+#  image:
+#    tag: "v2.9.12"
 controller:
   extraArgs:
     - --repo-server-timeout-seconds=600s
