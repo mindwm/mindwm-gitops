@@ -1,4 +1,4 @@
-import .argo_cd_order as ArgoCdOrder
+import argo_cd_order as ArgoCdOrder
 import .argocd.schema as argocdSchema
 import .helm.chart as charts
 import yaml
@@ -15,8 +15,6 @@ import json_merge_patch as p
 ns = "test-namespace"
 
 argoCdOrder = ArgoCdOrder.make({
-    PreSync = [
-    ]
     Sync = [
         k8core.Namespace {
             metadata.name = istio.system.namespace
@@ -104,8 +102,6 @@ argoCdOrder = ArgoCdOrder.make({
         })
         for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
     ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
-
-    PostSync = []
 })
 
 manifests.yaml_stream([

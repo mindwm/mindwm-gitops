@@ -1,4 +1,12 @@
 [dependencies]
+  [dependencies.argo-cd-order]
+    name = "argo-cd-order"
+    full_name = "argo-cd-order_0.1.1"
+    version = "0.1.1"
+    sum = "NbUxc7QR8sAupxM4YZbzI91+9hpZYpyx1TGmWJS4nfc="
+    reg = "ghcr.io"
+    repo = "kcl-lang/argo-cd-order"
+    oci_tag = "0.1.1"
   [dependencies.argoproj]
     name = "argoproj"
     full_name = "argoproj_0.1.0"
