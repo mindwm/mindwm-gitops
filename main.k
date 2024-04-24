@@ -6,6 +6,7 @@ import manifests
 import k8s.api.core.v1 as k8core
 import file
 import .istio as istio
+import .nats as nats
 import knative_operator.v1beta1 as knative
 import knative as knativeConfig
 import json_merge_patch as p
@@ -57,6 +58,19 @@ argoCdOrder = ArgoCdOrder.make({
             name = "gateway"
             chart = charts.istio_gateway
             version = istio.version
+        })
+        argocdSchema.argoHelmRelease({
+            namespace = "nats"
+            name = "nats"
+            chart = charts.nats
+            version = "1.11.1"
+            values = {
+                config = nats.config
+                service = {
+                    merge.spec.type = "NodePort"
+                    port.cluster.enabled = True
+                }
+            }
         })
         argocdSchema.argoHelmRelease({
             namespace = "cert-manager"
