@@ -109,13 +109,13 @@ argoCdOrder = ArgoCdOrder.make({
         }
 
     ] + [
-        p.merge(resource, { 
+        p.merge(resource, {
             metadata.annotations = {
                 "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
             }
         })
         for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
-    ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
+    ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
 })
 
 manifests.yaml_stream([

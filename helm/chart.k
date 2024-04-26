@@ -21,7 +21,12 @@ istio_base : schema.HelmChart = {
     repoURL = "https://istio-release.storage.googleapis.com/charts"
 }
 
+
 istiod = istio_base | { name = "istiod" }
 
 istio_gateway = istio_base | { name = "gateway" }
 
+neo4j : schema.HelmChart = {
+    name = "neo4j"
+    repoURL = "https://helm.neo4j.com/neo4j"
+}
