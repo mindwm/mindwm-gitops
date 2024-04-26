@@ -30,3 +30,8 @@ neo4j : schema.HelmChart = {
     name = "neo4j"
     repoURL = "https://helm.neo4j.com/neo4j"
 }
+
+vector : schema.HelmChart = {
+    name = "vector"
+    repoURL = "https://helm.vector.dev"
+}
