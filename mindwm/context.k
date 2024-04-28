@@ -1,8 +1,15 @@
 import .schema as schema
 import k8s.api.core.v1 as k8core
 import ..nats as nats
+import ..helm.chart as charts
+import ..argocd.schema as argocdSchema
 
-userNamespace = lambda user : schema.MindwmUser -> str {
+neo4j_version = "4.4.32"
+
+ContextNamespace = lambda ctx : schema.MindwmContext -> str {
+    "context-" + ctx.name
+}
+UserNamespace = lambda user : schema.MindwmUser -> str {
     "user-" + user.username 
 }
 
@@ -34,7 +41,7 @@ MindWM : [schema.MindwmContext] = [
 makeHost = lambda user : schema.MindwmUser, host : schema.MindwmUserHost {
     [
         nats.NatsJetStreamChannel {
-            metadata.namespace = userNamespace(user)
+            metadata.namespace = UserNamespace(user)
         } 
     ]
 }
@@ -53,6 +60,13 @@ makeContext = lambda context : schema.MindwmContext -> [] {
         k8core.Namespace {
             metadata.name = context.name
         }
+        argocdSchema.argoHelmRelease({
+            namespace = ContextNamespace(context)
+            name = "neo4j"
+            chart = charts.neo4j
+            version = neo4j_version
+        }) 
+        
     ] + \
     sum([makeUser(user) for user in context.users], [])
 }
