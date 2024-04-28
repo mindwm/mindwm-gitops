@@ -10,10 +10,9 @@ import .nats as nats
 import knative_operator.v1beta1 as knative
 import knative as knativeConfig
 import json_merge_patch as p
+import .mindwm.context as mindwm_context
 #import argoproj.v1alpha1 as argoproj
 
-
-ns = "test-namespace"
 
 argoCdOrder = ArgoCdOrder.make({
     Sync = [
@@ -115,7 +114,12 @@ argoCdOrder = ArgoCdOrder.make({
             }
         })
         for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
-    ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
+    ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) \
+    +  mindwm_context.make(mindwm_context.MindWM) 
+
+    
+
+
 })
 
 manifests.yaml_stream([

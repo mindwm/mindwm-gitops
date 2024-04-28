@@ -14,3 +14,13 @@ config = {
     }
 }
 
+
+NatsJetStreamChannel =  {
+    apiVersion = "messaging.knative.dev/v1alpha1"
+    kind = "NatsJetStreamChannel"
+    metadata = {
+        name = "mindwm"
+        namespace = "knative-eventing"
+    }
+ 
+}
