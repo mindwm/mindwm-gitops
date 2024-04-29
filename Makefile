@@ -35,7 +35,7 @@ argocd_login: kubectl_proxy argocd_password
 	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
 .PHONY: argocd_app
-argocd_app: argocd_login
+argocd_app: argocd argocd_login
 	argocd app create mindwm \
 		--repo https://github.com/mindwm/mindwm-gitops \
 		--path . \

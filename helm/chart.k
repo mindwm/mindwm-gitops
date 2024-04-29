@@ -35,3 +35,8 @@ vector : schema.HelmChart = {
     name = "vector"
     repoURL = "https://helm.vector.dev"
 }
+
+flux : schema.HelmChart = {
+    name = "flux2" 
+    repoURL = "oci://ghcr.io/fluxcd-community/charts/flux2"
+}

@@ -3,6 +3,7 @@ import k8s.api.core.v1 as k8core
 import ..nats as nats
 import ..helm.chart as charts
 import ..argocd.schema as argocdSchema
+import ..redpanda.schema as redpandaSchema
 
 neo4j_version = "4.4.32"
 
@@ -66,6 +67,9 @@ makeContext = lambda context : schema.MindwmContext -> [] {
             chart = charts.neo4j
             version = neo4j_version
         }) 
+        #redpandaSchema.RedPandaTopic {
+        #} 
+        
         
     ] + \
     sum([makeUser(user) for user in context.users], [])
