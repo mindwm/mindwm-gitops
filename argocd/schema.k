@@ -1,6 +1,7 @@
 import argoproj.v1alpha1 as argoproj
 import ..helm.schema as helmSchema
 import yaml
+import file
 
 schema argoHelmRelease[release: helmSchema.HelmRelease](argoproj.Application):
     metadata = {
@@ -35,3 +36,5 @@ schema argoHelmRelease[release: helmSchema.HelmRelease](argoproj.Application):
 
     }
 
+#ArgoCdConfigMap = yaml.decode(file.read("argocd/argoRepoConfigMap.yml"))
+ArgoCdConfigMap = yaml.decode(file.read("argocd/argoRepoConfigMap.yml"))
