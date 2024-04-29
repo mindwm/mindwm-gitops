@@ -35,11 +35,3 @@ schema argoHelmRelease[release: helmSchema.HelmRelease](argoproj.Application):
 
     }
 
-schema ArgoCdSchema:
-	"""
-	Argo CD executes a sync operation in a number of steps. At a high-level, there are three phases pre-sync, sync and post-sync.
-	"""
-	preSync: [ArgoCdSchema]
-	sync: [ArgoCdSchema]
-	postSync: [ArgoCdSchema]
-
