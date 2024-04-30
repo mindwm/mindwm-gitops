@@ -12,13 +12,14 @@ import knative as knativeConfig
 import json_merge_patch as p
 import .mindwm.context as mindwm_context
 import .flux as flux
+import .redpanda.config as redpanda_config
 #import argoproj.v1alpha1 as argoproj
 
 
 argoCdOrder = ArgoCdOrder.make({
     Sync =  [
         k8core.Namespace {
-            metadata.name = "redpanda"
+            metadata.name = redpanda_config.redpanda.namespace
         } 
         k8core.Namespace {
             metadata.name = istio.system.namespace
@@ -97,7 +98,7 @@ argoCdOrder = ArgoCdOrder.make({
         + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
         + [
         argocdSchema.argoHelmRelease({
-            namespace = "redpanda"
+            namespace = redpanda_config.redpanda.namespace
             name = "redpanda-operator"
             chart = charts.redpanda_operator
             version = "0.4.21"
