@@ -27,19 +27,13 @@ kcl_log:
 my_plugin:
 	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin
 
-.PHONY: argocd_password
-argocd_password:
-	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
-.PHONY: argocd_login
-argocd_login: kubectl_proxy argocd_password
-	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
+#.PHONY: argocd_password
+#argocd_password:
+#	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
+#.PHONY: argocd_login
+#argocd_login: kubectl_proxy argocd_password
+#	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
 .PHONY: argocd_app
-argocd_app: argocd argocd_login
-	argocd app create mindwm \
-		--repo https://github.com/mindwm/mindwm-gitops \
-		--path . \
-		--dest-namespace default \
-		--dest-server https://kubernetes.default.svc \
-		--revision master \
-		--config-management-plugin kcl-v1.0
+argocd_app: argocd
+	kubectl apply -f argocd_mindwm_app.yaml
