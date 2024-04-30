@@ -17,6 +17,9 @@ import .flux as flux
 
 argoCdOrder = ArgoCdOrder.make({
     Sync =  [
+        k8core.Namespace {
+            metadata.name = "redpanda"
+        } 
         argocdSchema.argoHelmRelease({
             namespace = "cert-manager"
             name = "cert-manager"
