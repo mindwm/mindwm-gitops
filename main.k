@@ -51,7 +51,7 @@ argoCdOrder = ArgoCdOrder.make({
 })
 
 manifests.yaml_stream([
-    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+    #yaml.decode_all(file.read("manifests/knative-operator.yaml"))
     argoCdOrder
 ])
 
