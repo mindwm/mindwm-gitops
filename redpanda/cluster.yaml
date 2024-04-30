@@ -24,4 +24,3 @@ spec:
       initContainers:
         setDataDirOwnership:
           enabled: true
-

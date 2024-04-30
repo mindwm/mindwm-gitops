@@ -35,9 +35,9 @@ argoCdOrder = ArgoCdOrder.make({
             chart = charts.flux
             version = flux.chart_version
         })
-        yaml.decode_all(file.read("redpanda/crds.yaml")) 
-        yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml"))
-
+        ] + yaml.decode_all(file.read("redpanda/crds.yaml")) \
+        + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
+        + [
         argocdSchema.argoHelmRelease({
             namespace = "redpanda"
             name = "redpanda-operator"

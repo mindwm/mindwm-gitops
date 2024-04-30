@@ -1,3 +1,4 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -22,4 +23,4 @@ roleRef:
   kind: ClusterRole
   name: list-crd
   apiGroup: rbac.authorization.k8s.io
-
+---
