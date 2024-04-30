@@ -13,4 +13,4 @@ spec:
     plugin:
       name: kcl-v1.0
     repoURL: https://github.com/mindwm/mindwm-gitops
-    targetRevision: return_back_redpanda_operator
+    targetRevision: master
