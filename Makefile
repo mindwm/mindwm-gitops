@@ -28,8 +28,10 @@ my_plugin:
 	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin
 
 #.PHONY: argocd_password
-#argocd_password:
-#	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
+argocd_password:
+	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
+	echo $(ARGOCD_PASSWORD)
+
 #.PHONY: argocd_login
 #argocd_login: kubectl_proxy argocd_password
 #	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
