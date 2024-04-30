@@ -140,8 +140,10 @@ argoCdOrder = ArgoCdOrder.make({
         })
         for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
     ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) \
+    + yaml.decode_all(file.read("redpanda/crds.yaml")) \
     +  mindwm_context.make(mindwm_context.MindWM) 
 
+    # kubectl kustomize "https://github.com/redpanda-data/redpanda-operator//src/go/k8s/config/crd?ref=v2.1.15-23.3.7"
     
 
 
