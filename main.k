@@ -13,6 +13,7 @@ import json_merge_patch as p
 import .mindwm.context as mindwm_context
 import .flux as flux
 import .redpanda.config as redpanda_config
+import .redpanda.schema as RedPandaSchema
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -103,7 +104,8 @@ argoCdOrder = ArgoCdOrder.make({
             chart = charts.redpanda_operator
             version = "0.4.21"
         })
-        yaml.decode_all(file.read("redpanda/cluster.yaml"))
+
+        RedPandaSchema.makeKafkaCluster("neo4j-cdc")
 
         knative.KnativeServing {
             metadata.name = "knative-serving"

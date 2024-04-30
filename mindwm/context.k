@@ -4,15 +4,16 @@ import ..nats as nats
 import ..helm.chart as charts
 import ..argocd.schema as argocdSchema
 import ..redpanda.schema as redpandaSchema
+import ..config as mindwm
 
 neo4j_version = "4.4.32"
 
-ContextNamespace = lambda ctx : schema.MindwmContext -> str {
-    "context-" + ctx.name
-}
-UserNamespace = lambda user : schema.MindwmUser -> str {
-    "user-" + user.username 
-}
+#ContextNamespace = lambda ctx : schema.MindwmContext -> str {
+#    "context-" + ctx.name
+#}
+#UserNamespace = lambda user : schema.MindwmUser -> str {
+#    "user-" + user.username 
+#}
 
 omg_user : schema.MindwmUser = {
     username = "omg"    
@@ -42,7 +43,7 @@ MindWM : [schema.MindwmContext] = [
 makeHost = lambda user : schema.MindwmUser, host : schema.MindwmUserHost {
     [
         nats.NatsJetStreamChannel {
-            metadata.namespace = UserNamespace(user)
+            metadata.namespace = mindwm.makeUserNamespace(user.username)
         } 
     ]
 }
@@ -62,7 +63,7 @@ makeContext = lambda context : schema.MindwmContext -> [] {
             metadata.name = context.name
         }
         argocdSchema.argoHelmRelease({
-            namespace = ContextNamespace(context)
+            namespace = mindwm.makeContextNamespace(context.name)
             name = "neo4j"
             chart = charts.neo4j
             version = neo4j_version
