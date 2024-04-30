@@ -81,6 +81,16 @@ argoCdOrder = ArgoCdOrder.make({
                 installCRDs = True
             }
         })
+
+        # required by redpanda-operator
+        # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
+        argocdSchema.argoHelmRelease({
+            namespace = flux.namespace
+            name = "flux"
+            chart = charts.flux
+            version = flux.chart_version
+        })
+
         argocdSchema.argoHelmRelease({
             namespace = "redpanda"
             name = "redpanda-operator"
@@ -121,15 +131,6 @@ argoCdOrder = ArgoCdOrder.make({
 #                }
 #            }
 #        })
-
-        # required by redpanda-operator
-        # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
-        argocdSchema.argoHelmRelease({
-            namespace = flux.namespace
-            name = "flux"
-            chart = charts.flux
-            version = flux.chart_version
-        })
 
     ] + [
         p.merge(resource, {
