@@ -5,6 +5,7 @@ import ..helm.chart as charts
 import ..argocd.schema as argocdSchema
 import ..redpanda.schema as redpandaSchema
 import ..config as mindwm
+import ..neo4j.schema as Neo4jSchema
 
 neo4j_version = "4.4.32"
 
@@ -55,14 +56,17 @@ makeContext = lambda context : schema.MindwmContext -> [] {
         k8core.Namespace {
             metadata.name = context.name
         }
+
+        redpandaSchema.makeKafkaTopic(context.name) 
+
         argocdSchema.argoHelmRelease({
             namespace = mindwm.makeContextNamespace(context.name)
             name = "neo4j"
             chart = charts.neo4j
             version = neo4j_version
+            values = Neo4jSchema.makeNeo4jReleaseValues(context.name)
         }) 
 
-        redpandaSchema.makeKafkaTopic(context.name) 
         
         
     ] + \

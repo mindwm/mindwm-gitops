@@ -1,0 +1,58 @@
+additionalVolumeMounts:
+- mountPath: /var/lib/neo4j/plugins
+  name: neo4j-plugins
+additionalVolumes:
+- name: neo4j-plugins
+  persistentVolumeClaim:
+    claimName: neo4j-plugins
+config:
+  dbms.security.procedures.whitelist: streams.*,apoc.*
+env:
+  NEO4J_apoc_export_file_enabled: 'true'
+  NEO4J_apoc_import_file_enabled: 'true'
+  NEO4J_apoc_import_file_use__neo4j__config: 'true'
+  NEO4J_dbms_logs_debug_level: DEBUG
+  NEO4J_kafka_bootstrap_servers: neo4j-cdc-stream.redpanda.svc.cluster.local:9093
+    #  NEO4J_streams_source_topic_nodes_context-teama-events: '*'
+    #  NEO4J_streams_source_topic_relationships_context-teama-events: '*'
+image:
+  customImage: neo4j:4.4.28
+neo4j:
+  password: password
+podSpec:
+  initContainers:
+  - command:
+    - curl
+    - -Lo
+    - apoc.jar
+    - --no-clobber
+    - https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/4.4.0.23/apoc-4.4.0.23-all.jar
+    image: curlimages/curl:8.6.0
+    name: install-apoc-stream-plugin
+    user: root
+    volumeMounts:
+    - mountPath: /var/lib/neo4j/plugins
+      name: neo4j-plugins
+    workingDir: /var/lib/neo4j/plugins
+  - command:
+    - curl
+    - -Lo
+    - streams.jar
+    - --no-clobber
+    - https://github.com/neo4j-contrib/neo4j-streams/releases/download/4.1.3/neo4j-streams-4.1.3.jar
+    image: curlimages/curl:8.6.0
+    name: install-kafka-stream-plugin
+    user: root
+    volumeMounts:
+    - mountPath: /var/lib/neo4j/plugins
+      name: neo4j-plugins
+    workingDir: /var/lib/neo4j/plugins
+services:
+  neo4j:
+    spec:
+      type: NodePort
+volumes:
+  data:
+    dynamic:
+      storageClassName: local-path
+    mode: dynamic
