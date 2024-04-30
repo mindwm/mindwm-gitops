@@ -1,0 +1,14 @@
+---
+apiVersion: cluster.redpanda.com/v1alpha1
+kind: Topic
+metadata:
+  name: xxx2-context-teama-neo4j-cdc
+  namespace: redpanda
+spec:
+  partitions: 1
+  replicationFactor: 1
+  additionalConfig:
+    cleanup.policy: "compact"
+  kafkaApiSpec:
+    brokers:
+      - "neo4j-cdc-stream.redpanda.svc.cluster.local:9093"

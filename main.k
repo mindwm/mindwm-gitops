@@ -11,11 +11,15 @@ import knative_operator.v1beta1 as knative
 import knative as knativeConfig
 import json_merge_patch as p
 import .mindwm.context as mindwm_context
+import .flux as flux
 #import argoproj.v1alpha1 as argoproj
 
 
 argoCdOrder = ArgoCdOrder.make({
-    Sync = [
+    Sync =  [
+        k8core.Namespace {
+            metadata.name = "redpanda"
+        } 
         k8core.Namespace {
             metadata.name = istio.system.namespace
         }
@@ -81,14 +85,25 @@ argoCdOrder = ArgoCdOrder.make({
             }
         })
 
+        # required by redpanda-operator
+        # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
+        argocdSchema.argoHelmRelease({
+            namespace = flux.namespace
+            name = "flux"
+            chart = charts.flux
+            version = flux.chart_version
+        })
+        ] + yaml.decode_all(file.read("redpanda/crds.yaml")) \
+        + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
+        + [
         argocdSchema.argoHelmRelease({
             namespace = "redpanda"
-            name = "redpanda"
-            chart = charts.redpanda
-            version = "5.7.39"
-            values = yaml.decode_all(file.read("redpanda/chart_values.yaml"))
-
+            name = "redpanda-operator"
+            chart = charts.redpanda_operator
+            version = "0.4.21"
         })
+        yaml.decode_all(file.read("redpanda/cluster.yaml"))
+        yaml.decode_all(file.read("redpanda/topic.yaml"))
 
         knative.KnativeServing {
             metadata.name = "knative-serving"
@@ -118,9 +133,6 @@ argoCdOrder = ArgoCdOrder.make({
         for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
     ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) \
     +  mindwm_context.make(mindwm_context.MindWM) 
-
-    # kubectl kustomize "https://github.com/redpanda-data/redpanda-operator//src/go/k8s/config/crd?ref=v2.1.15-23.3.7"
-    
 
 
 })

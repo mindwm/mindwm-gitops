@@ -1,0 +1,26 @@
+---
+apiVersion: cluster.redpanda.com/v1alpha1
+kind: Redpanda
+metadata:
+  name: neo4j-cdc-stream
+  namespace: redpanda
+spec:
+  chartRef:
+    timeout: 1m0s
+  clusterSpec:
+    external:
+      domain: redpanda.local
+      enabled: true
+      type: NodePort
+    tls:
+      enabled: false
+      certs:
+        defaults:
+          caEnabled: false
+        external:
+          caEnabled: false
+    statefulset:
+      replicas: 1
+      initContainers:
+        setDataDirOwnership:
+          enabled: true

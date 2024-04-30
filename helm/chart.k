@@ -1,8 +1,8 @@
 import .schema as schema
 
 
-redpanda : schema.HelmChart = {
-    name = "redpanda"
+redpanda_operator : schema.HelmChart = {
+    name = "operator"
     repoURL = "https://charts.redpanda.com"
 }
 
