@@ -17,6 +17,7 @@ import .flux as flux
 
 argoCdOrder = ArgoCdOrder.make({
     Sync =  yaml.decode_all(file.read("redpanda/crds.yaml")) + \
+        yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) + \
         [
         argocdSchema.argoHelmRelease({
             namespace = "cert-manager"
@@ -43,8 +44,10 @@ argoCdOrder = ArgoCdOrder.make({
             chart = charts.redpanda_operator
             version = "0.4.21"
         })
+        yaml.decode_all(file.read("redpanda/cluster.yaml"))
+        yaml.decode_all(file.read("redpanda/topic.yaml"))
+    ] 
 
-    ]
 
 
 

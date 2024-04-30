@@ -1,0 +1,25 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: list-crd
+rules:
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: redpanda-controller-operator-list-crd
+subjects:
+- kind: ServiceAccount
+  name: redpanda-controller-operator
+  namespace: redpanda
+roleRef:
+  kind: ClusterRole
+  name: list-crd
+  apiGroup: rbac.authorization.k8s.io
+
