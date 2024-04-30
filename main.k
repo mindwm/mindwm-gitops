@@ -14,6 +14,7 @@ import .mindwm.context as mindwm_context
 import .flux as flux
 import .redpanda.config as redpanda_config
 import .redpanda.schema as RedPandaSchema
+import neo4j.schema as Neo4jSchema
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -142,6 +143,7 @@ argoCdOrder = ArgoCdOrder.make({
 manifests.yaml_stream([
     yaml.decode_all(file.read("manifests/knative-operator.yaml"))
     argoCdOrder
+
 ])
 
 

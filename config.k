@@ -20,4 +20,5 @@ makeKafkaTopicName = lambda context_name : str {
 config = {
     kafka_clustser_name = "neo4j-cdc"
     kafka_port = 9003
+    neo4j_version = "4.4.28"
 }
