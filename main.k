@@ -109,18 +109,18 @@ argoCdOrder = ArgoCdOrder.make({
         }
         # oci repo
         # https://github.com/argoproj/argo-cd/discussions/11053
-        p.merge(argocdSchema.ArgoCdConfigMap, {
-            data = {
-                repositories = {
-                    flux = {
-                        url = charts.flux.repoURL
-                        type = "helm"
-                        name = "flux"
-                        enable = "true"
-                    }
-                }
-            }
-        })
+#        p.merge(argocdSchema.ArgoCdConfigMap, {
+#            data = {
+#                repositories = {
+#                    flux = {
+#                        url = charts.flux.repoURL
+#                        type = "helm"
+#                        name = "flux"
+#                        enable = "true"
+#                    }
+#                }
+#            }
+#        })
 
         # required by redpanda-operator
         # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
