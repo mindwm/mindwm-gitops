@@ -103,7 +103,6 @@ argoCdOrder = ArgoCdOrder.make({
             version = "0.4.21"
         })
         yaml.decode_all(file.read("redpanda/cluster.yaml"))
-        yaml.decode_all(file.read("redpanda/topic.yaml"))
 
         knative.KnativeServing {
             metadata.name = "knative-serving"
