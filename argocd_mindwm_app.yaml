@@ -1,4 +1,4 @@
-piVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: mindwm
@@ -13,4 +13,4 @@ spec:
     plugin:
       name: kcl-v1.0
     repoURL: https://github.com/mindwm/mindwm-gitops
-    targetRevision: master
+    targetRevision: return_back_redpanda_operator
