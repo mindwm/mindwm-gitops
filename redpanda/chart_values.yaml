@@ -1,0 +1,10 @@
+statefulset:
+  extraVolumes: |-
+    - name: redpanda-io-config
+      configMap:
+        name: redpanda-io-config
+  extraVolumeMounts: |-
+    - name: redpanda-io-config
+      mountPath: /etc/redpanda-io-config
+  additionalRedpandaCmdFlags:
+    - "--io-properties-file=/etc/redpanda-io-config/io-config.yaml"
