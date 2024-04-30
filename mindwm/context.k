@@ -8,13 +8,6 @@ import ..config as mindwm
 
 neo4j_version = "4.4.32"
 
-#ContextNamespace = lambda ctx : schema.MindwmContext -> str {
-#    "context-" + ctx.name
-#}
-#UserNamespace = lambda user : schema.MindwmUser -> str {
-#    "user-" + user.username 
-#}
-
 omg_user : schema.MindwmUser = {
     username = "omg"    
     hosts = [
@@ -68,8 +61,8 @@ makeContext = lambda context : schema.MindwmContext -> [] {
             chart = charts.neo4j
             version = neo4j_version
         }) 
-        #redpandaSchema.RedPandaTopic {
-        #} 
+
+        redpandaSchema.makeKafkaTopic(context.name) 
         
         
     ] + \
