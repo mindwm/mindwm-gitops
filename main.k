@@ -22,7 +22,7 @@ argoCdOrder = ArgoCdOrder.make({
     Sync =  [
         k8core.Namespace {
             metadata.name = redpanda_config.redpanda.namespace
-        } 
+        }
         k8core.Namespace {
             metadata.name = istio.system.namespace
         }
@@ -135,15 +135,15 @@ argoCdOrder = ArgoCdOrder.make({
         })
         for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
     ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) \
-    +  mindwm_context.make(mindwm_context.MindWM) 
+    +  mindwm_context.make(mindwm_context.MindWM)
 
 
 })
 
 manifests.yaml_stream([
-#    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
-#    argoCdOrder
-    Neo4jSchema.makeNeo4jReleaseValues("team-a") 
+    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+    argoCdOrder
+#    Neo4jSchema.makeNeo4jReleaseValues("team-a")
 
 ])
 

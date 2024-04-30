@@ -6,6 +6,7 @@ import ..argocd.schema as argocdSchema
 import ..redpanda.schema as redpandaSchema
 import ..config as mindwm
 import ..neo4j.schema as Neo4jSchema
+import knative_operator.v1beta1 as knative
 
 neo4j_version = "4.4.32"
 
@@ -66,7 +67,9 @@ makeContext = lambda context : schema.MindwmContext -> [] {
             version = neo4j_version
             values = Neo4jSchema.makeNeo4jReleaseValues(context.name)
         }) 
-
+        
+        knative.Broker {
+        }
         
         
     ] + \
