@@ -21,10 +21,10 @@ configs:
     controller.repo.server.timeout.seconds: 600
 # oci repo
 # https://github.com/argoproj/argo-cd/discussions/11053
-    repositories:
-      flux: 
-        url: "ghcr.io/fluxcd-community/charts/flux2"
-        type: "helm"
-        name: "flux"
-        enableOCI: "true"
+#    repositories:
+#      flux: 
+#        url: "ghcr.io/fluxcd-community/charts/flux2"
+#        type: "helm"
+#        name: "flux"
+#        enableOCI: "true"
 
