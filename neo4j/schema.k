@@ -12,7 +12,8 @@ makeNeo4jReleaseValues = lambda context_name : str {
             "NEO4J_streams_source_topic_nodes_${kafkaTopic}" = '*'
             "NEO4J_streams_source_topic_relationships_${kafkaTopic}" = '*'
         } 
-        image.customImage: "${neo4j_image_name}:$mmindwm.config.neo4j_version{}"
+        image.customImage: "${neo4j_image_name}:${mindwm.config.neo4j_version}"
+        neo4j.password = "${mindwm.config.neo4j_password}"
     })
     
 } 

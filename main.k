@@ -141,8 +141,9 @@ argoCdOrder = ArgoCdOrder.make({
 })
 
 manifests.yaml_stream([
-    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
-    argoCdOrder
+#    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+#    argoCdOrder
+    Neo4jSchema.makeNeo4jReleaseValues("team-a") 
 
 ])
 
