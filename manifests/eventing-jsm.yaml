@@ -1434,5 +1434,3 @@ spec:
         - name: config-logging
           configMap:
             name: config-logging
-
----
