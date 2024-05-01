@@ -16,6 +16,9 @@ argocd:
 	kubectl -n argocd patch deploy/argocd-repo-server -p "`cat ./patch-argocd-repo-server.yaml`" && \
 	kubectl wait --for=condition=ready pod -n argocd -l app.kubernetes.io/name=argocd-repo-server --timeout=600s
 
+kcl_tini:
+	docker build -t metacoma/kcl-tini:latest -f kcl_tini.Dockerfile .
+
 .PHONY: kubectl_proxy
 kubectl_proxy:
 	pkill -9 -f "^kubectl port-forward service/argocd-server -n argocd 8080:443";\
