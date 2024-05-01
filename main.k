@@ -39,7 +39,33 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.name = knativeConfig.eventing.namespace
             }
 
-            
+            argocdSchema.argoHelmRelease({
+                namespace = "cert-manager"
+                name = "cert-manager"
+                chart = charts.cert_manager
+                version = "1.14.4"
+                values = {
+                    installCRDs = True
+                }
+            })
+
+            argocdSchema.argoHelmRelease({
+                namespace = "nats"
+                name = "nats"
+                chart = charts.nats
+                version = "1.11.1"
+                values = {
+                    config = nats.config
+                    service = {
+                        merge.spec.type = "NodePort"
+                        port.cluster.enabled = True
+                    }
+                }
+            })
+
+        ]
+        [
+       
 
             argocdSchema.argoHelmRelease({
                 namespace = istio.system.namespace,
@@ -68,28 +94,6 @@ mindwm_app = ArgoCdOrder.make({
                 chart = charts.istio_gateway
                 version = istio.version
             })
-            argocdSchema.argoHelmRelease({
-                namespace = "nats"
-                name = "nats"
-                chart = charts.nats
-                version = "1.11.1"
-                values = {
-                    config = nats.config
-                    service = {
-                        merge.spec.type = "NodePort"
-                        port.cluster.enabled = True
-                    }
-                }
-            })
-            argocdSchema.argoHelmRelease({
-                namespace = "cert-manager"
-                name = "cert-manager"
-                chart = charts.cert_manager
-                version = "1.14.4"
-                values = {
-                    installCRDs = True
-                }
-            })
   
             # required by redpanda-operator
             # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
@@ -112,8 +116,6 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             RedPandaSchema.makeKafkaCluster("neo4j-cdc")
-        ]
-        [
             knative.KnativeServing {
                 metadata.name = "knative-serving"
                 metadata.namespace = knativeConfig.serving.namespace
@@ -139,7 +141,8 @@ mindwm_app = ArgoCdOrder.make({
                 }
             })
             for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
-        ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
+        ]
+        yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
     ]
     
 }) 
