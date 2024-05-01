@@ -11,35 +11,35 @@ import knative_operator.v1beta1 as knative
 neo4j_version = "4.4.32"
 
 omg_user : schema.MindwmUser = {
-    username = "omg"    
+    username = "omg"
     hosts = [
         {
             hostname = "snpnd"
         }
     ]
-} 
+}
 
 bebebeko_user : schema.MindwmUser = {
-    username = "bebebeko" 
+    username = "bebebeko"
     hosts = [
         {
             hostname = "amanda"
         }
     ]
-} 
+}
 
 MindWM : [schema.MindwmContext] = [
     {
-        name = "team-a" 
+        name = "team-a"
         users = [ bebebeko_user, omg_user ]
     }
-] 
+]
 
 makeHost = lambda user : schema.MindwmUser, host : schema.MindwmUserHost {
     [
         nats.NatsJetStreamChannel {
             metadata.namespace = mindwm.makeUserNamespace(user.username)
-        } 
+        }
     ]
 }
 
@@ -47,10 +47,10 @@ makeUser = lambda user : schema.MindwmUser {
     [
         k8core.Namespace {
             metadata.name = "user-" + user.username
-        } 
+        }
     ] + \
     sum([makeHost(user, host) for host in user.hosts], [])
-} 
+}
 
 makeContext = lambda context : schema.MindwmContext -> [] {
     [
@@ -58,7 +58,7 @@ makeContext = lambda context : schema.MindwmContext -> [] {
             metadata.name = context.name
         }
 
-        redpandaSchema.makeKafkaTopic(context.name) 
+        redpandaSchema.makeKafkaTopic(context.name)
 
         argocdSchema.argoHelmRelease({
             namespace = mindwm.makeContextNamespace(context.name)
@@ -66,12 +66,8 @@ makeContext = lambda context : schema.MindwmContext -> [] {
             chart = charts.neo4j
             version = neo4j_version
             values = Neo4jSchema.makeNeo4jReleaseValues(context.name)
-        }) 
-        
-        knative.Broker {
-        }
-        
-        
+        })
+
     ] + \
     sum([makeUser(user) for user in context.users], [])
 }
