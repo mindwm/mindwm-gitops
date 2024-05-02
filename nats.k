@@ -3,9 +3,13 @@ config = {
     jetstream.enable = True
     merge = {
         accounts = {
-            "$SYS.users" = {
-                user = "sys"
-                password = "pass"
+            "$SYS" = {
+                users = [
+                    {
+                        user = "sys"
+                        password = "pass"
+                    }
+                ]
             }
             root = {
                 jetstream = "enable"
