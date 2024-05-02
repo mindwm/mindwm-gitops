@@ -1,4 +1,4 @@
-import argo_cd_order as ArgoCdOrder
+import .argo_cd_order as ArgoCdOrder
 import .argocd.schema as argocdSchema
 import .helm.chart as charts
 import yaml
@@ -17,132 +17,189 @@ import .redpanda.schema as RedPandaSchema
 import neo4j.schema as Neo4jSchema
 #import argoproj.v1alpha1 as argoproj
 
-
-argoCdOrder = ArgoCdOrder.make({
-    Sync =  [
-        k8core.Namespace {
-            metadata.name = redpanda_config.redpanda.namespace
-        }
-        k8core.Namespace {
-            metadata.name = istio.system.namespace
-        }
-        k8core.Namespace {
-            metadata.name = istio.gateway.namespace
-        }
-        k8core.Namespace {
-            metadata.name = knativeConfig.serving.namespace
-            metadata.labels = {
-                "istio-injection" = "enalbed"
+mindwm_app = ArgoCdOrder.make({
+    Sync = [
+        [
+            k8core.Namespace {
+                metadata.name = redpanda_config.redpanda.namespace
             }
-        }
-        k8core.Namespace {
-            metadata.name = knativeConfig.eventing.namespace
-        }
-        argocdSchema.argoHelmRelease({
-            namespace = istio.system.namespace,
-            name = "istio-base"
-            chart = charts.istio_base
-            version = istio.version
-        }) | {
-        spec.ignoreDifferences = [
-            {
-                group = "admissionregistration.k8s.io"
-                kind = "ValidatingWebhookConfiguration"
-                name = "istiod-default-validator"
-                jsonPointers = ["/webhooks/0/failurePolicy"]
+            k8core.Namespace {
+                metadata.name = istio.system.namespace
             }
-        ]
-        }
-        argocdSchema.argoHelmRelease({
-            namespace = istio.system.namespace,
-            name = "istiod"
-            chart = charts.istiod
-            version = istio.version
-        })
-        argocdSchema.argoHelmRelease({
-            namespace = istio.gateway.namespace
-            name = "gateway"
-            chart = charts.istio_gateway
-            version = istio.version
-        })
-        argocdSchema.argoHelmRelease({
-            namespace = "nats"
-            name = "nats"
-            chart = charts.nats
-            version = "1.11.1"
-            values = {
-                config = nats.config
-                service = {
-                    merge.spec.type = "NodePort"
-                    port.cluster.enabled = True
+            k8core.Namespace {
+                metadata.name = istio.gateway.namespace
+            }
+            k8core.Namespace {
+                metadata.name = knativeConfig.serving.namespace
+                metadata.labels = {
+                    "istio-injection" = "enalbed"
                 }
             }
-        })
-        argocdSchema.argoHelmRelease({
-            namespace = "cert-manager"
-            name = "cert-manager"
-            chart = charts.cert_manager
-            version = "1.14.4"
-            values = {
-                installCRDs = True
+            k8core.Namespace {
+                metadata.name = knativeConfig.eventing.namespace
             }
-        })
 
-        # required by redpanda-operator
-        # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
-        argocdSchema.argoHelmRelease({
-            namespace = flux.namespace
-            name = "flux"
-            chart = charts.flux
-            version = flux.chart_version
-        })
+            argocdSchema.argoHelmRelease({
+                namespace = "cert-manager"
+                name = "cert-manager"
+                chart = charts.cert_manager
+                version = "1.14.4"
+                values = {
+                    installCRDs = True
+                }
+            }) | {
+            spec.ignoreDifferences = [
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "certificaterequests.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "certificates.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "challenges.acme.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "clusterissuers.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "issuers.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "orders.acme.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+
+                ]
+            }
+
+            argocdSchema.argoHelmRelease({
+                namespace = "nats"
+                name = "nats"
+                chart = charts.nats
+                version = "1.11.1"
+                values = {
+                    config = nats.config
+                    service = {
+                        merge.spec.type = "NodePort"
+                        port.cluster.enabled = True
+                    }
+                }
+            })
+
+            argocdSchema.argoHelmRelease({
+                namespace = "crossplane-system"
+                name = "crossplane"
+                chart = charts.crossplane
+                version = "1.15.2"
+            })
+
+        ]
+        [
+       
+
+            argocdSchema.argoHelmRelease({
+                namespace = istio.system.namespace,
+                name = "istio-base"
+                chart = charts.istio_base
+                version = istio.version
+            }) | {
+            spec.ignoreDifferences = [
+                {
+                    group = "admissionregistration.k8s.io"
+                    kind = "ValidatingWebhookConfiguration"
+                    name = "istiod-default-validator"
+                    jsonPointers = ["/webhooks/0/failurePolicy"]
+                }
+            ]
+            }
+            argocdSchema.argoHelmRelease({
+                namespace = istio.system.namespace,
+                name = "istiod"
+                chart = charts.istiod
+                version = istio.version
+            })
+            argocdSchema.argoHelmRelease({
+                namespace = istio.gateway.namespace
+                name = "gateway"
+                chart = charts.istio_gateway
+                version = istio.version
+            })
+  
+            # required by redpanda-operator
+            # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
+            argocdSchema.argoHelmRelease({
+                namespace = flux.namespace
+                name = "flux"
+                chart = charts.flux
+                version = flux.chart_version
+            })
+
         ] + yaml.decode_all(file.read("redpanda/crds.yaml")) \
         + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
-        + [
-        argocdSchema.argoHelmRelease({
-            namespace = redpanda_config.redpanda.namespace
-            name = "redpanda-operator"
-            chart = charts.redpanda_operator
-            version = "0.4.21"
-        })
+        + yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+        [
+            argocdSchema.argoHelmRelease({
+                namespace = redpanda_config.redpanda.namespace
+                name = "redpanda-operator"
+                chart = charts.redpanda_operator
+                version = "0.4.21"
+            })
 
-        RedPandaSchema.makeKafkaCluster("neo4j-cdc")
+            RedPandaSchema.makeKafkaCluster("neo4j-cdc")
+            knative.KnativeServing {
+                metadata.name = "knative-serving"
+                metadata.namespace = knativeConfig.serving.namespace
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+                spec.config.istio = {
+                    "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
+                }
+            }    
 
-        knative.KnativeServing {
-            metadata.name = "knative-serving"
-            metadata.namespace = knativeConfig.serving.namespace
-            metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+            knative.KnativeEventing {
+                metadata.name = "knative-eventing"
+                metadata.namespace = knativeConfig.eventing.namespace
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
             }
-            spec.config.istio = {
-                "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
-            }
-        }
+        ] 
+        [
+            p.merge(resource, {
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+            })
+            for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
+        ]
 
-        knative.KnativeEventing {
-            metadata.name = "knative-eventing"
-            metadata.namespace = knativeConfig.eventing.namespace
-            metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-            }
-
-        }
-    ] + [
-        p.merge(resource, {
-            metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-            }
-        })
-        for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
-    ] + yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) \
-    +  mindwm_context.make(mindwm_context.MindWM)
-
-
-})
+        yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
+    ]
+    
+}) 
 
 manifests.yaml_stream([
-    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
-    argoCdOrder
+    mindwm_app
+#    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+#    argoCdOrder
 #    Neo4jSchema.makeNeo4jReleaseValues("team-a")
 
 ])

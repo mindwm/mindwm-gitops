@@ -40,3 +40,8 @@ flux : schema.HelmChart = {
     name = "flux2" 
     repoURL = "https://fluxcd-community.github.io/helm-charts"
 }
+
+crossplane : schema.HelmChart = {
+    name = "crossplane" 
+    repoURL = "https://charts.crossplane.io/stable"
+}

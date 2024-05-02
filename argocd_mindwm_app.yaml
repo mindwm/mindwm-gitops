@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mindwm
+  name: mindwm-batch-test
   namespace: argocd
 spec:
   destination:

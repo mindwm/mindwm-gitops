@@ -23,4 +23,3 @@ roleRef:
   kind: ClusterRole
   name: list-crd
   apiGroup: rbac.authorization.k8s.io
----
