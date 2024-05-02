@@ -144,7 +144,7 @@ mindwm_app = ArgoCdOrder.make({
             })
         ]
         [
-
+       
 
             argocdSchema.argoHelmRelease({
                 namespace = istio.gateway.namespace
@@ -152,7 +152,7 @@ mindwm_app = ArgoCdOrder.make({
                 chart = charts.istio_gateway
                 version = istio.version
             })
-
+  
             # required by redpanda-operator
             # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
             argocdSchema.argoHelmRelease({
@@ -183,7 +183,7 @@ mindwm_app = ArgoCdOrder.make({
                 spec.config.istio = {
                     "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
                 }
-            }
+            }    
 
             knative.KnativeEventing {
                 metadata.name = "knative-eventing"
@@ -192,7 +192,7 @@ mindwm_app = ArgoCdOrder.make({
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
             }
-        ]
+        ] 
         [
             p.merge(resource, {
                 metadata.annotations = {
@@ -200,12 +200,15 @@ mindwm_app = ArgoCdOrder.make({
                 }
             })
             for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
-        ]
 
-        yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
+        ] 
+        yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml")) 
+        yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml")) 
+        yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
+
     ]
-
-})
+    
+}) 
 
 manifests.yaml_stream([
     mindwm_app
