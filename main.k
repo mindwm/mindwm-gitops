@@ -111,8 +111,8 @@ mindwm_app = ArgoCdOrder.make({
                 values = {
                     provider = {
                         packages = [
-                            "kubernetes"
-                            "helm"
+                            "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.13.0"
+                            "xpkg.upbound.io/crossplane-contrib/provider-helm:v0.18.1"
                         ]
                     }
                 }
