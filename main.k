@@ -108,6 +108,14 @@ mindwm_app = ArgoCdOrder.make({
                 name = "crossplane"
                 chart = charts.crossplane
                 version = "1.15.2"
+                values = {
+                    provider = {
+                        packages = [
+                            "kubernetes"
+                            "helm"
+                        ]
+                    }
+                }
             })
 
         ]
