@@ -209,10 +209,6 @@ mindwm_app = ArgoCdOrder.make({
 
 manifests.yaml_stream([
     mindwm_app
-#    yaml.decode_all(file.read("manifests/knative-operator.yaml"))
-#    argoCdOrder
-#    Neo4jSchema.makeNeo4jReleaseValues("team-a")
-
 ])
 
 
