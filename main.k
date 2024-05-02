@@ -47,7 +47,47 @@ mindwm_app = ArgoCdOrder.make({
                 values = {
                     installCRDs = True
                 }
-            })
+            }) | {
+            spec.ignoreDifferences = [
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "certificaterequests.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "certificates.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "challenges.acme.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "clusterissuers.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "issuers.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+                    {
+                        group = "apiextensions.k8s.io"
+                        kind = "CustomResourceDefinition"
+                        name = "orders.acme.cert-manager.io"
+                        jsonPointers = ["/status"]
+                    }
+
+                ]
+            }
 
             argocdSchema.argoHelmRelease({
                 namespace = "nats"
