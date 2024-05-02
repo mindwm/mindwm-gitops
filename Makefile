@@ -36,8 +36,8 @@ argocd_password:
 	echo $(ARGOCD_PASSWORD)
 
 #.PHONY: argocd_login
-#argocd_login: kubectl_proxy argocd_password
-#	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
+argocd_login: kubectl_proxy argocd_password
+	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
 .PHONY: argocd_app
 argocd_app: argocd
