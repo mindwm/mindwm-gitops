@@ -2,11 +2,16 @@
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
-cluster:
+deinstall:
+	k3s-uninstall.sh ; \
+	sleep 10 # :)
+
+cluster: deinstall
 	curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik" sh -s - --docker && sleep 30 && \
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
 	kubectl -n kube-system get configmap coredns -o yaml | sed 's,forward . /etc/resolv.conf,forward \. 8.8.8.8,' | kubectl apply -f - && \
 	kubectl delete pod -n kube-system -l k8s-app=kube-dns
+
 
 argocd:
 	helm repo add argocd https://argoproj.github.io/argo-helm && \
@@ -39,6 +44,13 @@ argocd_password:
 argocd_login: kubectl_proxy argocd_password
 	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
+
 .PHONY: argocd_app
 argocd_app: argocd
 	kubectl apply -f argocd_mindwm_app.yaml
+
+argocd_sync: argocd_app argocd_login
+	argocd app sync mindwm-gitops
+
+mindwm_lifecycle: cluster argocd argocd_sync
+
