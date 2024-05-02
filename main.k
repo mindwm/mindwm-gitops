@@ -103,6 +103,13 @@ mindwm_app = ArgoCdOrder.make({
                 }
             })
 
+            argocdSchema.argoHelmRelease({
+                namespace = "crossplane-system"
+                name = "crossplane"
+                chart = charts.crossplane
+                version = "1.15.2"
+            })
+
         ]
         [
        
