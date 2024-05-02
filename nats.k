@@ -15,8 +15,8 @@ config = {
                 jetstream = "enable"
                 users = [
                     {
-                        user = "sys"
-                        password = "pass"
+                        user = "root"
+                        password = "r00tpass"
                     }
                 ]
             }
