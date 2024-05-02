@@ -118,10 +118,6 @@ mindwm_app = ArgoCdOrder.make({
                 }
             })
 
-        ]
-        [
-       
-
             argocdSchema.argoHelmRelease({
                 namespace = istio.system.namespace,
                 name = "istio-base"
@@ -137,12 +133,18 @@ mindwm_app = ArgoCdOrder.make({
                 }
             ]
             }
+
+
             argocdSchema.argoHelmRelease({
                 namespace = istio.system.namespace,
                 name = "istiod"
                 chart = charts.istiod
                 version = istio.version
             })
+        ]
+        [
+       
+
             argocdSchema.argoHelmRelease({
                 namespace = istio.gateway.namespace
                 name = "gateway"
