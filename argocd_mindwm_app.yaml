@@ -13,4 +13,4 @@ spec:
     plugin:
       name: kcl-v1.0
     repoURL: https://github.com/mindwm/mindwm-gitops
-    targetRevision: argo-cd-order-batch
+    targetRevision: master
