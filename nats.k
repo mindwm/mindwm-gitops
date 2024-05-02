@@ -13,8 +13,12 @@ config = {
             }
             root = {
                 jetstream = "enable"
-                user = "sys"
-                password = "pass"
+                users = [
+                    {
+                        user = "sys"
+                        password = "pass"
+                    }
+                ]
             }
         }
     }
