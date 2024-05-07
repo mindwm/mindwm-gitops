@@ -15,6 +15,7 @@ import .flux as flux
 import .redpanda.config as redpanda_config
 import .redpanda.schema as RedPandaSchema
 import neo4j.schema as Neo4jSchema
+import .crossplane.function as CrossPlaneFunction
 #import argoproj.v1alpha1 as argoproj
 
 mindwm_app = ArgoCdOrder.make({
@@ -193,19 +194,8 @@ mindwm_app = ArgoCdOrder.make({
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
             }
-            {
-                apiVersion = "pkg.crossplane.io/v1beta1"
-                kind = "Function"
-                metadata.name = "kcl-function"
-                annotations = {
-                    # This tells crossplane beta render to connect to the function locally.
-                    "render.crossplane.io/runtime" = "Development"
-                }
-                spec.package = "xpkg.upbound.io/crossplane-contrib/function-kcl:latest"
-                metadata.annotations = {
-                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-                }
-            }
+            CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.kcl)
+            CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.auto_ready)
             {
                 apiVersion = "pkg.crossplane.io/v1"
                 kind = "Provider"
