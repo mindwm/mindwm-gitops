@@ -215,15 +215,6 @@ mindwm_app = ArgoCdOrder.make({
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
             }
-            {
-                apiVersion = "kubernetes.crossplane.io/v1alpha1"
-                kind = "ProviderConfig"
-                metadata.name = "default"
-                spec.credentials.source = "InjectedIdentity"
-                metadata.annotations = {
-                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-                }
-            }
 
         ] 
         [
@@ -234,7 +225,19 @@ mindwm_app = ArgoCdOrder.make({
             })
             for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
 
+
         ] 
+        [
+            {
+                apiVersion = "kubernetes.crossplane.io/v1alpha1"
+                kind = "ProviderConfig"
+                metadata.name = "default"
+                spec.credentials.source = "InjectedIdentity"
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+            }
+        ]
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml")) 
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml")) 
         yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
