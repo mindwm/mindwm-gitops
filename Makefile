@@ -2,6 +2,10 @@
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
+fix_dns_upstream:
+	kubectl -n kube-system get configmap coredns -o yaml | sed 's,forward . /etc/resolv.conf,forward \. 8.8.8.8,' | kubectl apply -f - && \
+	kubectl delete pod -n kube-system -l k8s-app=kube-dns
+
 deinstall:
 	k3s-uninstall.sh ; \
 	sleep 10 # :)
@@ -9,8 +13,7 @@ deinstall:
 cluster: deinstall
 	curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik" sh -s - --docker && sleep 30 && \
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
-	kubectl -n kube-system get configmap coredns -o yaml | sed 's,forward . /etc/resolv.conf,forward \. 8.8.8.8,' | kubectl apply -f - && \
-	kubectl delete pod -n kube-system -l k8s-app=kube-dns
+	$(MAKE) fix_dns_upstream
 
 
 argocd:
