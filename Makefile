@@ -6,6 +6,19 @@ fix_dns_upstream:
 	kubectl -n kube-system get configmap coredns -o yaml | sed 's,forward . /etc/resolv.conf,forward \. 8.8.8.8,' | kubectl apply -f - && \
 	kubectl delete pod -n kube-system -l k8s-app=kube-dns
 
+crossplane_rolebinding_workaround:
+	# https://github.com/crossplane-contrib/provider-kubernetes
+	for i in kcl-function provider-kubernetes provider-helm; do \
+		SA=`kubectl -n crossplane-system get sa -o name | grep $$i | sed -e 's|serviceaccount\/|crossplane-system:|g'` && \
+		kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount="$$SA"; \
+	done && \
+	SA=crossplane-system:crossplane && \
+	i=crossplane && \
+	kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount="$$SA";
+
+
+
+
 deinstall:
 	k3s-uninstall.sh ; \
 	sleep 10 # :)
@@ -55,5 +68,5 @@ argocd_app: argocd
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
-mindwm_lifecycle: cluster argocd argocd_sync
+mindwm_lifecycle: cluster argocd argocd_sync crossplane_rolebinding_workaround
 
