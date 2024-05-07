@@ -68,5 +68,5 @@ argocd_app: argocd
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
-mindwm_lifecycle: cluster argocd argocd_sync crossplane_rolebinding_workaround
+mindwm_lifecycle: cluster argocd argocd_sync #crossplane_rolebinding_workaround
 

@@ -202,18 +202,27 @@ mindwm_app = ArgoCdOrder.make({
                     "render.crossplane.io/runtime" = "Development"
                 }
                 spec.package = "xpkg.upbound.io/crossplane-contrib/function-kcl:latest"
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
             }
             {
                 apiVersion = "pkg.crossplane.io/v1beta1"
                 kind = "Provider"
                 metadata.name = "provider-kubernetes"
                 spec.package = "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.13.0"
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
             }
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
                 kind = "ProviderConfig"
                 metadata.name = "default"
                 spec.credentials.source = "InjectedIdentity"
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
             }
 
         ] 
