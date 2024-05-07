@@ -193,6 +193,17 @@ mindwm_app = ArgoCdOrder.make({
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
             }
+            {
+                apiVersion = "pkg.crossplane.io/v1beta1"
+                kind = "Function"
+                metadata.name = "kcl-function"
+                annotations = {
+                    # This tells crossplane beta render to connect to the function locally.
+                    "render.crossplane.io/runtime" = "Development"
+                }
+                spec.package = "xpkg.upbound.io/crossplane-contrib/function-kcl:latest"
+            }
+
         ] 
         [
             p.merge(resource, {
