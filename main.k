@@ -207,7 +207,7 @@ mindwm_app = ArgoCdOrder.make({
                 }
             }
             {
-                apiVersion = "pkg.crossplane.io/v1beta1"
+                apiVersion = "pkg.crossplane.io/v1"
                 kind = "Provider"
                 metadata.name = "provider-kubernetes"
                 spec.package = "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.13.0"
