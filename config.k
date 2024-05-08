@@ -22,4 +22,7 @@ config = {
     kafka_port = 9003
     neo4j_version = "4.4.28"
     neo4j_password = "password2"
+    crossplane = {
+        namespace = "crossplane-system"
+    }
 }

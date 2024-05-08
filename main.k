@@ -17,6 +17,7 @@ import .redpanda.schema as RedPandaSchema
 import neo4j.schema as Neo4jSchema
 import .crossplane.function as CrossPlaneFunction
 import .crossplane.provider as CrossPlaneProvider
+import .config as config
 #import argoproj.v1alpha1 as argoproj
 
 mindwm_app = ArgoCdOrder.make({
@@ -106,7 +107,7 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             argocdSchema.argoHelmRelease({
-                namespace = "crossplane-system"
+                namespace = config.config.crossplane.namespace
                 name = "crossplane"
                 chart = charts.crossplane
                 version = "1.15.2"
@@ -115,7 +116,7 @@ mindwm_app = ArgoCdOrder.make({
 #                        "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.13.0"
 #                        "xpkg.upbound.io/crossplane-contrib/provider-helm:v0.18.1"
 #                   ]
-#                   #configuration.packages = [ 
+#                   #configuration.packages = [
 #                   #     "xpkg.upbound.io/crossplane-contrib/function-kcl:v0.7.0"
 #                   #]
 #
@@ -147,7 +148,7 @@ mindwm_app = ArgoCdOrder.make({
             })
         ]
         [
-       
+
 
             argocdSchema.argoHelmRelease({
                 namespace = istio.gateway.namespace
@@ -155,7 +156,7 @@ mindwm_app = ArgoCdOrder.make({
                 chart = charts.istio_gateway
                 version = istio.version
             })
-  
+
             # required by redpanda-operator
             # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
             argocdSchema.argoHelmRelease({
@@ -186,7 +187,7 @@ mindwm_app = ArgoCdOrder.make({
                 spec.config.istio = {
                     "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
                 }
-            }    
+            }
 
             knative.KnativeEventing {
                 metadata.name = "knative-eventing"
@@ -198,9 +199,10 @@ mindwm_app = ArgoCdOrder.make({
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.kcl)
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.auto_ready)
             CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.kubernetes)
-            CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.helm)
 
-        ] 
+
+        ]
+        CrossPlaneProvider.makeCrossPlaneProviderHelm(CrossPlaneProvider.helm)
         [
             p.merge(resource, {
                 metadata.annotations = {
@@ -210,7 +212,7 @@ mindwm_app = ArgoCdOrder.make({
             for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
 
 
-        ] 
+        ]
         [
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
@@ -222,13 +224,13 @@ mindwm_app = ArgoCdOrder.make({
                 }
             }
         ]
-        yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml")) 
-        yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml")) 
-        yaml.decode_all(file.read("manifests/eventing-jsm.yaml")) 
+        yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml"))
+        yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml"))
+        yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
 
     ]
-    
-}) 
+
+})
 
 manifests.yaml_stream([
     mindwm_app
