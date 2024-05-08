@@ -53,6 +53,9 @@ makeCrossPlaneProviderHelm = lambda cross_provider : CrossPlaneSchema.CrossPlane
             kind = "DeploymentRuntimeConfig"
             metadata.name = "provider-helm"
             spec.serviceAccountTemplate.metadata.name =  serviceAccountProviderHelm
+            metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+            }
         }
         k8rbac.ClusterRoleBinding {
             metadata.name = "provider-helm-cluster-admin"
