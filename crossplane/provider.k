@@ -1,4 +1,8 @@
 import .schema as CrossPlaneSchema
+import json_merge_patch as p
+import k8s.api.core.v1 as k8core
+import k8s.api.rbac.v1 as k8rbac
+import ..config as config
 
 
 kubernetes : CrossPlaneSchema.CrossPlaneProvider = {
@@ -27,3 +31,43 @@ makeCrossPlaneProvider = lambda cross_provider : CrossPlaneSchema.CrossPlaneProv
         }
     }
 }     
+
+
+makeCrossPlaneProviderMerge = lambda cross_provider : CrossPlaneSchema.CrossPlaneProvider, patch : any {
+    p.merge(makeCrossPlaneProvider(cross_provider), patch)
+} 
+
+serviceAccountProviderHelm = "provider-helm"
+
+makeCrossPlaneProviderHelm = lambda cross_provider : CrossPlaneSchema.CrossPlaneProvider { 
+    [
+        makeCrossPlaneProviderMerge(cross_provider, { 
+            spec.runtimeConfigRef = { 
+                apiVersion = "pkg.crossplane.io/v1beta1"
+                kind = "DeploymentRuntimeConfig"
+                name = "provider-helm"
+            } 
+        })
+        {
+            apiVersion = "pkg.crossplane.io/v1beta1"
+            kind = "DeploymentRuntimeConfig"
+            metadata.name = "provider-helm"
+            spec.serviceAccountTemplate.metadata.name =  serviceAccountProviderHelm
+        }
+        k8rbac.ClusterRoleBinding {
+            metadata.name = "provider-helm-cluster-admin"
+            subjects = [
+                {
+                    kind = "ServiceAccount"
+                    name = serviceAccountProviderHelm
+                    namespace = config.config.crossplane.namespace
+                }
+            ]
+            roleRef = {
+                kind = "ClusterRole"
+                name = "cluster-admin"
+                apiGroup = "rbac.authorization.k8s.io"
+            }
+        } 
+    ]
+} 
