@@ -223,6 +223,15 @@ mindwm_app = ArgoCdOrder.make({
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
             }
+            {
+                apiVersion = "helm.crossplane.io/v1alpha1"
+                kind = "ProviderConfig"
+                metadata.name = "default"
+                spec.credentials.source = "InjectedIdentity"
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+            }
         ]
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml"))
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml"))

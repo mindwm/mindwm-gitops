@@ -74,14 +74,5 @@ makeCrossPlaneProviderHelm = lambda cross_provider : CrossPlaneSchema.CrossPlane
 
         } 
 
-        {
-            apiVersion = "helm.crossplane.io/v1alpha1"
-            kind = "ProviderConfig"
-            metadata.name = "default"
-            spec.credentials.source = "InjectedIdentity"
-            metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-            }
-        }
     ]
 } 
