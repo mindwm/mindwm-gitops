@@ -3,11 +3,11 @@ import yaml
 import k8s.api.core.v1 as k8core
 import template
 import ..config as config
+import ..helm.chart as charts
 
 api_version = "apiextensions.crossplane.io/v1"
 
 composite_version = "v1beta1"
-
 
 kcl_util_func = """
 delimiter = "-"
@@ -99,6 +99,23 @@ items = [
     kind = "Namespace"
     metadata.name = makeContextNamespace("{{ context_name }}")
   }
+  {
+    apiVersion = "helm.crossplane.io/v1beta1"
+    kind = "Release"
+    metadata.name = "neo4j"
+    spec = {
+      forProvider = {
+        chart = {
+          name = "${charts.neo4j.name}"
+          repository = "${charts.neo4j.repoURL}"
+          version = "${config.config.neo4j_version}"
+        }
+        namespace = makeContextNamespace("{{ context_name }}")
+        values.service.type = "ClusterIP"
+      }
+    }
+  }
+
 ]
 """, {
     context_name = makeVarName("context_name")
