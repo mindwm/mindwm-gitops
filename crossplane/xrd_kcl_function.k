@@ -2,16 +2,16 @@ import manifests
 import yaml
 import k8s.api.core.v1 as k8core
 import template
+import ..config as config
 
 api_version = "apiextensions.crossplane.io/v1"
 
 composite_version = "v1beta1"
 
-
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]
     [
-        { 
+        {
             apiVersion = api_version
             kind = "CompositeResourceDefinition"
             metadata.name = "x" + claim_ref.kind + "s." + group
@@ -20,7 +20,7 @@ mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
                 names = {
                     kind = "X" + claim_ref.kind.capitalize()
                     plural = "x" + claim_ref.kind + "s"
-                } 
+                }
                 claimNames = {
                     kind = claim_ref.kind.capitalize()
                     plural = claim_ref.kind + "s"
@@ -31,16 +31,15 @@ mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
                         name = composite_version
                         referenceable = True
                         served = True
-                        # TODO(@metacoma) currently support only one type of object schema with only one property name (string)
-                        schema.openAPIV3Schema = { 
+                        schema.openAPIV3Schema = {
                             type = "object"
-                            properties.spec = schemaSpec 
-                        } 
+                            properties.spec = schemaSpec
+                        }
 
                     }
-                ] 
+                ]
 
-            } 
+            }
         }
         {
             apiVersion = api_version
@@ -53,23 +52,23 @@ mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
                 }
                 mode = "Pipeline"
                 pipeline = steps + [
-                    {    
+                    {
                         step = "automatically-detect-ready-composed-resources"
                         functionRef.name = "function-auto-ready" # required installed function function-auto-ready
                     }
-                ] 
-            } 
+                ]
+            }
         }
     ]
-} 
+}
 
 # oh :(
 makeVarName = lambda var : str -> str {
     "$" + "{" + var + "}"
-} 
+}
 
 makeContextXR = lambda {
-    mkComposition({ 
+    mkComposition({
         apiVersion = "mindwm.io/" + composite_version
         kind = "context"
     }, {
@@ -105,14 +104,14 @@ items = [
 ]
 """, {
     context_name = makeVarName("context_name")
-}) 
-            } 
+})
+            }
         }
     ])
-} 
+}
 
 makeUserXR = lambda {
-    mkComposition({ 
+    mkComposition({
         apiVersion = "mindwm.io/" + composite_version
         kind = "user"
     }, {
@@ -148,14 +147,14 @@ items = [
 ]
 """, {
     user_name = makeVarName("user_name")
-}) 
-            } 
+})
+            }
         }
     ])
-} 
+}
 
 makeHostXR = lambda {
-    mkComposition({ 
+    mkComposition({
         apiVersion = "mindwm.io/" + composite_version
         kind = "host"
     }, {
@@ -191,11 +190,11 @@ items = [
 ]
 """, {
     host_name = makeVarName("host_name")
-}) 
-            } 
+})
+            }
         }
     ])
-} 
+}
 
 manifests.yaml_stream([
     makeContextXR()
