@@ -100,6 +100,21 @@ items = [
     metadata.name = makeContextNamespace("{{ context_name }}")
   }
   {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = "neo4j-plugins-pvc"
+    spec.forProvider.manifest = {
+        apiVersion = "v1"
+        kind = "PersistentVolumeClaim"
+        metadata.name = "neo4j-plugins"
+        metadata.namespace = makeContextNamespace("{{ context_name }}")
+        spec = {
+            accessModes = [ "ReadWriteOnce" ]
+            resources.requests.storage = "1Gi"
+        }
+    }
+  }
+  {
     apiVersion = "helm.crossplane.io/v1beta1"
     kind = "Release"
     metadata.name = "neo4j"
@@ -111,7 +126,27 @@ items = [
           version = "${config.config.neo4j_version}"
         }
         namespace = makeContextNamespace("{{ context_name }}")
-        values.service.type = "ClusterIP"
+        values = {
+            additionalVolumeMounts = [
+                {
+                    mountPath = "/var/lib/neo4j/plugins"
+                    name = "neo4j-plugins"
+                }
+            ]
+            additionalVolumes = [
+                {
+                    name = "neo4j-plugins"
+                    persistentVolumeClaim.claimName = "neo4j-plugins"
+                }
+            ]
+            volumes = {
+                data = {
+                    dynamic.storageClassName = "local-path"
+                    mode = "dynamic"
+                }
+            }
+
+        }
       }
     }
   }
