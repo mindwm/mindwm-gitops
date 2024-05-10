@@ -27,7 +27,7 @@ istiod = istio_base | { name = "istiod" }
 istio_gateway = istio_base | { name = "gateway" }
 
 neo4j : schema.HelmChart = {
-    name = "neo4j"
+    name = "neo4j-standalone"
     repoURL = "https://helm.neo4j.com/neo4j"
 }
 
