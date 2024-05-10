@@ -8,6 +8,15 @@ api_version = "apiextensions.crossplane.io/v1"
 
 composite_version = "v1beta1"
 
+
+kcl_util_func = """
+delimiter = "-"
+contextNamespacePrefix = 'context'
+makeContextNamespace = lambda ns_name : str {
+    contextNamespacePrefix + delimiter + ns_name
+} 
+"""
+
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]
     [
@@ -81,12 +90,14 @@ makeContextXR = lambda {
             input = {
                 apiVersion = "krm.kcl.dev/v1alpha1"
                 kind = "KCLRun"
-                spec.source = template.execute("""context_name = option("params").oxr.spec.name
+                # TODO (@metacoma) add kcl_util_func to template data in mk function
+                spec.source = template.execute("""${kcl_util_func}
+context_name = option("params").oxr.spec.name
 items = [
   {
     apiVersion = "v1"
     kind = "Namespace"
-    metadata.name = "context-{{ context_name }}"
+    metadata.name = makeContextNamespace("{{ context_name }}")
   }
 ]
 """, {
