@@ -84,22 +84,9 @@ makeContextXR = lambda {
                 spec.source = template.execute("""context_name = option("params").oxr.spec.name
 items = [
   {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = "context-configmap-{{ context_name }}"
-    spec = {
-      forProvider = {
-        manifest = {
-          apiVersion = "v1"
-          kind = "ConfigMap"
-          metadata.name = "context-configmap-{{ context_name }}"
-          metadata.namespace = "default"
-          data = {
-            foo = "bar"
-          }
-        }
-      }
-    }
+    apiVersion = "v1"
+    kind = "Namespace"
+    metadata.name = "context-{{ context_name }}"
   }
 ]
 """, {
@@ -198,6 +185,6 @@ items = [
 
 manifests.yaml_stream([
     makeContextXR()
-    makeUserXR()
-    makeHostXR()
+#    makeUserXR()
+#    makeHostXR()
 ])
