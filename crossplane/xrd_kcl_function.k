@@ -258,7 +258,7 @@ kind: InMemoryChannel
 
     }
   }
-
+  # kafkaSource
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
@@ -280,6 +280,25 @@ kind: InMemoryChannel
             } 
             topics = [ "{{ kafkaTopicName }}" ]
         }
+
+    }
+  }
+  # deadLetter service
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = contextBroker.deadLetterName("{{ context_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        metadata = {
+            name = contextBroker.deadLetterName("{{ context_name }}")
+            namespace = makeContextNamespace("{{ context_name }}")
+        } 
+        spec.template.spec.containers = [{
+            image = "${config.knativeBroker.deadLetterImage}"
+            
+        }]
 
     }
   }

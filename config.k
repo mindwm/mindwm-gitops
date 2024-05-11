@@ -8,12 +8,23 @@ kafka = {
     }
 } 
 
+knativeBroker = {
+    deadLetterImage = "gcr.io/knative-releases/knative.dev/eventing/cmd/event_display"
+} 
+
 contextBroker = {
     name = lambda context_name : str {
         "context-broker" + delimiter + context_name
     } 
     configMapName = lambda context_name : str {
         name(context_name) + delimiter + "configmap"
+    } 
+    kafkaSourceName = lambda context_name : str {
+        name(context_name) + delimiter + "source"
+        
+    } 
+    deadLetterName = lambda context_name : str {
+        name(context_name) + delimiter + "dead-letter"
     } 
 } 
 
