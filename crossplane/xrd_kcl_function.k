@@ -83,6 +83,7 @@ makeContextXR = lambda {
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""${kcl_util_func}
 context_name = option("params").oxr.spec.name
+kafkaTopicName = kafka.mkContextCdcTopicName("{{ context_name }}")
 items = [
   {
     apiVersion = "v1"
@@ -108,12 +109,12 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = kafka.mkContextCdcTopicName("{{ context_name }}")
+    metadata.name = kafkaTopicName
     spec.forProvider.manifest = {
         apiVersion = "cluster.redpanda.com/v1alpha1"
         kind = "Topic"
         metadata = {
-            name = kafka.mkContextCdcTopicName("{{ context_name }}")
+            name = kafkaTopicName
             namespace = "${config.kafka.namespace}"
         } 
         spec = {
@@ -160,6 +161,8 @@ items = [
                 "NEO4J_apoc_import_file_use__neo4j__config" = "true"
                 "NEO4J_dbms_logs_debug_level" = "DEBUG"
                 "NEO4J_kafka_bootstrap_servers" = "${config.kafka.brokerEndpoint}"
+                "NEO4J_streams_source_topic_nodes_{{ kafkaTopicName }}" = "*"
+                "NEO4J_streams_source_topic_relationships_{{ kafkaTopicName }}" = '*'
             }
             neo4j.password = "${config.config.neo4j_password}"
             services.neo4j.spec.type = "NodePort"
@@ -172,6 +175,42 @@ items = [
                     mode = "dynamic"
                 }
             }
+            podSpec.initContainers = [
+                {
+                    image = "curlimages/curl:8.6.0"
+                    name = "install-apoc-plugin"
+                    user = "root"
+                    volumeMounts = [{
+                        mountPath = "/var/lib/neo4j/plugins"
+                        name = "neo4j-plugins"
+                    }] 
+                    workingDir = "/var/lib/neo4j/plugins"
+                    command = [
+                        "curl",
+                        "-Lo"
+                        "apoc.jar"
+                        "--no-clobber"
+                        "https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/4.4.0.23/apoc-4.4.0.23-all.jar"
+                    ]
+                }
+                {
+                    image = "curlimages/curl:8.6.0"
+                    name = "install-neo4j-stream-plugin"
+                    user = "root"
+                    workingDir = "/var/lib/neo4j/plugins"
+                    volumeMounts = [{
+                        mountPath = "/var/lib/neo4j/plugins"
+                        name = "neo4j-plugins"
+                    }] 
+                    command = [
+                        "curl",
+                        "-Lo"
+                        "streams.jar"
+                        "--no-clobber"
+                        "https://github.com/neo4j-contrib/neo4j-streams/releases/download/4.1.3/neo4j-streams-4.1.3.jar"
+                    ]
+                }
+            ] 
 
         }
       }
@@ -181,6 +220,7 @@ items = [
 ]
 """, {
     context_name = r"${context_name}"
+    kafkaTopicName = r"${kafkaTopicName}"
     #kafka_cdc_topic_name = r"${kafka.mkContextCdcTopicName(${context_name})}"
 })
             }
