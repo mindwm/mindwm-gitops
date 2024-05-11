@@ -1,10 +1,20 @@
-import mindwm.schema as MindwmSchema
-
 kafka = {
     cluster_name = "neo4j-cdc"
     namespace = "redpanda"
     port = 9093
     brokerEndpoint = cluster_name + "." + namespace + ":${port}"
+    mkContextCdcTopicName = lambda context_name : str { 
+        context_name + "-cdc-topic"  
+    }
+} 
+
+contextBroker = {
+    name = lambda context_name : str {
+        "context-broker" + delimiter + context_name
+    } 
+    configMapName = lambda context_name : str {
+        name(context_name) + delimiter + "configmap"
+    } 
 } 
 
 kafka_cluster_name = "neo4j-cdc"

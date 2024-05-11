@@ -216,12 +216,31 @@ items = [
       }
     }
   }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = contextBroker.configMapName("{{ context_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "v1"
+        kind = "ConfigMap"
+        metadata = {
+            name = contextBroker.configMapName("{{ context_name }}")
+            namespace = makeContextNamespace("{{ context_name }}")
+        } 
+        data = {
+            "channel-template-spec" = '''
+apiVersion: messaging.knative.dev/v1
+kind: InMemoryChannel
+'''
+        }
+
+    }
+  }
 
 ]
 """, {
     context_name = r"${context_name}"
     kafkaTopicName = r"${kafkaTopicName}"
-    #kafka_cdc_topic_name = r"${kafka.mkContextCdcTopicName(${context_name})}"
 })
             }
         }
