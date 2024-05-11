@@ -238,7 +238,15 @@ mindwm_app = ArgoCdOrder.make({
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml"))
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml"))
         yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
-        XrdKclFunction.makeContextXR()
+
+        [
+            p.merge(resource, {
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+            })
+            for resource in XrdKclFunction.makeContextXR()
+        ]
     ]
 
 })
