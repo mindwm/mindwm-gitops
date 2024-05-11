@@ -259,6 +259,31 @@ kind: InMemoryChannel
     }
   }
 
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = contextBroker.kafkaSourceName("{{ context_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "sources.knative.dev/v1beta1"
+        kind = "KafkaSource"
+        metadata = {
+            name = contextBroker.kafkaSourceName("{{ context_name }}")
+            namespace = makeContextNamespace("{{ context_name }}")
+        } 
+        spec = {
+            bootstrapServers = [ "${config.kafka.brokerEndpoint}" ]
+            consumerGroup = "knative-group"
+            sink.ref = {
+                apiVersion = "eventing.knative.dev/v1"
+                kind = "Broker"
+                name = contextBroker.name("{{ context_name }}")
+            } 
+            topics = [ "{{ kafkaTopicName }}" ]
+        }
+
+    }
+  }
+
 ]
 """, {
     context_name = r"${context_name}"
