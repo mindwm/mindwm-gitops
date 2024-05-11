@@ -297,7 +297,6 @@ kind: InMemoryChannel
         } 
         spec.template.spec.containers = [{
             image = "${config.knativeBroker.deadLetterImage}"
-            
         }]
 
     }
