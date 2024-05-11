@@ -4,21 +4,13 @@ import k8s.api.core.v1 as k8core
 import template
 import ..config as config
 import ..helm.chart as charts
+import file
 
 api_version = "apiextensions.crossplane.io/v1"
 
 composite_version = "v1beta1"
 
-kcl_util_func = """
-delimiter = "-"
-contextNamespacePrefix = 'context'
-makeContextNamespace = lambda ns_name : str {
-    contextNamespacePrefix + delimiter + ns_name
-} 
-makeBrokerEndpoint = lambda {
-    
-} 
-"""
+kcl_util_func = file.read("../config.k")
 
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]
@@ -112,6 +104,31 @@ items = [
         }
     }
   }
+  # redpanda (kafka topic) for broadcast graph changes to process eventing 
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = kafka.mkContextCdcTopicName("{{ context_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "cluster.redpanda.com/v1alpha1"
+        kind = "Topic"
+        metadata = {
+            name = kafka.mkContextCdcTopicName("{{ context_name }}")
+            namespace = "${config.kafka.namespace}"
+        } 
+        spec = {
+            partitions = 1
+            replicationFactor = 1
+            additionalConfig = {
+                "cleanup.policy" = "compact"
+            }
+            kafkaApiSpec.brokers = [
+                "${config.kafka.brokerEndpoint}"
+            ]
+        }
+
+    }
+  }
   {
     apiVersion = "helm.crossplane.io/v1beta1"
     kind = "Release"
@@ -164,6 +181,7 @@ items = [
 ]
 """, {
     context_name = r"${context_name}"
+    #kafka_cdc_topic_name = r"${kafka.mkContextCdcTopicName(${context_name})}"
 })
             }
         }
@@ -250,6 +268,7 @@ items = [
 ]
 """, {
     host_name = r"${host_name}"
+    kafka_cdc_topic_name = r"${kafka.mkContextCdcTopicName($context_name)}"
 })
             }
         }
