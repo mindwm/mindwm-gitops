@@ -152,7 +152,7 @@ items = [
 
 ]
 """, {
-    context_name = r"{context_name}"
+    context_name = r"${context_name}"
 })
             }
         }
