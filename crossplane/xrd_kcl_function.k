@@ -136,7 +136,10 @@ items = [
             ]
             volumes = {
                 data = {
-                    dynamic.storageClassName = "local-path"
+                    dynamic = {
+                        storageClassName = "local-path"
+                        requests.storage = "5Gi"
+                    }
                     mode = "dynamic"
                 }
             }
