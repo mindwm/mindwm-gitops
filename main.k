@@ -18,7 +18,9 @@ import neo4j.schema as Neo4jSchema
 import .crossplane.function as CrossPlaneFunction
 import .crossplane.provider as CrossPlaneProvider
 import .config as config
+import .crossplane.xrd_kcl_function as XrdKclFunction
 #import argoproj.v1alpha1 as argoproj
+
 
 mindwm_app = ArgoCdOrder.make({
     Sync = [
@@ -236,7 +238,7 @@ mindwm_app = ArgoCdOrder.make({
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml"))
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml"))
         yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
-
+        XrdKclFunction.makeContextXR()
     ]
 
 })
