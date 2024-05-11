@@ -15,6 +15,9 @@ contextNamespacePrefix = 'context'
 makeContextNamespace = lambda ns_name : str {
     contextNamespacePrefix + delimiter + ns_name
 } 
+makeBrokerEndpoint = lambda {
+    
+} 
 """
 
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
@@ -134,6 +137,13 @@ items = [
                     persistentVolumeClaim.claimName = "neo4j-plugins"
                 }
             ]
+            env = {
+                "NEO4J_apoc_export_file_enabled" = "true"
+                "NEO4J_apoc_import_file_enabled" = "true"
+                "NEO4J_apoc_import_file_use__neo4j__config" = "true"
+                "NEO4J_dbms_logs_debug_level" = "DEBUG"
+                "NEO4J_kafka_bootstrap_servers" = "${config.kafka.brokerEndpoint}"
+            }
             neo4j.password = "${config.config.neo4j_password}"
             services.neo4j.spec.type = "NodePort"
             volumes = {

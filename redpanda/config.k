@@ -1,3 +1,3 @@
 redpanda = {
     namespace = "redpanda"
-} 
+}

@@ -177,7 +177,7 @@ mindwm_app = ArgoCdOrder.make({
                 version = "0.4.21"
             })
 
-            RedPandaSchema.makeKafkaCluster("neo4j-cdc")
+            RedPandaSchema.makeKafkaCluster(config.kafka.cluster_name)
             knative.KnativeServing {
                 metadata.name = "knative-serving"
                 metadata.namespace = knativeConfig.serving.namespace
