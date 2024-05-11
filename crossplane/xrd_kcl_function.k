@@ -134,6 +134,7 @@ items = [
                     persistentVolumeClaim.claimName = "neo4j-plugins"
                 }
             ]
+            neo4j.password = "${config.config.neo4j_password}"
             services.neo4j.spec.type = "NodePort"
             volumes = {
                 data = {
