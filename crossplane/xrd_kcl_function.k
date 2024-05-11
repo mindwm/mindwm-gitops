@@ -134,6 +134,7 @@ items = [
                     persistentVolumeClaim.claimName = "neo4j-plugins"
                 }
             ]
+            services.neo4j.spec.type = "NodePort"
             volumes = {
                 data = {
                     dynamic = {
