@@ -71,11 +71,6 @@ mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     ]
 }
 
-# oh :(
-makeVarName = lambda var : str -> str {
-    "$" + "{" + var + "}"
-}
-
 makeContextXR = lambda {
     mkComposition({
         apiVersion = "mindwm.io/" + composite_version
@@ -153,7 +148,7 @@ items = [
 
 ]
 """, {
-    context_name = makeVarName("context_name")
+    context_name = r"{context_name}"
 })
             }
         }
@@ -196,7 +191,7 @@ items = [
   }
 ]
 """, {
-    user_name = makeVarName("user_name")
+    user_name = r"${user_name}"
 })
             }
         }
@@ -239,7 +234,7 @@ items = [
   }
 ]
 """, {
-    host_name = makeVarName("host_name")
+    host_name = r"${host_name}"
 })
             }
         }
