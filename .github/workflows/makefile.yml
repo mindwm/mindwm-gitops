@@ -5,7 +5,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  redeploy_cluster:
 
     runs-on: self-hosted
 
