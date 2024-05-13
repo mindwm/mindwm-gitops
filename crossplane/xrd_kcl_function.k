@@ -382,6 +382,25 @@ kind: InMemoryChannel
     }
   }
 
+  # deadLetter service
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.user.deadLetter.name
+    spec.forProvider.manifest = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        metadata = {
+            name = Mindwm.user.deadLetter.name
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+        } 
+        spec.template.spec.containers = [{
+            image = "${config.knativeBroker.deadLetterImage}"
+        }]
+
+    }
+  }
+
 ]
 """, {
     user_name = r"${user_name}"

@@ -37,6 +37,10 @@ Mindwm = {
             configmap = lambda -> str {
                 "user-broker-configmap"
             } 
+            name = "user"
+        } 
+        deadLetter = {
+            name = "dead-letter" 
         } 
     } 
 } 
