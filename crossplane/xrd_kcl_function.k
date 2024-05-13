@@ -343,12 +343,12 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = contextBroker.configMapName("{{ user_name }}")
+    metadata.name = Mindwm.user.broker.configmap()
     spec.forProvider.manifest = {
         apiVersion = "v1"
         kind = "ConfigMap"
         metadata = {
-            name = Mindwm.user.broker.configmap
+            name = Mindwm.user.broker.configmap()
             namespace = Mindwm.user.namespace("{{ user_name }}")
         } 
         data = {
@@ -356,6 +356,27 @@ items = [
 apiVersion: messaging.knative.dev/v1
 kind: InMemoryChannel
 '''
+        }
+    }
+  }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.user.broker.name
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Broker"
+        metadata = {
+            name = Mindwm.user.broker.name
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+            annotations = {
+                "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
+            }
+        } 
+        spec.config = {
+            apiVersion = "v1"
+            kind = "ConfigMap"
+            name = Mindwm.user.broker.configmap()
         }
 
     }
