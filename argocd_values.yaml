@@ -13,7 +13,13 @@ repoServer:
   env:
     - name: ARGOCD_EXEC_TIMEOUT
       value: 10m
+#server:
+# certificate:
+#    enabled: false
+
 configs:
+  params:
+    server.insecure: true
   cm:
     timeout.reconciliation: 10m
     timeout.hard.reconciliation: 0s

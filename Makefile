@@ -60,6 +60,8 @@ argocd_password:
 argocd_login: kubectl_proxy argocd_password
 	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
+argocd_app_run_and_wait: argocd_password
+	kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
 
 .PHONY: argocd_app
 argocd_app: argocd
@@ -68,5 +70,5 @@ argocd_app: argocd
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
-mindwm_lifecycle: cluster argocd argocd_sync crossplane_rolebinding_workaround
+mindwm_lifecycle: cluster argocd_app argocd_app_run_and_wait crossplane_rolebinding_workaround
 
