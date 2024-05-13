@@ -24,3 +24,7 @@ spec:
       initContainers:
         setDataDirOwnership:
           enabled: true
+    storage:
+      persistentVolume:
+      enabled: true
+      size: 4Gi
