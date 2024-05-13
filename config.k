@@ -28,6 +28,14 @@ contextBroker = {
     } 
 } 
 
+Mindwm = {
+    user = {
+        namespace = lambda username : str -> str {
+            "user-" + username
+        } 
+    } 
+} 
+
 kafka_cluster_name = "neo4j-cdc"
 kafka_port = 9003
 neo4j_version = "4.4.33"
