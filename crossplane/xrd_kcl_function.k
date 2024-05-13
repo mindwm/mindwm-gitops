@@ -340,6 +340,27 @@ items = [
     kind = "Namespace"
     metadata.name = Mindwm.user.namespace("{{ user_name }}")
   }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = contextBroker.configMapName("{{ user_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "v1"
+        kind = "ConfigMap"
+        metadata = {
+            name = Mindwm.user.broker.configmap
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+        } 
+        data = {
+            "channel-template-spec" = '''
+apiVersion: messaging.knative.dev/v1
+kind: InMemoryChannel
+'''
+        }
+
+    }
+  }
+
 ]
 """, {
     user_name = r"${user_name}"

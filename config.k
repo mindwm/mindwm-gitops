@@ -33,6 +33,11 @@ Mindwm = {
         namespace = lambda username : str -> str {
             "user-" + username
         } 
+        broker = {
+            configmap = lambda -> str {
+                "user-broker-configmap"
+            } 
+        } 
     } 
 } 
 
