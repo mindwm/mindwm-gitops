@@ -63,6 +63,11 @@ argocd_login: kubectl_proxy argocd_password
 argocd_app_run_and_wait: argocd_password
 	kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
 
+argocd_exec: argocd_password
+	@echo kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
+	kubectl -n argocd exec -ti deployment/argocd-server -- bash
+
+
 .PHONY: argocd_app
 argocd_app: argocd
 	kubectl apply -f argocd_mindwm_app.yaml
