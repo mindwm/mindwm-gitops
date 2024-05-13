@@ -1,4 +1,4 @@
-name: Makefile CI
+name: mindwm-dev1 cluster
 
 on:
   push:
