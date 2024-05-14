@@ -51,6 +51,9 @@ kcl_log:
 my_plugin:
 	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin
 
+function_kcl_exec:
+	kubectl -n crossplane-system exec -ti `kubectl -n crossplane-system get pods -l pkg.crossplane.io/function=function-kcl -o name` -- /bin/bash
+
 #.PHONY: argocd_password
 argocd_password:
 	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
