@@ -1,3 +1,10 @@
+nats_user = "root"
+nats_password = "r00tpass"
+nats_release_name = "nats"
+nats_namespace = "nats"
+nats_port = 4222
+
+
 config = {
     cluster.merge.name = "nats-cluster"
     jetstream.enable = True
@@ -15,8 +22,8 @@ config = {
                 jetstream = "enable"
                 users = [
                     {
-                        user = "root"
-                        password = "r00tpass"
+                        user = nats_user
+                        password = nats_password
                     }
                 ]
             }

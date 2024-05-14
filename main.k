@@ -19,6 +19,7 @@ import .crossplane.function as CrossPlaneFunction
 import .crossplane.provider as CrossPlaneProvider
 import .config as config
 import .crossplane.xrd_kcl_function as XrdKclFunction
+import json
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -95,8 +96,8 @@ mindwm_app = ArgoCdOrder.make({
             }
 
             argocdSchema.argoHelmRelease({
-                namespace = "nats"
-                name = "nats"
+                namespace = nats.nats_namespace
+                name = nats.nats_release_name
                 chart = charts.nats
                 version = "1.1.11"
                 values = {
@@ -198,6 +199,25 @@ mindwm_app = ArgoCdOrder.make({
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
             }
+
+            k8core.ConfigMap {
+                metadata.name = "config-nats"
+                metadata.namespace = knativeConfig.eventing.namespace
+                data = {
+                   "eventing-nats" = yaml.encode({
+                        url = "nats://${nats.nats_user}:${nats.nats_password}@${nats.nats_release_name}.${nats.nats_namespace}:${nats.nats_port}"
+                        connOpts = {
+                            retryOnFailedConnect = True
+                            maxReconnects = 50
+                            reconnectWait = 2000
+                            reconnectJitterMilliseconds = 100
+                            reconnectJitterTLSMilliseconds = 1000
+                        } 
+                   })
+                } 
+
+            }
+
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.kcl)
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.auto_ready)
             CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.kubernetes)
