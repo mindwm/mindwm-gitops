@@ -10,7 +10,7 @@ api_version = "apiextensions.crossplane.io/v1"
 
 composite_version = "v1beta1"
 
-kcl_util_func = file.read("../config.k")
+kcl_util_func = file.read("./config.k")
 
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]

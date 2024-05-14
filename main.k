@@ -247,6 +247,15 @@ mindwm_app = ArgoCdOrder.make({
             })
             for resource in XrdKclFunction.makeContextXR()
         ]
+
+        [
+            p.merge(resource, {
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+            })
+            for resource in XrdKclFunction.makeUserXR()
+        ]
     ]
 
 })
