@@ -10,7 +10,7 @@ api_version = "apiextensions.crossplane.io/v1"
 
 composite_version = "v1beta1"
 
-kcl_util_func = file.read("./config.k")
+kcl_util_func = file.read("../config.k")
 
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]
@@ -319,6 +319,10 @@ makeUserXR = lambda {
     }, {
         type = "object"
         properties.name.type = "string"
+        properties.context = {
+            type = "array"
+            items.type = "string"
+        } 
     }, [
         {
             step = "resources"
@@ -326,34 +330,124 @@ makeUserXR = lambda {
             input = {
                 apiVersion = "krm.kcl.dev/v1alpha1"
                 kind = "KCLRun"
-                spec.source = template.execute("""user_name = option("params").oxr.spec.name
+                # TODO (@metacoma) add kcl_util_func to template data in mk function
+                spec.source = template.execute("""${kcl_util_func}
+user_name = option("params").oxr.spec.name
+context_names = option("params").oxr.spec.context
 items = [
+  {
+    apiVersion = "v1"
+    kind = "Namespace"
+    metadata.name = Mindwm.user.namespace("{{ user_name }}")
+  }
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = "user-configmap-{{ user_name }}"
-    spec = {
-      forProvider = {
-        manifest = {
-          apiVersion = "v1"
-          kind = "ConfigMap"
-          metadata.name = "user-configmap-{{ user_name }}"
-          metadata.namespace = "default"
-          data = {
-            foo = "bar"
-          }
+    metadata.name = Mindwm.user.broker.configmap()
+    spec.forProvider.manifest = {
+        apiVersion = "v1"
+        kind = "ConfigMap"
+        metadata = {
+            name = Mindwm.user.broker.configmap()
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+        } 
+        data = {
+            "channel-template-spec" = '''
+apiVersion: messaging.knative.dev/v1
+kind: InMemoryChannel
+'''
         }
-      }
     }
   }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.user.broker.name
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Broker"
+        metadata = {
+            name = Mindwm.user.broker.name
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+            annotations = {
+                "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
+            }
+        } 
+        spec.config = {
+            apiVersion = "v1"
+            kind = "ConfigMap"
+            name = Mindwm.user.broker.configmap()
+        }
+
+    }
+  }
+
+  # deadLetter service
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.user.deadLetter.name
+    spec.forProvider.manifest = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        metadata = {
+            name = Mindwm.user.deadLetter.name
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+        } 
+        spec.template.spec.containers = [{
+            image = "${config.knativeBroker.deadLetterImage}"
+        }]
+
+    }
+  }
+] + [
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.user.contextTrigger("{{ context_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Trigger"
+        metadata = {
+            name = Mindwm.user.contextTrigger("{{ context_name }}")
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+        } 
+        spec = {
+            broker = Mindwm.user.broker.name
+            delivery = {
+                deadLetterSink.ref = {
+                    apiVersion = "serving.knative.dev/v1"
+                    kind = "Service"
+                    name = Mindwm.user.deadLetter.name
+                } 
+            } 
+            filters = [
+                {
+                    exact.type = "iodocument"
+                }
+            ]
+            subscriber.ref = {
+                apiVersion = "eventing.knative.dev/v1"
+                kind = "Broker"
+                name = contextBroker.name("{{ context_name }}")
+                namespace = makeContextNamespace("{{ context_name }}")
+            }
+        }
+    }
+  } 
+  for context_name in context_names
 ]
 """, {
     user_name = r"${user_name}"
+    context_names = r"${context_names}"
+    context_name = r"${context_name}"
 })
             }
         }
     ])
 }
+
+
 
 makeHostXR = lambda {
     mkComposition({
@@ -399,8 +493,8 @@ items = [
     ])
 }
 
-#manifests.yaml_stream([
-#    makeContextXR()
-#    makeUserXR()
+manifests.yaml_stream([
+    makeContextXR()
+    makeUserXR()
 #    makeHostXR()
-#])
+])

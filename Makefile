@@ -51,6 +51,22 @@ kcl_log:
 my_plugin:
 	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin
 
+function_kcl_exec:
+	kubectl -n crossplane-system exec -ti `kubectl -n crossplane-system get pods -l pkg.crossplane.io/function=function-kcl -o name` -- /bin/bash
+
+copy_prog:
+	$(eval FUNCTION_KCL_POD := $(shell kubectl -n crossplane-system get pods -l pkg.crossplane.io/function=function-kcl -o name))
+	$(eval LAST_FILE := $(shell kubectl -n crossplane-system exec -ti $(FUNCTION_KCL_POD) -- sh -c "ls -ltr /tmp | sed -nr '$$ s,.* (sandbox.*),/tmp/\1/prog.k,p'"))
+	kubectl -n crossplane-system exec $(FUNCTION_KCL_POD) -- cat $(LAST_FILE)
+
+stuck_ns:
+	kubectl get namespace "$(DELETE_NS)" -o json \
+	  | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/" \
+  		| kubectl replace --raw /api/v1/namespaces/$(DELETE_NS)/finalize -f -
+
+
+
+
 #.PHONY: argocd_password
 argocd_password:
 	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))

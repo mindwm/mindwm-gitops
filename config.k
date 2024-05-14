@@ -28,6 +28,26 @@ contextBroker = {
     } 
 } 
 
+Mindwm = {
+    user = {
+        namespace = lambda username : str -> str {
+            "user-" + username
+        } 
+        broker = {
+            configmap = lambda -> str {
+                "user-broker-configmap"
+            } 
+            name = "user"
+        } 
+        deadLetter = {
+            name = "dead-letter" 
+        } 
+        contextTrigger = lambda context_name : str -> str {
+            "trigger-user-broker-to" + delimiter + context_name
+        }
+    } 
+} 
+
 kafka_cluster_name = "neo4j-cdc"
 kafka_port = 9003
 neo4j_version = "4.4.33"
