@@ -42,6 +42,9 @@ Mindwm = {
         deadLetter = {
             name = "dead-letter" 
         } 
+        contextTrigger = lambda context_name : str -> str {
+            "trigger-user-broker-to" + delimiter + context_name
+        }
     } 
 } 
 
