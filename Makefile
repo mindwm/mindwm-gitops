@@ -59,6 +59,11 @@ copy_prog:
 	$(eval LAST_FILE := $(shell kubectl -n crossplane-system exec -ti $(FUNCTION_KCL_POD) -- sh -c "ls -ltr /tmp | sed -nr '$$ s,.* (sandbox.*),/tmp/\1/prog.k,p'"))
 	kubectl -n crossplane-system exec $(FUNCTION_KCL_POD) -- cat $(LAST_FILE)
 
+stuck_ns:
+	kubectl get namespace "$(DELETE_NS)" -o json \
+	  | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/" \
+  		| kubectl replace --raw /api/v1/namespaces/$(DELETE_NS)/finalize -f -
+
 
 
 
