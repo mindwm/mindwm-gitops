@@ -6,8 +6,14 @@ nats_port = 4222
 
 
 config = {
-    cluster.merge.name = "nats-cluster"
-    jetstream.enable = True
+    cluster = {
+        merge = {
+            name = "nats-cluster"
+        }
+    }
+    jetstream = {
+        enable = True
+    } 
     merge = {
         accounts = {
             "$SYS" = {
