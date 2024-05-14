@@ -46,6 +46,19 @@ Mindwm = {
             "trigger-user-broker-to" + delimiter + context_name
         }
     } 
+    host = {
+        broker = {
+            configmap = lambda host_name : str -> str {
+                host_name + delimiter + "broker-configmap"
+            } 
+            name = lambda host_name : str -> str {
+                host_name + delimiter + "broker"
+            } 
+        } 
+        trigger = lambda host_name : str -> str {
+            "trigger-host-broker-to" + delimiter + host_name
+        }
+    }
 } 
 
 kafka_cluster_name = "neo4j-cdc"
