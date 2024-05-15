@@ -13,10 +13,9 @@ config = {
         }
     }
     jetstream = {
-        merge = {
-            enabled = True
-        } 
-    } 
+        enabled = True
+    }
+
     merge = {
         accounts = {
             "$SYS" = {
