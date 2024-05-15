@@ -9,10 +9,13 @@ config = {
     cluster = {
         merge = {
             name = "nats-cluster"
+            replicas = 2 # msut be 2 or highr when jetstream is enabled
         }
     }
     jetstream = {
-        enable = True
+        merge = {
+            enabled = True
+        } 
     } 
     merge = {
         accounts = {
@@ -45,5 +48,5 @@ NatsJetStreamChannel =  {
         name = "mindwm"
         namespace = "knative-eventing"
     }
- 
+
 }
