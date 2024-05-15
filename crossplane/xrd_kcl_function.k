@@ -89,6 +89,9 @@ items = [
     apiVersion = "v1"
     kind = "Namespace"
     metadata.name = makeContextNamespace("{{ context_name }}")
+    metadata.labels = {
+        "istio-injection" = "enalbed"
+    }
   }
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
@@ -339,6 +342,9 @@ items = [
     apiVersion = "v1"
     kind = "Namespace"
     metadata.name = Mindwm.user.namespace("{{ user_name }}")
+    metadata.labels = {
+        "istio-injection" = "enalbed"
+    }
   }
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
