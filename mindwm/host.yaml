@@ -1,0 +1,7 @@
+apiVersion: mindwm.io/v1beta1
+kind: Host
+metadata:
+  name: amanda
+spec:
+  name: "amanda"
+  username: "bebebeko"
