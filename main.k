@@ -186,9 +186,21 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
-                spec.config.istio = {
-                    "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
+                spec = {
+                    config = {
+                        istio = {
+                            "local-gateways" = yaml.encode([{
+                                name = "knative-local-gateway"    
+                                namespace = "istio-system"
+                                service = "knative-local-gateway.istio-system.svc.cluster.local"
+
+                            }])
+                        } 
+                    }
                 }
+                #"spec.config.istio.local-gateways" = {
+                #    "local-gateway.${istio.gateway.namespace}.knative-local-gateway" = "knative-local-gateway.${istio.system.namespace}.svc.cluster.local"
+                #}
             }
 
             knative.KnativeEventing {
