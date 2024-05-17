@@ -257,6 +257,7 @@ mindwm_app = ArgoCdOrder.make({
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-controller.yaml"))
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml"))
         yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
+        yaml.decode_all(file.read("manifests/mdns.yaml"))
 
         [
             p.merge(resource, {
