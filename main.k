@@ -10,7 +10,6 @@ import .nats as nats
 import knative_operator.v1beta1 as knative
 import knative as knativeConfig
 import json_merge_patch as p
-import .mindwm.context as mindwm_context
 import .flux as flux
 import .redpanda.config as redpanda_config
 import .redpanda.schema as RedPandaSchema
