@@ -191,7 +191,7 @@ mindwm_app = ArgoCdOrder.make({
                         istio = {
                             "local-gateways" = yaml.encode([{
                                 name = "knative-local-gateway"    
-                                namespace = "istio-system"
+                                namespace = "knative-serving"
                                 service = "knative-local-gateway.istio-system.svc.cluster.local"
 
                             }])
