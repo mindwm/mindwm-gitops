@@ -668,5 +668,3 @@ spec:
     - kn-routing
   secretName: routing-serving-certs
 # The data is populated when system-internal-tls is enabled.
-
----
