@@ -338,6 +338,40 @@ kind: InMemoryChannel
     }
   }
 
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = "${config.Mindwm.context.io_context.name}-trigger" 
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Trigger"
+        metadata = {
+            name = "${config.Mindwm.context.io_context.name}-trigger" 
+            namespace = makeContextNamespace("{{ context_name }}")
+        }
+        spec = {
+            broker = contextBroker.name("{{ context_name }}")
+            delivery = {
+                deadLetterSink.ref = {
+                    apiVersion = "serving.knative.dev/v1"
+                    kind = "Service"
+                    name = contextBroker.deadLetterName("{{ context_name }}")
+                }
+            }
+            filters = [
+                {
+                    exact.type = "iodocument"
+                }
+            ]
+            subscriber.ref = {
+                apiVersion = "serving.knative.dev/v1"
+                kind = "Service"
+                name = "${config.Mindwm.context.io_context.name}" 
+                namespace = makeContextNamespace("{{ context_name }}")
+            }
+        }
+    }
+
 
 ]
 """, {
