@@ -28,6 +28,7 @@ contextBroker = {
     } 
 } 
 
+
 Mindwm = {
     user = {
         namespace = lambda username : str -> str {
@@ -60,6 +61,15 @@ Mindwm = {
         }
     }
 } 
+
+knative = {
+    serving = {
+        namespace = "knative-serving"
+    } 
+    eventing = {
+        namespace = "knative-eventing"
+    } 
+}
 
 kafka_cluster_name = "neo4j-cdc"
 kafka_port = 9003

@@ -8,7 +8,7 @@ import file
 import .istio as istio
 import .nats as nats
 import knative_operator.v1beta1 as knative
-import knative as knativeConfig
+#import knative as knativeConfig
 import json_merge_patch as p
 import .flux as flux
 import .redpanda.config as redpanda_config
@@ -35,13 +35,13 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.name = istio.gateway.namespace
             }
             k8core.Namespace {
-                metadata.name = knativeConfig.serving.namespace
+                metadata.name = config.knative.serving.namespace
                 metadata.labels = {
                     "istio-injection" = "enalbed"
                 }
             }
             k8core.Namespace {
-                metadata.name = knativeConfig.eventing.namespace
+                metadata.name = config.knative.serving.eventing
             }
 
             argocdSchema.argoHelmRelease({
@@ -182,7 +182,7 @@ mindwm_app = ArgoCdOrder.make({
             RedPandaSchema.makeKafkaCluster(config.kafka.cluster_name)
             knative.KnativeServing {
                 metadata.name = "knative-serving"
-                metadata.namespace = knativeConfig.serving.namespace
+                metadata.namespace = config.knative.serving.namespace
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
@@ -191,12 +191,12 @@ mindwm_app = ArgoCdOrder.make({
                         istio = {
                             "local-gateways" = yaml.encode([{
                                 name = "knative-local-gateway"    
-                                namespace = "knative-serving"
+                                namespace = config.knative.serving.namespace
                                 service = "knative-local-gateway.istio-system.svc.cluster.local"
                             }])
                             "external-gateways" = yaml.encode([{
                                 name = "knative-ingress-gateway"
-                                namespace = "knative-serving"
+                                namespace = config.knative.serving.namespace
                                 service = "gateway.istio-ingress.svc.cluster.local"
                             }])
 
@@ -210,7 +210,7 @@ mindwm_app = ArgoCdOrder.make({
 
             knative.KnativeEventing {
                 metadata.name = "knative-eventing"
-                metadata.namespace = knativeConfig.eventing.namespace
+                metadata.namespace = config.knative.eventing.namespace
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
@@ -218,7 +218,7 @@ mindwm_app = ArgoCdOrder.make({
 
             k8core.ConfigMap {
                 metadata.name = "config-nats"
-                metadata.namespace = knativeConfig.eventing.namespace
+                metadata.namespace = config.knative.eventing.namespace
                 data = {
                    "eventing-nats" = yaml.encode({
                         url = "nats://${nats.nats_user}:${nats.nats_password}@${nats.nats_release_name}.${nats.nats_namespace}:${nats.nats_port}"
