@@ -60,6 +60,13 @@ Mindwm = {
             "trigger-host-broker-to" + delimiter + host_name
         }
     }
+
+    context = {
+        io_context = {
+            name = "io-context"
+            image = "metacoma/knative-neomodel:latest"
+        } 
+    } 
 } 
 
 knative = {

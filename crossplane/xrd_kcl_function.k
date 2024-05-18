@@ -305,6 +305,26 @@ kind: InMemoryChannel
     }
   }
 
+  # io_context
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = "${config.Mindwm.context.io_context.name}"
+    spec.forProvider.manifest = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        metadata = {
+            name = "${config.Mindwm.context.io_context.name}" 
+            namespace = makeContextNamespace("{{ context_name }}")
+        }
+        spec.template.spec.containers = [{
+            image = "${config.Mindwm.context.io_context.image}" 
+        }]
+
+    }
+  }
+
+
 ]
 """, {
     context_name = r"${context_name}"
