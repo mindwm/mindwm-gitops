@@ -136,13 +136,13 @@ items = [
   {
     apiVersion = "helm.crossplane.io/v1beta1"
     kind = "Release"
-    metadata.name = "neo4j"
+    metadata.name = "${config.neo4j.release_name}"
     spec = {
       forProvider = {
         chart = {
           name = "${charts.neo4j.name}"
           repository = "${charts.neo4j.repoURL}"
-          version = "${config.config.neo4j_version}"
+          version = "${config.neo4j.version}"
         }
         namespace = makeContextNamespace("{{ context_name }}")
         values = {
@@ -318,6 +318,20 @@ kind: InMemoryChannel
             namespace = makeContextNamespace("{{ context_name }}")
         }
         spec.template.spec.containers = [{
+            env = [
+                {
+                    name = "NEO4J_URL"
+                    value = "bolt://${config.neo4j.release_name}." + makeContextNamespace("{{ context_name }}") + ":${config.neo4j.port}"
+                }
+                {
+                    name = "NEO4J_USERNAME"
+                    value = "${config.neo4j.username}"
+                }
+                {
+                    name = "NEO4J_PASSWORD"
+                    value = "${config.neo4j.password}"
+                }
+            ]
             image = "${config.Mindwm.context.io_context.image}" 
         }]
 
