@@ -371,7 +371,7 @@ kind: InMemoryChannel
             }
         }
     }
-
+  }
 
 ]
 """, {
