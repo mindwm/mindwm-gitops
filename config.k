@@ -71,6 +71,16 @@ knative = {
     } 
 }
 
+istio = {
+    version = "1.21.1"
+    system = {
+        namespace = "istio-system"
+    }
+    gateway = {
+        namespace = "istio-ingress"
+    } 
+}
+
 kafka_cluster_name = "neo4j-cdc"
 kafka_port = 9003
 neo4j_version = "4.4.33"

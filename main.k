@@ -5,10 +5,8 @@ import yaml
 import manifests
 import k8s.api.core.v1 as k8core
 import file
-import .istio as istio
 import .nats as nats
 import knative_operator.v1beta1 as knative
-#import knative as knativeConfig
 import json_merge_patch as p
 import .flux as flux
 import .redpanda.config as redpanda_config
@@ -29,10 +27,10 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.name = redpanda_config.redpanda.namespace
             }
             k8core.Namespace {
-                metadata.name = istio.system.namespace
+                metadata.name = config.istio.system.namespace
             }
             k8core.Namespace {
-                metadata.name = istio.gateway.namespace
+                metadata.name = config.istio.gateway.namespace
             }
             k8core.Namespace {
                 metadata.name = config.knative.serving.namespace
@@ -126,10 +124,10 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             argocdSchema.argoHelmRelease({
-                namespace = istio.system.namespace,
+                namespace = config.istio.system.namespace,
                 name = "istio-base"
                 chart = charts.istio_base
-                version = istio.version
+                version = config.istio.version
             }) | {
             spec.ignoreDifferences = [
                 {
@@ -143,20 +141,20 @@ mindwm_app = ArgoCdOrder.make({
 
 
             argocdSchema.argoHelmRelease({
-                namespace = istio.system.namespace,
+                namespace = config.istio.system.namespace,
                 name = "istiod"
                 chart = charts.istiod
-                version = istio.version
+                version = config.istio.version
             })
         ]
         [
 
 
             argocdSchema.argoHelmRelease({
-                namespace = istio.gateway.namespace
+                namespace = config.istio.gateway.namespace
                 name = "gateway"
                 chart = charts.istio_gateway
-                version = istio.version
+                version = config.istio.version
             })
 
             # required by redpanda-operator
@@ -192,12 +190,12 @@ mindwm_app = ArgoCdOrder.make({
                             "local-gateways" = yaml.encode([{
                                 name = "knative-local-gateway"    
                                 namespace = config.knative.serving.namespace
-                                service = "knative-local-gateway.istio-system.svc.cluster.local"
+                                service = "knative-local-gateway.${config.istio.system.namespace}.svc.cluster.local"
                             }])
                             "external-gateways" = yaml.encode([{
                                 name = "knative-ingress-gateway"
                                 namespace = config.knative.serving.namespace
-                                service = "gateway.istio-ingress.svc.cluster.local"
+                                service = "gateway.${config.istio.gateway.namespace}.svc.cluster.local"
                             }])
 
                         } 
