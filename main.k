@@ -39,7 +39,7 @@ mindwm_app = ArgoCdOrder.make({
                 }
             }
             k8core.Namespace {
-                metadata.name = config.knative.serving.eventing
+                metadata.name = config.knative.eventing.namespace
             }
 
             argocdSchema.argoHelmRelease({
