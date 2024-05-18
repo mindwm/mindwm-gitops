@@ -222,12 +222,12 @@ mindwm_app = ArgoCdOrder.make({
 
             }
 
-            CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.kcl)
-            CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.auto_ready)
-            CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.kubernetes)
 
 
         ]
+        CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.kcl)
+        CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.auto_ready)
+        CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.kubernetes)
         CrossPlaneProvider.makeCrossPlaneProviderHelm(CrossPlaneProvider.helm)
         [
             p.merge(resource, {
