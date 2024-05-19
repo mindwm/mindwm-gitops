@@ -57,6 +57,8 @@ Mindwm = {
             } 
         } 
         trigger = lambda host_name : str -> str {
+            # FIXME (@metacoma) 
+            # host trigger name = "trigger-{host_name}-broker-to-user-broker 
             "trigger-host-broker-to" + delimiter + host_name
         }
     }

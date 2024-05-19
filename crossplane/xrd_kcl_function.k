@@ -321,7 +321,7 @@ kind: InMemoryChannel
             env = [
                 {
                     name = "NEO4J_URL"
-                    value = "bolt://${config.neo4j.release_name}." + makeContextNamespace("{{ context_name }}") + ":${config.neo4j.port}"
+                    value = "${config.neo4j.release_name}." + makeContextNamespace("{{ context_name }}") + ":${config.neo4j.port}"
                 }
                 {
                     name = "NEO4J_USERNAME"
