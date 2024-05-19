@@ -622,7 +622,7 @@ spec:
             subscriber.ref = {
                 apiVersion = "eventing.knative.dev/v1"
                 kind = "Broker"
-                name = Mindwm.user.broker
+                name = Mindwm.user.broker.name
                 namespace = Mindwm.user.namespace("{{ user_name }}")
             }
         }
