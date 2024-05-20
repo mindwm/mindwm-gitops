@@ -566,7 +566,7 @@ spec:
     config:
       additionalSubjects:
         - "mindwm.{{ user_name }}.{{ host_name }}.>"
-      overrideName: amanda
+      overrideName: {{ host_name }}
 '''
         }
     }
