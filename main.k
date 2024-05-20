@@ -181,11 +181,21 @@ mindwm_app = ArgoCdOrder.make({
                                 name = "knative-local-gateway"    
                                 namespace = config.knative.serving.namespace
                                 service = "knative-local-gateway.${config.istio.system.namespace}.svc.cluster.local"
+                                labelSelector = {
+                                    matchLabels = {
+                                        istio = "gateway"
+                                    } 
+                                } 
                             }])
                             "external-gateways" = yaml.encode([{
                                 name = "knative-ingress-gateway"
                                 namespace = config.knative.serving.namespace
                                 service = "gateway.${config.istio.gateway.namespace}.svc.cluster.local"
+                                labelSelector = {
+                                    matchLabels = {
+                                        istio = "gateway"
+                                    } 
+                                } 
                             }])
 
                         } 
