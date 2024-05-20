@@ -142,7 +142,7 @@ mindwm_app = ArgoCdOrder.make({
 
             argocdSchema.argoHelmRelease({
                 namespace = config.istio.gateway.namespace
-                name = "gateway"
+                name = "istio-ingressgateway"
                 chart = charts.istio_gateway
                 version = config.istio.version
             })

@@ -86,7 +86,7 @@ istio = {
         namespace = "istio-system"
     }
     gateway = {
-        namespace = "istio-ingress"
+        namespace = "istio-system"
     } 
 }
 
