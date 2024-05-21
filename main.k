@@ -246,6 +246,9 @@ mindwm_app = ArgoCdOrder.make({
                         "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                     } 
                 } 
+                spec = {
+                    deployment.service_type = "LoadBalancer"
+                } 
             } 
 
             {
