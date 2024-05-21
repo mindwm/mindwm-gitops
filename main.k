@@ -255,6 +255,7 @@ mindwm_app = ArgoCdOrder.make({
                 } 
                 spec = {
                     deployment.service_type = "LoadBalancer"
+                    external_services.prometheus.url = "http://${charts.kube_prometheus_stack.name}-prometheus.${config.prometheus.namespace}:9090"
                 } 
             } 
 
