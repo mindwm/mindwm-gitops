@@ -242,8 +242,12 @@ mindwm_app = ArgoCdOrder.make({
                 metadata = {
                     name = "kiali"
                     namespace = config.istio.system.namespace
+                    annotations = {
+                        "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                    } 
                 } 
             } 
+
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
                 kind = "ProviderConfig"
