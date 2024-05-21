@@ -237,6 +237,14 @@ mindwm_app = ArgoCdOrder.make({
         ]
         [
             {
+                apiVersion = "kiali.io/v1alpha1"
+                kind = "Kiali"
+                metadata = {
+                    name = "kiali"
+                    namespace = config.istio.system.namespace
+                } 
+            } 
+            {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
                 kind = "ProviderConfig"
                 metadata.name = "default"
