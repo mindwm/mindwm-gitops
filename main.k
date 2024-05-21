@@ -107,6 +107,20 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             argocdSchema.argoHelmRelease({
+                namespace = config.kiali_operator.namespace
+                name = config.kiali_operator.release_name
+                chart = charts.kiali_operator
+                version = "v1.84.0"
+                values = {
+                    cr = {
+                        create = True
+                        namespace = config.istio.system.namespace
+                        spec.auth.strategy = "anonymous"
+                    }
+                }
+            })
+
+            argocdSchema.argoHelmRelease({
                 namespace = config.config.crossplane.namespace
                 name = "crossplane"
                 chart = charts.crossplane

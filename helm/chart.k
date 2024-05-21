@@ -45,3 +45,8 @@ crossplane : schema.HelmChart = {
     name = "crossplane" 
     repoURL = "https://charts.crossplane.io/stable"
 }
+
+kiali_operator : schema.HelmChart = {
+    name = "kiali-operator"
+    repoURL = "https://kiali.org/helm-charts"
+} 

@@ -92,8 +92,8 @@ istio = {
 
 kafka_cluster_name = "neo4j-cdc"
 kafka_port = 9003
-neo4j_version = "4.4.33"
-neo4j_password = "password"
+#neo4j_version = "4.4.33"
+#neo4j_password = "password"
 crossplane = {
     namespace = "crossplane-system"
 } 
@@ -122,6 +122,11 @@ neo4j = {
     password = "password"
     release_name = "neo4j"
     port = 7687
+} 
+
+kiali_operator = {
+    namespace = "kiali-operator"
+    release_name = "kiali-operator"
 } 
 
 config = {
