@@ -107,6 +107,13 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             argocdSchema.argoHelmRelease({
+                namespace = config.prometheus.namespace
+                name = charts.kube_prometheus_stack.name
+                chart = charts.kube_prometheus_stack
+                version = "58.6.0"
+            })
+
+            argocdSchema.argoHelmRelease({
                 namespace = config.kiali_operator.namespace
                 name = config.kiali_operator.release_name
                 chart = charts.kiali_operator

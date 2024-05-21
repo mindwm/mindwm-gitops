@@ -99,6 +99,10 @@ crossplane = {
 } 
 
 
+prometheus = {
+    namespace = "prometheus"
+} 
+
 delimiter = "-"
 
 contextNamespacePrefix = "context" 

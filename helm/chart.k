@@ -50,3 +50,8 @@ kiali_operator : schema.HelmChart = {
     name = "kiali-operator"
     repoURL = "https://kiali.org/helm-charts"
 } 
+
+kube_prometheus_stack : schema.HelmChart = {
+    name = "kube-prometheus-stack"
+    repoURL ="https://prometheus-community.github.io/helm-charts"
+} 
