@@ -111,7 +111,7 @@ crossplane = {
 
 
 prometheus = {
-    namespace = "prometheus"
+    namespace = "monitoring"
 } 
 
 delimiter = "-"
