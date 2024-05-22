@@ -136,7 +136,7 @@ items = [
   {
     apiVersion = "helm.crossplane.io/v1beta1"
     kind = "Release"
-    metadata.name = neo4.crossplane_pvc_name("{{ context_name }}")
+    metadata.name = neo4j.crossplane_pvc_name("{{ context_name }}")
     spec = {
       forProvider = {
         chart = {
