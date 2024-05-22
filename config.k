@@ -35,8 +35,8 @@ Mindwm = {
             "user-" + username
         } 
         broker = {
-            configmap = lambda -> str {
-                "user-broker-configmap"
+            configmap = lambda user_name : str -> str {
+                "user" + delimiter + user_name + delimiter + "broker-configmap"
             } 
             name = "user"
         } 

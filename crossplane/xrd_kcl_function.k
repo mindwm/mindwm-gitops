@@ -417,12 +417,12 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = Mindwm.user.broker.configmap()
+    metadata.name = Mindwm.user.broker.configmap("{{ user_name }}")
     spec.forProvider.manifest = {
         apiVersion = "v1"
         kind = "ConfigMap"
         metadata = {
-            name = Mindwm.user.broker.configmap()
+            name = Mindwm.user.broker.configmap("{{ user_name }}")
             namespace = Mindwm.user.namespace("{{ user_name }}")
         }
         data = {
@@ -450,7 +450,7 @@ kind: InMemoryChannel
         spec.config = {
             apiVersion = "v1"
             kind = "ConfigMap"
-            name = Mindwm.user.broker.configmap()
+            name = Mindwm.user.broker.configmap("{{ user_name }}")
         }
 
     }
