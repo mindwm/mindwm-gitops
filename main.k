@@ -110,7 +110,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.prometheus.namespace
                 name = charts.kube_prometheus_stack.name
                 chart = charts.kube_prometheus_stack
-                version = "v0.73.2"
+                version = "58.6.0"
             })
 
             argocdSchema.argoHelmRelease({
