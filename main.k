@@ -111,7 +111,17 @@ mindwm_app = ArgoCdOrder.make({
                 name = charts.kube_prometheus_stack.name
                 chart = charts.kube_prometheus_stack
                 version = "58.6.0"
-            })
+            }) | {
+                spec.syncPolicy = {
+                    automated = {
+                        selfHeal = True
+                    }
+                    syncOptions = [
+                        "CreateNamespace=true"
+                        "ServerSideApply=true"
+                    ]
+                } 
+            }
 
             argocdSchema.argoHelmRelease({
                 namespace = config.kiali_operator.namespace
