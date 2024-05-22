@@ -26,5 +26,5 @@ spec:
           enabled: true
     storage:
       persistentVolume:
-      enabled: true
-      size: 4Gi
+        enabled: true
+        size: 1Gi
