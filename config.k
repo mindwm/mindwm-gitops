@@ -70,6 +70,9 @@ Mindwm = {
     context = {
         io_context = {
             name = "io-context"
+            crossplane_name = lambda context_name : str -> str {
+                 context_name + delimiter + "io-context"       
+            }
             image = "metacoma/knative-neomodel:latest"
         } 
     } 

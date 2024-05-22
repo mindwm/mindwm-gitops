@@ -309,7 +309,7 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = "${config.Mindwm.context.io_context.name}"
+    metadata.name = Mindwm.context.io_context.crossplane_name("{{ context_name }}")
     spec.forProvider.manifest = {
         apiVersion = "serving.knative.dev/v1"
         kind = "Service"
