@@ -47,8 +47,13 @@ Mindwm = {
                 "user" + delimiter + user_name + delimiter + "dead-letter" 
             }
         } 
-        contextTrigger = lambda context_name : str -> str {
-            "trigger-user-broker-to" + delimiter + context_name
+        contextTrigger = {
+            name = lambda context_name : str -> str {
+                "trigger-user-broker-to" + delimiter + context_name
+            } 
+            crossplane_name = lambda user_name : str, context_name : str -> str {
+                "trigger" + delimiter + user_name + delimiter " broker-to" + delimiter + context_name
+            } 
         }
     } 
     host = {
