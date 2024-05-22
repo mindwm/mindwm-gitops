@@ -38,10 +38,14 @@ Mindwm = {
             configmap = lambda user_name : str -> str {
                 "user" + delimiter + user_name + delimiter + "broker-configmap"
             } 
-            name = "user"
+            name = lambda user_name : str -> str {
+                "user" + delimiter + user_name + delimiter + "broker"
+            } 
         } 
         deadLetter = {
-            name = "dead-letter" 
+            name = lambda user_name : str -> str {
+                "user" + delimiter + user_name + delimiter + "dead-letter" 
+            }
         } 
         contextTrigger = lambda context_name : str -> str {
             "trigger-user-broker-to" + delimiter + context_name
@@ -126,6 +130,10 @@ neo4j = {
     password = "password"
     release_name = "neo4j"
     port = 7687
+
+    crossplane_pvc_name = lambda context_name : str -> str {
+        context_name + delimiter + "neo4j-plugin-pvc"
+    } 
 } 
 
 kiali_operator = {

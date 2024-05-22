@@ -436,12 +436,12 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = Mindwm.user.broker.name
+    metadata.name = Mindwm.user.broker.name("{{ user_name }}")
     spec.forProvider.manifest = {
         apiVersion = "eventing.knative.dev/v1"
         kind = "Broker"
         metadata = {
-            name = Mindwm.user.broker.name
+            name = Mindwm.user.broker.name("{{ user_name }}")
             namespace = Mindwm.user.namespace("{{ user_name }}")
             annotations = {
                 "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
@@ -460,12 +460,12 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = Mindwm.user.deadLetter.name
+    metadata.name = Mindwm.user.deadLetter.name("{{ user_name }}")
     spec.forProvider.manifest = {
         apiVersion = "serving.knative.dev/v1"
         kind = "Service"
         metadata = {
-            name = Mindwm.user.deadLetter.name
+            name = Mindwm.user.deadLetter.name("{{ user_name }}")
             namespace = Mindwm.user.namespace("{{ user_name }}")
         }
         spec.template.spec.containers = [{
@@ -487,12 +487,12 @@ kind: InMemoryChannel
             namespace = Mindwm.user.namespace("{{ user_name }}")
         }
         spec = {
-            broker = Mindwm.user.broker.name
+            broker = Mindwm.user.broker.name("{{ user_name }}")
             delivery = {
                 deadLetterSink.ref = {
                     apiVersion = "serving.knative.dev/v1"
                     kind = "Service"
-                    name = Mindwm.user.deadLetter.name
+                    name = Mindwm.user.deadLetter.name("{{ user_name }}")
                 }
             }
             filters = [
@@ -611,7 +611,7 @@ spec:
                 deadLetterSink.ref = {
                     apiVersion = "serving.knative.dev/v1"
                     kind = "Service"
-                    name = Mindwm.user.deadLetter.name
+                    name = Mindwm.user.deadLetter.name("{{ user_name }}")
                 }
             }
             filters = [
@@ -622,7 +622,7 @@ spec:
             subscriber.ref = {
                 apiVersion = "eventing.knative.dev/v1"
                 kind = "Broker"
-                name = Mindwm.user.broker.name
+                name = Mindwm.user.broker.name("{{ user_name }}")
                 namespace = Mindwm.user.namespace("{{ user_name }}")
             }
         }
