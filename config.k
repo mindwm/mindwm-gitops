@@ -73,6 +73,10 @@ Mindwm = {
             crossplane_name = lambda context_name : str -> str {
                  context_name + delimiter + "io-context"       
             }
+            crossplane_trigger = lambda context_name : str -> str {
+                 context_name + delimiter + "io-context-trigger"       
+            }
+
             image = "metacoma/knative-neomodel:latest"
         } 
     } 

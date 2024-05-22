@@ -341,7 +341,7 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = "${config.Mindwm.context.io_context.name}-trigger" 
+    metadata.name = Mindwm.context.io_context.crossplane_trigger("{{ context_name }}")
     spec.forProvider.manifest = {
         apiVersion = "eventing.knative.dev/v1"
         kind = "Trigger"
