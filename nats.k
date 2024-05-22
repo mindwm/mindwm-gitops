@@ -14,6 +14,7 @@ config = {
     }
     jetstream = {
         enabled = True
+        fileStore.pvc.size = "2Gi"
     }
 
     merge = {
