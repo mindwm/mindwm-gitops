@@ -147,7 +147,7 @@ neo4j = {
         context_name + delimiter + "neo4j-plugin-pvc"
     } 
 
-    crossplane_pvc_name = lambda context_name : str -> str {
+    crossplane_name = lambda context_name : str -> str {
         context_name + delimiter + "neo4j"
     } 
 } 
