@@ -96,7 +96,7 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = "neo4j-plugins-pvc"
+    metadata.name = neo4j.crossplane_pvc_name("{{ context_name }}")
     spec.forProvider.manifest = {
         apiVersion = "v1"
         kind = "PersistentVolumeClaim"
