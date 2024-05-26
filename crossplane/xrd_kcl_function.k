@@ -167,7 +167,7 @@ items = [
                 "NEO4J_streams_source_topic_nodes_{{ kafkaTopicName }}" = "*"
                 "NEO4J_streams_source_topic_relationships_{{ kafkaTopicName }}" = '*'
             }
-            neo4j.password = "${config.config.neo4j_password}"
+            neo4j.password = "${config.neo4j.password}"
             services.neo4j.spec.type = "NodePort"
             volumes = {
                 data = {
