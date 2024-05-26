@@ -100,7 +100,7 @@ mindwm_app = ArgoCdOrder.make({
                 values = {
                     config = nats.config
                     service = {
-                        merge.spec.type = "NodePort"
+                        merge.spec.type = "LoadBalancer"
                         port.cluster.enabled = True
                     }
                 }
