@@ -1,0 +1,16 @@
+name: mindwm-dev1 cluster
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  redeploy_cluster:
+
+    runs-on: [self-hosted, staging]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Redeploy the k3s cluster
+      run: make mindwm_lifecycle
