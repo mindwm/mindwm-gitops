@@ -10,17 +10,16 @@ fix_dns_upstream:
 	kubectl delete pod -n kube-system -l k8s-app=kube-dns
 
 crossplane_rolebinding_workaround:
-	# https://github.com/crossplane-contrib/provider-kubernetes
-	for i in kcl-function provider-kubernetes provider-helm; do \
-		SA=`kubectl -n crossplane-system get sa -o name | grep $$i | sed -e 's|serviceaccount\/|crossplane-system:|g'` && \
-		kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount="$$SA"; \
-	done && \
-	SA=crossplane-system:crossplane && \
-	i=crossplane && \
-	kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount="$$SA";
-
-
-
+	$(KUBECTL_RUN) '\
+		for i in kcl-function provider-kubernetes provider-helm; do \
+			SA=`kubectl -n crossplane-system get sa -o name | grep $$i | sed -e "s|serviceaccount\/|crossplane-system:|g"`; \
+			test -n "$$SA" || continue; \
+			kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount=$$SA; \
+		done;\
+		SA=crossplane-system:crossplane && \
+		i=crossplane && \
+		kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount=$$SA \
+	'
 
 deinstall:
 	k3s-uninstall.sh ; \
@@ -33,12 +32,16 @@ cluster: deinstall
 
 
 argocd:
-	helm repo add argocd https://argoproj.github.io/argo-helm && \
-	helm repo update argocd && \
-	helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --set server.service.servicePortHttp=$(ARGOCD_HOST_PORT) --wait --timeout 5m && \
-	kubectl apply -f ./kcl-cmp.yaml && \
-	kubectl -n argocd patch deploy/argocd-repo-server -p "`cat ./patch-argocd-repo-server.yaml`" && \
-	kubectl wait --for=condition=ready pod -n argocd -l app.kubernetes.io/name=argocd-repo-server --timeout=600s
+	$(HELM_RUN) "\
+		helm repo add argocd https://argoproj.github.io/argo-helm && \
+		helm repo update argocd && \
+		helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --set server.service.servicePortHttp=$(ARGOCD_HOST_PORT) --wait --timeout 5m \
+	"
+	$(KUBECTL_RUN) '\
+		kubectl apply -f ./kcl-cmp.yaml && \
+		kubectl -n argocd patch deploy/argocd-repo-server -p "`cat ./patch-argocd-repo-server.yaml`" && \
+		kubectl wait --for=condition=ready pod -n argocd -l app.kubernetes.io/name=argocd-repo-server --timeout=600s \
+	'
 
 kcl_tini:
 	docker build -t metacoma/kcl-tini:latest -f kcl_tini.Dockerfile .
@@ -73,7 +76,7 @@ stuck_ns:
 
 #.PHONY: argocd_password
 argocd_password:
-	$(eval ARGOCD_PASSWORD := $(shell kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo))
+	$(eval ARGOCD_PASSWORD := $(shell $(KUBECTL_RUN) 'kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}"  |base64 -d;echo'))
 	echo $(ARGOCD_PASSWORD)
 
 #.PHONY: argocd_login
@@ -81,7 +84,7 @@ argocd_login: argocd_password
 	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
 argocd_app_run_and_wait: argocd_password
-	kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
+	$(KUBECTL_RUN) "kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'"
 
 argocd_exec: argocd_password
 	@echo kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
