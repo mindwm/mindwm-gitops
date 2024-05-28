@@ -8,6 +8,9 @@ spec:
   chartRef:
     timeout: 1m0s
   clusterSpec:
+    resources:
+      cpu:
+        cores: 100m
     external:
       domain: redpanda.local
       enabled: true
