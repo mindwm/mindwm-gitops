@@ -104,6 +104,9 @@ istio = {
     gateway = {
         namespace = "istio-system"
     } 
+    pilot = {
+        cpu_req = 100m
+    } 
 }
 
 kafka_cluster_name = "neo4j-cdc"
