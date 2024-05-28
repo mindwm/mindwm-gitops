@@ -1,5 +1,8 @@
 .PHONY: argocd
 
+ARGOCD_HOST_PORT := 38080
+
+
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
 fix_dns_upstream:
@@ -32,7 +35,7 @@ cluster: deinstall
 argocd:
 	helm repo add argocd https://argoproj.github.io/argo-helm && \
 	helm repo update argocd && \
-	helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --wait --timeout 5m && \
+	helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --set server.service.servicePortHttp=$(ARGOCD_HOST_PORT) --wait --timeout 5m && \
 	kubectl apply -f ./kcl-cmp.yaml && \
 	kubectl -n argocd patch deploy/argocd-repo-server -p "`cat ./patch-argocd-repo-server.yaml`" && \
 	kubectl wait --for=condition=ready pod -n argocd -l app.kubernetes.io/name=argocd-repo-server --timeout=600s
@@ -40,10 +43,11 @@ argocd:
 kcl_tini:
 	docker build -t metacoma/kcl-tini:latest -f kcl_tini.Dockerfile .
 
-.PHONY: kubectl_proxy
-kubectl_proxy:
-	pkill -9 -f "^kubectl port-forward service/argocd-server -n argocd 8080:443";\
-	kubectl port-forward service/argocd-server -n argocd 8080:443 &
+#.PHONY: kubectl_proxy
+#kubectl_proxy:
+#	pkill -9 -f "^kubectl port-forward service/argocd-server -n argocd 8080:443";\
+#	kubectl port-forward service/argocd-server -n argocd 8080:443 &
+
 kcl_plugin_context:
 	kubectl -n argocd exec -it `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin -- /bin/bash
 kcl_log:
@@ -73,7 +77,7 @@ argocd_password:
 	echo $(ARGOCD_PASSWORD)
 
 #.PHONY: argocd_login
-argocd_login: kubectl_proxy argocd_password
+argocd_login: argocd_password
 	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
 argocd_app_run_and_wait: argocd_password

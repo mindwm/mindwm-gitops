@@ -1,15 +1,7 @@
 global:
   image:
     tag: "v2.11.1"
-controller:
-  extraArgs:
-    - --repo-server-timeout-seconds=600
-    - --request-timeout=0
 repoServer:
-  extraArgs:
-    - --repo-cache-expiration=30m
-    - --default-cache-expiration=30m
-    - --loglevel=debug
   env:
     - name: ARGOCD_EXEC_TIMEOUT
       value: 10m
@@ -20,17 +12,6 @@ repoServer:
 configs:
   params:
     server.insecure: true
-  cm:
-    timeout.reconciliation: 10m
-    timeout.hard.reconciliation: 0s
-    server.repo.server.timeout.seconds: 600
-    controller.repo.server.timeout.seconds: 600
-# oci repo
-# https://github.com/argoproj/argo-cd/discussions/11053
-#    repositories:
-#      flux:
-#        url: "ghcr.io/fluxcd-community/charts/flux2"
-#        type: "helm"
-#        name: "flux"
-#        enableOCI: "true"
-
+server:
+  service:
+    type: 'LoadBalancer'
