@@ -98,7 +98,7 @@ argocd_exec: argocd_password
 
 .PHONY: argocd_app
 argocd_app: argocd
-	kubectl apply -f argocd_mindwm_app.yaml
+	$(KUBECTL_RUN) 'kubectl apply -f argocd_mindwm_app.yaml'
 
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
