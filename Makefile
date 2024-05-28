@@ -6,8 +6,10 @@ ARGOCD_HOST_PORT := 38080
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
 fix_dns_upstream:
-	kubectl -n kube-system get configmap coredns -o yaml | sed 's,forward . /etc/resolv.conf,forward \. 8.8.8.8,' | kubectl apply -f - && \
-	kubectl delete pod -n kube-system -l k8s-app=kube-dns
+	$(KUBECTL_RUN) '\
+		kubectl -n kube-system get configmap coredns -o yaml | sed "s,forward . /etc/resolv.conf,forward \. 8.8.8.8," | kubectl apply -f - && \
+		kubectl delete pod -n kube-system -l k8s-app=kube-dns \
+	'
 
 crossplane_rolebinding_workaround:
 	$(KUBECTL_RUN) '\
