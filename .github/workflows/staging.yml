@@ -1,4 +1,4 @@
-name: mindwm-dev1 cluster
+name: mcmp6 cluster
 
 on:
   pull_request:
