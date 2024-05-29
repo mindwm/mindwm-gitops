@@ -166,6 +166,10 @@ mindwm_app = ArgoCdOrder.make({
                 name = "istiod"
                 chart = charts.istiod
                 version = config.istio.version
+                values = {
+                    defaults.pilot.resources.requests = config.istio.pilot.cpu_req    
+                }
+
             })
         ]
         [
