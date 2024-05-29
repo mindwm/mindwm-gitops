@@ -105,7 +105,7 @@ istio = {
         namespace = "istio-system"
     }
     pilot = {
-        cpu_req = "100m"
+        cpu_req = "200m"
     }
 }
 
