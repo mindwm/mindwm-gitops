@@ -105,5 +105,8 @@ argocd_app: argocd
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
-mindwm_lifecycle: cluster argocd_app argocd_app_run_and_wait crossplane_rolebinding_workaround
+mindwm_resources:
+	$(KUBECTL_RUN) 'kubectl apply -f resources/'
+
+mindwm_lifecycle: cluster argocd_app argocd_app_run_and_wait crossplane_rolebinding_workaround mindwm_resources
 
