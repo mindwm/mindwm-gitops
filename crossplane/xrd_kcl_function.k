@@ -169,6 +169,10 @@ items = [
             }
             neo4j.password = "${config.neo4j.password}"
             services.neo4j.spec.type = "NodePort"
+            neo4j.resources = {
+                cpu = "500m"
+                memory: "2Gi"
+            }
             volumes = {
                 data = {
                     dynamic = {
@@ -314,7 +318,7 @@ kind: InMemoryChannel
         apiVersion = "serving.knative.dev/v1"
         kind = "Service"
         metadata = {
-            name = "${config.Mindwm.context.io_context.name}" 
+            name = "${config.Mindwm.context.io_context.name}"
             namespace = makeContextNamespace("{{ context_name }}")
         }
         spec.template.spec.containers = [{
@@ -332,7 +336,7 @@ kind: InMemoryChannel
                     value = "${config.neo4j.password}"
                 }
             ]
-            image = "${config.Mindwm.context.io_context.image}" 
+            image = "${config.Mindwm.context.io_context.image}"
         }]
 
     }
@@ -346,7 +350,7 @@ kind: InMemoryChannel
         apiVersion = "eventing.knative.dev/v1"
         kind = "Trigger"
         metadata = {
-            name = "${config.Mindwm.context.io_context.name}-trigger" 
+            name = "${config.Mindwm.context.io_context.name}-trigger"
             namespace = makeContextNamespace("{{ context_name }}")
         }
         spec = {
@@ -366,7 +370,7 @@ kind: InMemoryChannel
             subscriber.ref = {
                 apiVersion = "serving.knative.dev/v1"
                 kind = "Service"
-                name = "${config.Mindwm.context.io_context.name}" 
+                name = "${config.Mindwm.context.io_context.name}"
                 namespace = makeContextNamespace("{{ context_name }}")
             }
         }
