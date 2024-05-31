@@ -17,4 +17,4 @@ jobs:
         repository: ${{github.event.pull_request.head.repo.full_name}}
 
     - name: Redeploy the k3s cluster
-      run: make mindwm_lifecycle
+      run: make mindwm_lifecycle TARGET_REVISION=${{github.event.pull_request.head.ref}}
