@@ -99,7 +99,7 @@ argocd_exec: argocd_password
 
 
 .PHONY: argocd_app
-argocd_app: #argocd
+argocd_app: argocd
 	 $(KUBECTL_RUN) 'cat argocd_mindwm_app.json | jq ".spec.source.targetRevision = \"$(TARGET_REVISION)\"" | kubectl apply -f -'
 
 argocd_sync: argocd_app argocd_login
