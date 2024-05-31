@@ -2,6 +2,8 @@
 
 ARGOCD_HOST_PORT := 38080
 
+TARGET_REVISION := master
+
 KUBECTL_RUN := docker run --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
 
@@ -98,7 +100,7 @@ argocd_exec: argocd_password
 
 .PHONY: argocd_app
 argocd_app: argocd
-	$(KUBECTL_RUN) 'kubectl apply -f argocd_mindwm_app.yaml'
+	 $(KUBECTL_RUN) 'cat argocd_mindwm_app.json | jq ".spec.source.targetRevision = \"$(TARGET_REVISION)\"" | kubectl apply -f -'
 
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
