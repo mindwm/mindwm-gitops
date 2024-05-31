@@ -91,6 +91,35 @@ mindwm_app = ArgoCdOrder.make({
 
                 ]
             }
+            argocdSchema.argoHelmRelease({
+                namespace = config.istio.system.namespace,
+                name = "istio-base"
+                chart = charts.istio_base
+                version = config.istio.version
+            }) | {
+            spec.ignoreDifferences = [
+                {
+                    group = "admissionregistration.k8s.io"
+                    kind = "ValidatingWebhookConfiguration"
+                    name = "istiod-default-validator"
+                    jsonPointers = ["/webhooks/0/failurePolicy"]
+                }
+            ]
+            }
+
+
+            argocdSchema.argoHelmRelease({
+                namespace = config.istio.system.namespace,
+                name = "istiod"
+                chart = charts.istiod
+                version = config.istio.version
+                values = {
+                    defaults.pilot.resources.requests.cpu = config.istio.pilot.cpu_req
+                }
+
+            })
+        ]
+        [
 
             argocdSchema.argoHelmRelease({
                 namespace = nats.nats_namespace
@@ -144,43 +173,10 @@ mindwm_app = ArgoCdOrder.make({
                 version = "1.15.2"
             })
 
-            argocdSchema.argoHelmRelease({
-                namespace = config.istio.system.namespace,
-                name = "istio-base"
-                chart = charts.istio_base
-                version = config.istio.version
-            }) | {
-            spec.ignoreDifferences = [
-                {
-                    group = "admissionregistration.k8s.io"
-                    kind = "ValidatingWebhookConfiguration"
-                    name = "istiod-default-validator"
-                    jsonPointers = ["/webhooks/0/failurePolicy"]
-                }
-            ]
-            }
-
-
-            argocdSchema.argoHelmRelease({
-                namespace = config.istio.system.namespace,
-                name = "istiod"
-                chart = charts.istiod
-                version = config.istio.version
-                values = {
-                    defaults.pilot.resources.requests.cpu = config.istio.pilot.cpu_req
-                }
-
-            })
         ]
         [
 
 
-            argocdSchema.argoHelmRelease({
-                namespace = config.istio.gateway.namespace
-                name = "istio-ingressgateway"
-                chart = charts.istio_gateway
-                version = config.istio.version
-            })
 
             # required by redpanda-operator
             # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
@@ -244,6 +240,12 @@ mindwm_app = ArgoCdOrder.make({
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.kcl)
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.auto_ready)
             CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.kubernetes)
+            argocdSchema.argoHelmRelease({
+                namespace = config.istio.gateway.namespace
+                name = "istio-ingressgateway"
+                chart = charts.istio_gateway
+                version = config.istio.version
+            })
         ]
         CrossPlaneProvider.makeCrossPlaneProviderHelm(CrossPlaneProvider.helm)
         [
