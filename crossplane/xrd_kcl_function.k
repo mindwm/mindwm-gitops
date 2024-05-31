@@ -169,6 +169,10 @@ items = [
             }
             neo4j.password = "${config.neo4j.password}"
             services.neo4j.spec.type = "NodePort"
+            neo4j.resources = {
+                cpu = "250m"
+                memory: "2Gi"
+            } 
             volumes = {
                 data = {
                     dynamic = {
