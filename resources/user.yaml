@@ -1,0 +1,7 @@
+apiVersion: mindwm.io/v1beta1
+kind: User
+metadata:
+  name: user
+spec:
+  context: [ "team-a" ]
+  name: "user"
