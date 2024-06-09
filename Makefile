@@ -4,7 +4,9 @@ ARGOCD_HOST_PORT := 38080
 
 TARGET_REVISION := master
 
-KUBECTL_RUN := docker run --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
+KUBECTL_RUN_OPTS := --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
+KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS) 
+KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS) 
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
 
 
@@ -95,7 +97,7 @@ argocd_app_run_and_wait: argocd_password
 
 argocd_exec: argocd_password
 	@echo kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
-	kubectl -n argocd exec -ti deployment/argocd-server -- bash
+	$(KUBECTL_IT_RUN) "kubectl -n argocd exec -ti deployment/argocd-server -- bash"
 
 
 .PHONY: argocd_app
