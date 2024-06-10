@@ -213,6 +213,9 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
+                metadata.labels = {
+                    "istio-injection" = "enalbed"
+                }
             }
 
             k8core.ConfigMap {
