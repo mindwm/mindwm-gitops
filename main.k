@@ -35,7 +35,7 @@ mindwm_app = ArgoCdOrder.make({
             k8core.Namespace {
                 metadata.name = config.knative.serving.namespace
                 metadata.labels = {
-                    "istio-injection" = "enalbed"
+                    "istio-injection" = "enabled"
                 }
             }
             k8core.Namespace {

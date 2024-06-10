@@ -90,7 +90,7 @@ items = [
     kind = "Namespace"
     metadata.name = makeContextNamespace("{{ context_name }}")
     metadata.labels = {
-        "istio-injection" = "enalbed"
+        "istio-injection" = "enabled"
     }
   }
   {
@@ -415,7 +415,7 @@ items = [
     kind = "Namespace"
     metadata.name = Mindwm.user.namespace("{{ user_name }}")
     metadata.labels = {
-        "istio-injection" = "enalbed"
+        "istio-injection" = "enabled"
     }
   }
   {
