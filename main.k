@@ -40,6 +40,9 @@ mindwm_app = ArgoCdOrder.make({
             }
             k8core.Namespace {
                 metadata.name = config.knative.eventing.namespace
+                metadata.labels = {
+                    "istio-injection" = "enalbed"
+                }
             }
 
             argocdSchema.argoHelmRelease({
@@ -212,9 +215,6 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.namespace = config.knative.eventing.namespace
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-                }
-                metadata.labels = {
-                    "istio-injection" = "enalbed"
                 }
             }
 
