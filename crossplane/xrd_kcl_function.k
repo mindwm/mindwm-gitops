@@ -224,6 +224,128 @@ items = [
     }
   }
   {
+    apiVersion = "helm.crossplane.io/v1beta1"
+    kind = "Release"
+    metadata.name = vector.crossplane_name("{{ context_name }}")
+    spec = {
+      forProvider = {
+        chart = {
+          name = "${charts.vector.name}"
+          repository = "${charts.vector.repoURL}"
+          version = "${config.vector.chart_version}"
+        }
+        namespace = makeContextNamespace("{{ context_name }}")
+        values = {
+            image = { 
+                # TODO(@metacoma) parametrize
+                repository = "${config.vector.image.repo}"
+                tag = "${config.vector.image.tag}"
+            }
+            serviceHeadless.enalbed = False
+            customConfig = {
+                transforms = {
+                    cloudevent = {
+                        type = "lua"
+                        version = "2" 
+                        inputs = ["neo4j-cdc"] 
+                        hooks = {
+                            process = "process"
+                            init = "seed_init" 
+                        } 
+                        source = '''
+        function seed_init() 
+          uuid = require("uuid")
+          local socket = require("socket")  -- gettime() has higher precision than os.time()
+          uuid.seed()
+        end
+        function process(event, emit)
+          local cloudevent = {}
+          cloudevent.log = {
+            id = uuid(),
+            data = event.log,
+            source = "graph." .. event.log["payload"]["type"] ,
+            specversion = "1.0",
+            datacontenttype = "application/json",
+            type = event.log["meta"]["operation"],
+            time = os.date("!%Y-%m-%dT%H:%M:%SZ", os.time()),
+
+            traceparent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+            tracestate = "rojo=00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01,congo=lZWRzIHRoNhcm5hbCBwbGVhc3VyZS4"
+          }
+          if (cloudevent.log.type == "created") then
+            if (event.log["payload"]["type"] == "node") then
+              if event.log["payload"]["after"]["labels"] then
+                cloudevent.log["subject"] = table.concat(event.log["payload"]["after"]["labels"], ",")
+                else
+                  cloudevent.log["subject"] = "unknown_node"
+              end
+            end
+            if (event.log["payload"]["type"] == "relationship") then
+              if (event.log["payload"]["label"]) then
+                  cloudevent.log["subject"] = event.log["payload"]["label"]
+                else
+                  cloudevent.log["subject"] = "unknown_relationship"
+              end
+            end
+          end
+          emit(cloudevent)
+        end
+'''
+                    } 
+                } 
+                sources = {
+                    "neo4j-cdc" = {
+                        type = "kafka"
+                        bootstrap_servers: "${config.kafka.brokerEndpoint}" 
+                        group_id = "{{ context_name }}-vector"
+                        topics = [ "{{ context_name }}-cdc-topic" ]
+                        decoding.codec = "json"
+
+                        librdkafka_options = {
+                            "api.version.request" = 'true'
+                            "partition.assignment.strategy" = "roundrobin"
+                            "log_level" = "6"
+                            "session.timeout.ms" = "10000"
+                            "max.poll.interval.ms" = "300000"
+                            "socket.nagle.disable" = "false"
+                            "socket.keepalive.enable" = "true"
+                            "socket.max.fails" = "3"
+                            "fetch.min.bytes" = "1000000"
+                        }
+
+                    } 
+                } 
+                sinks = {
+                    console = {
+                        type = "console"
+                        inputs = [ "neo4j-cdc" ]
+                        encoding.codec = "json"
+                    } 
+                    "context-broker" = {
+                        type = "http"
+                        inputs = [ "cloudevent" ]
+                        encoding.codec = "json"
+                        method = "post"
+                        batch = {
+                            max_size = 1
+                            max_events = 1
+                        } 
+                        framing.method = "newline_delimited"
+                        uri = "http://broker-ingress.${config.knative.eventing.namespace}.svc.cluster.local/" +  makeContextNamespace("{{ context_name }}") + "/" + contextBroker.name("{{ context_name }}")
+                        request = {
+                            concurrency = 1
+                            headers = {
+                                "Content-Type" = "application/cloudevents+json"
+                            }
+                        }
+                    } 
+                } 
+            } 
+        }
+      }
+    }
+  }
+  {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
     metadata.name = contextBroker.configMapName("{{ context_name }}")
