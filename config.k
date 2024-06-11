@@ -157,7 +157,7 @@ neo4j = {
 
 vector = {
     chart_version = "0.33.0"
-    crossplane_pvc_name = lambda context_name : str -> str {
+    crossplane_name = lambda context_name : str -> str {
         context_name + delimiter + "vector"
     }
 } 
