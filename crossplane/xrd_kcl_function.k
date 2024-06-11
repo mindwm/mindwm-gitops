@@ -267,6 +267,25 @@ items = [
                         inputs = [ "neo4j-cdc" ]
                         encoding.codec = "json"
                     } 
+                    "context-broker" = {
+                        type = "http"
+                        inputs = [ "neo4j-cdc" ]
+                        encoding.codec = "json"
+                        method = "post"
+                        batch = {
+                            max_size = 1
+                            max_events = 1
+                        } 
+                        framing.method = "newline_delimited"
+                        # TODO (@metacoma) remove hardcode in knative nmaespace, use helper function for generate URI 
+                        url = "http://broker-ingress.knative-eventing.svc.cluster.local/context-{{ context_name }}/context-broker-{{ context_name }}"
+                        request = {
+                            concurrency = 1
+                            headers = {
+                                "Content-Type" = "application/cloudevents+json"
+                            }
+                        }
+                    } 
                 } 
             } 
         }
