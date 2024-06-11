@@ -156,6 +156,10 @@ neo4j = {
 }
 
 vector = {
+    image = {
+        repo = "ghcr.io/mindwm/vector-image/vector-image"
+        tag = "main"
+    } 
     chart_version = "0.33.0"
     crossplane_name = lambda context_name : str -> str {
         context_name + delimiter + "vector"

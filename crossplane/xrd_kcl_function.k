@@ -234,8 +234,8 @@ items = [
         values = {
             image = { 
                 # TODO(@metacoma) parametrize
-                repository = "ghcr.io/mindwm/vector-image/vector-image"
-                tag = "main"
+                repository = "${config.vector.image.repo}"
+                tag = "${config.vector.image.tag}"
             }
             serviceHeadless.enalbed = False
             customConfig = {
@@ -327,8 +327,7 @@ items = [
                             max_events = 1
                         } 
                         framing.method = "newline_delimited"
-                        # TODO (@metacoma) remove hardcode in knative nmaespace, use helper function for generate URI 
-                        uri = "http://broker-ingress.knative-eventing.svc.cluster.local/context-{{ context_name }}/context-broker-{{ context_name }}"
+                        uri = "http://broker-ingress.${config.knative.eventing.namespace}.svc.cluster.local/" +  makeContextNamespace("{{ context_name }}") + "/" + contextBroker.name("{{ context_name }}")
                         request = {
                             concurrency = 1
                             headers = {
