@@ -328,7 +328,7 @@ items = [
                         } 
                         framing.method = "newline_delimited"
                         # TODO (@metacoma) remove hardcode in knative nmaespace, use helper function for generate URI 
-                        url = "http://broker-ingress.knative-eventing.svc.cluster.local/context-{{ context_name }}/context-broker-{{ context_name }}"
+                        uri = "http://broker-ingress.knative-eventing.svc.cluster.local/context-{{ context_name }}/context-broker-{{ context_name }}"
                         request = {
                             concurrency = 1
                             headers = {
