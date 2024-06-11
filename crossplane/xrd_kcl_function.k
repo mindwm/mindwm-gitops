@@ -239,6 +239,56 @@ items = [
             }
             serviceHeadless.enalbed = False
             customConfig = {
+                transforms = {
+                    cloudevent = {
+                        type = "lua"
+                        version = "2" 
+                        inputs = ["neo4j-cdc"] 
+                        hooks = {
+                            process = "process"
+                            init = "seed_init" 
+                        } 
+                        source = '''
+        function seed_init() 
+          uuid = require("uuid")
+          local socket = require("socket")  -- gettime() has higher precision than os.time()
+          uuid.seed()
+        end
+        function process(event, emit)
+          local cloudevent = {}
+          cloudevent.log = {
+            id = uuid(),
+            data = event.log,
+            source = "graph." .. event.log["payload"]["type"] ,
+            specversion = "1.0",
+            datacontenttype = "application/json",
+            type = event.log["meta"]["operation"],
+            time = os.date("!%Y-%m-%dT%H:%M:%SZ", os.time()),
+
+            traceparent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+            tracestate = "rojo=00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01,congo=lZWRzIHRoNhcm5hbCBwbGVhc3VyZS4"
+          }
+          if (cloudevent.log.type == "created") then
+            if (event.log["payload"]["type"] == "node") then
+              if event.log["payload"]["after"]["labels"] then
+                cloudevent.log["subject"] = table.concat(event.log["payload"]["after"]["labels"], ",")
+                else
+                  cloudevent.log["subject"] = "unknown_node"
+              end
+            end
+            if (event.log["payload"]["type"] == "relationship") then
+              if (event.log["payload"]["label"]) then
+                  cloudevent.log["subject"] = event.log["payload"]["label"]
+                else
+                  cloudevent.log["subject"] = "unknown_relationship"
+              end
+            end
+          end
+          emit(cloudevent)
+        end
+'''
+                    } 
+                } 
                 sources = {
                     "neo4j-cdc" = {
                         type = "kafka"
@@ -269,7 +319,7 @@ items = [
                     } 
                     "context-broker" = {
                         type = "http"
-                        inputs = [ "neo4j-cdc" ]
+                        inputs = [ "cloudevent" ]
                         encoding.codec = "json"
                         method = "post"
                         batch = {
