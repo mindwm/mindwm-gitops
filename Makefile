@@ -35,7 +35,7 @@ deinstall:
 	sleep 10 # :)
 
 cluster: deinstall
-	curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik" sh -s - --docker && sleep 30 && \
+	curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
 	$(MAKE) fix_dns_upstream
 
