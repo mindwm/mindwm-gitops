@@ -82,7 +82,7 @@ Mindwm = {
                  context_name + delimiter + "io-context-trigger"
             }
 
-            image = "metacoma/knative-neomodel:latest"
+            image = "ghcr.io/mindwm/io-context:latest"
         }
     }
 }
