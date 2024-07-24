@@ -14,9 +14,19 @@ HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/con
 
 fix_dns_upstream:
 	$(KUBECTL_RUN) '\
+		while :; do \
+			kubectl -n kube-system get pods -l k8s-app=kube-dns | grep coredns || { \
+				echo -n .; \
+				sleep 1; \
+				continue; \
+			}; \
+			break; \
+		done ; \
+		kubectl -n kube-system wait --for=condition=Ready pod --timeout=180s -l k8s-app=kube-dns && \
 		kubectl -n kube-system get configmap coredns -o yaml | sed "s,forward . /etc/resolv.conf,forward \. 8.8.8.8," | kubectl apply -f - && \
 		kubectl delete pod -n kube-system -l k8s-app=kube-dns \
 	'
+
 
 crossplane_rolebinding_workaround:
 	$(KUBECTL_RUN) '\
