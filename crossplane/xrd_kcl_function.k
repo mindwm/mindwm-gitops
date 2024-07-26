@@ -499,6 +499,75 @@ kind: InMemoryChannel
     }
   }
 
+  # touch
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.context.touch.crossplane_name("{{ context_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        metadata = {
+            name = "${config.Mindwm.context.touch.name}"
+            namespace = makeContextNamespace("{{ context_name }}")
+        }
+        spec.template.spec.containers = [{
+            env = [
+                {
+                    name = "NEO4J_URL"
+                    value = "{{ context_name }}-${config.neo4j.release_name}-neo4j." + makeContextNamespace("{{ context_name }}") + ":${config.neo4j.port}"
+                }
+                {
+                    name = "NEO4J_USERNAME"
+                    value = "${config.neo4j.username}"
+                }
+                {
+                    name = "NEO4J_PASSWORD"
+                    value = "${config.neo4j.password}"
+                }
+            ]
+            image = "${config.Mindwm.context.touch.image}"
+        }]
+
+    }
+  }
+
+  # touch trigger
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.context.touch.crossplane_trigger("{{ context_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Trigger"
+        metadata = {
+            name = "${config.Mindwm.context.touch.name}-trigger"
+            namespace = makeContextNamespace("{{ context_name }}")
+        }
+        spec = {
+            broker = contextBroker.name("{{ context_name }}")
+            delivery = {
+                deadLetterSink.ref = {
+                    apiVersion = "serving.knative.dev/v1"
+                    kind = "Service"
+                    name = contextBroker.deadLetterName("{{ context_name }}")
+                }
+            }
+            filters = [
+                {
+                    exact.type = "touch"
+                }
+            ]
+            subscriber.ref = {
+                apiVersion = "serving.knative.dev/v1"
+                kind = "Service"
+                name = "${config.Mindwm.context.touch.name}"
+                namespace = makeContextNamespace("{{ context_name }}")
+            }
+        }
+    }
+  }
+
 ]
 """, {
     context_name = r"${context_name}"

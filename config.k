@@ -84,6 +84,17 @@ Mindwm = {
 
             image = "ghcr.io/mindwm/io-context:latest"
         }
+        touch = {
+            name = "mindwm-touch"
+            crossplane_name = lambda context_name : str -> str {
+                 context_name + delimiter + "mindwm-touch"
+            }
+            crossplane_trigger = lambda context_name : str -> str {
+                 context_name + delimiter + "mindwm-touch-trigger"
+            }
+
+            image = "ghcr.io/mindwm/mindwm-touch:latest"
+        }
     }
 }
 
