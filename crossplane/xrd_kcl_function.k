@@ -488,6 +488,10 @@ kind: InMemoryChannel
                 {
                     exact.type = "iodocument"
                 }
+                {
+                    exact.type = "touch"
+                }
+            ]
             ]
             subscriber.ref = {
                 apiVersion = "serving.knative.dev/v1"
