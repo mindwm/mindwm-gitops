@@ -488,7 +488,6 @@ kind: InMemoryChannel
                 {
                     exact.type = "iodocument"
                 }
-                {
             ]
             subscriber.ref = {
                 apiVersion = "serving.knative.dev/v1"
