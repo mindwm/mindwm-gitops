@@ -489,8 +489,10 @@ kind: InMemoryChannel
                 }
             }
             filters = [
-                {
-                    exact.type = "iodocument"
+                { 
+                    "any" = [
+                        { exact.type = "iodocument" }
+                    ]
                 }
             ]
             subscriber.ref = {
@@ -698,8 +700,11 @@ kind: InMemoryChannel
                 }
             }
             filters = [
-                {
-                    exact.type = "iodocument"
+                { 
+                    "any" = [
+                        { exact.type = "iodocument" }
+                        { exact.type = "touch" }
+                    ]
                 }
             ]
             subscriber.ref = {
@@ -817,8 +822,11 @@ spec:
                 }
             }
             filters = [
-                {
-                    exact.type = "iodocument"
+                { 
+                    "any" = [
+                        { exact.type = "iodocument" }
+                        { exact.type = "touch" }
+                    ]
                 }
             ]
             subscriber.ref = {
