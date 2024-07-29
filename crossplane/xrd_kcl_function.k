@@ -444,6 +444,9 @@ kind: InMemoryChannel
             name = "${config.Mindwm.context.io_context.name}"
             namespace = makeContextNamespace("{{ context_name }}")
         }
+        spec.template.metadata.annotations = {
+		 "autoscaling.knative.dev/enable-scale-to-zero" = False
+        }
         spec.template.spec.containers = [{
             env = [
                 {
@@ -511,6 +514,9 @@ kind: InMemoryChannel
         metadata = {
             name = "${config.Mindwm.context.touch.name}"
             namespace = makeContextNamespace("{{ context_name }}")
+        }
+        spec.template.metadata.annotations = {
+		 "autoscaling.knative.dev/enable-scale-to-zero" = False
         }
         spec.template.spec.containers = [{
             env = [
