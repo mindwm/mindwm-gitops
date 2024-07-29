@@ -102,8 +102,26 @@ argocd_password:
 argocd_login: argocd_password
 	argocd login --insecure --username admin --password $(ARGOCD_PASSWORD) localhost:8080
 
-argocd_app_run_and_wait: argocd_password
-	$(KUBECTL_RUN) "kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops --assumeYes --timeout 2100'"
+.PHONY: argocd_app_sync_async
+argocd_app_sync_async: argocd_password
+	$(KUBECTL_RUN) "\
+		kubectl -n argocd exec -ti deployment/argocd-server -- sh -c '\
+				argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 ;\
+				argocd app sync mindwm-gitops --assumeYes --timeout 2100 --async; \
+			'\
+		"
+
+argocd_app_async_wait: argocd_password
+	$(KUBECTL_RUN) "\
+		kubectl -n argocd exec -ti deployment/argocd-server -- sh -xc '\
+		argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 ;\
+		for n in 1 2 3 4 5; do \
+			argocd app wait mindwm-gitops --health --timeout=300 || continue;\
+			exit 0;\
+		done ; \
+		exit 1;\
+		';\
+	 "
 
 argocd_exec: argocd_password
 	@echo kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
@@ -123,4 +141,4 @@ mindwm_resources:
 argocd_apps_ensure: argocd_password
 	$(KUBECTL_RUN) "kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 >/dev/null && argocd app list'" | awk '!/^NAME/ {if ($$6 != "Healthy") {print $$0; exit 1}}'
 
-mindwm_lifecycle: cluster argocd_app argocd_app_run_and_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources
+mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources

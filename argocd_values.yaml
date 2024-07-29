@@ -12,6 +12,8 @@ repoServer:
 configs:
   params:
     server.insecure: true
+    controller.self.heal.timeout.seconds: 30
+    
 server:
   service:
     type: 'LoadBalancer'
