@@ -241,6 +241,7 @@ items = [
                 repository = "${config.vector.image.repo}"
                 tag = "${config.vector.image.tag}"
             }
+            service.enabled = False
             serviceHeadless.enalbed = False
             customConfig = {
                 transforms = {
