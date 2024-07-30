@@ -1,6 +1,6 @@
 apiVersion: mindwm.io/v1beta1
 kind: Context
 metadata:
-  name: team-a
+  name: purple
 spec:
-  name: "team-a"
+  name: "purple"

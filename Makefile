@@ -138,7 +138,7 @@ argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
 mindwm_resources:
-	$(KUBECTL_RUN) 'kubectl apply -f resources/'
+	$(KUBECTL_RUN) 'kubectl apply -f resources/context.yaml'
 
 argocd_apps_ensure: argocd_password
 	$(KUBECTL_RUN) "kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 >/dev/null && argocd app list'" | awk '!/^NAME/ {if ($$6 != "Healthy") {print $$0; exit 1}}'

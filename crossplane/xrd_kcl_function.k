@@ -445,7 +445,7 @@ kind: InMemoryChannel
             namespace = makeContextNamespace("{{ context_name }}")
         }
         spec.template.metadata.annotations = {
-            "autoscaling.knative.dev/enable-scale-to-zero" = False
+            "autoscaling.knative.dev/enable-scale-to-zero" = "false"
         }
         spec.template.spec.containers = [{
             env = [
@@ -518,7 +518,7 @@ kind: InMemoryChannel
             namespace = makeContextNamespace("{{ context_name }}")
         }
         spec.template.metadata.annotations = {
-            "autoscaling.knative.dev/enable-scale-to-zero" = False
+            "autoscaling.knative.dev/enable-scale-to-zero" = "false"
         }
         spec.template.spec.containers = [{
             env = [
