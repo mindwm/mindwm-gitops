@@ -3,17 +3,12 @@ spec:
     spec:
       containers:
       - name: my-plugin
-        command: [/tini] # Entrypoint should be Argo CD lightweight CMP server i.e. argocd-cmp-server
+        command: [/tini]
         args:
           - /var/run/argocd/argocd-cmp-server
-          - --
-          - --loglevel=debug
-        image: metacoma/kcl-tini:latest # This can be off-the-shelf or custom-built image
-        env:
-          - name: ARGOCD_EXEC_TIMEOUT
-            value: 10m
-          - name: KCL_GO_DISABLE_INSTALL_ARTIFACT
-            value: "true"
+#          - --
+#          - --loglevel=debug
+        image: kcllang/kcl
         securityContext:
           runAsNonRoot: true
           runAsUser: 999
