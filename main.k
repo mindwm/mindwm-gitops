@@ -139,6 +139,7 @@ mindwm_app = ArgoCdOrder.make({
                 name = charts.kube_prometheus_stack.name
                 chart = charts.kube_prometheus_stack
                 version = "58.6.0"
+                values = config.prometheus.helm_values
             }) | {
                 spec.syncPolicy = {
                     automated = {

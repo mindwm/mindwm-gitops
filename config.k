@@ -131,6 +131,20 @@ crossplane = {
 
 prometheus = {
     namespace = "monitoring"
+    helm_values = {
+      # https://knative.dev/docs/serving/observability/metrics/collecting-metrics/
+      # collect knative metrics
+      "kube-state-metrics" = {
+        metricLabelsAllowlist = [ 
+          "pods=[*]"
+          "deployments=[app.kubernetes.io/name,app.kubernetes.io/component,app.kubernetes.io/instance]"
+        ]
+      } 
+      prometheus.prometheusSpec = {
+          serviceMonitorSelectorNilUsesHelmValues = False
+           podMonitorSelectorNilUsesHelmValues = False
+      } 
+    } 
 }
 
 delimiter = "-"
@@ -189,3 +203,4 @@ config = {
         namespace = "crossplane-system"
     }
 }
+
