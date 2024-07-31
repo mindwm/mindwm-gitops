@@ -253,7 +253,7 @@ items = [
                             process = "process"
                             init = "seed_init" 
                         } 
-                        source = '''
+                        source = '''\
         function seed_init() 
           uuid = require("uuid")
           local socket = require("socket")  -- gettime() has higher precision than os.time()
