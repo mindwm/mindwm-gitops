@@ -134,19 +134,6 @@ mindwm_app = ArgoCdOrder.make({
                 }
             })
 
-#            argocdSchema.argoHelmRelease({
-#                namespace = config.kiali_operator.namespace
-#                name = config.kiali_operator.release_name
-#                chart = charts.kiali_operator
-#                version = "v1.84.0"
-#                values = {
-#                    cr = {
-#                        create = True
-#                        namespace = config.istio.system.namespace
-#                        spec.auth.strategy = "anonymous"
-#                    }
-#                }
-#            })
 
             argocdSchema.argoHelmRelease({
                 namespace = config.config.crossplane.namespace
@@ -241,25 +228,6 @@ mindwm_app = ArgoCdOrder.make({
 
         ]
         [
-#            {
-#                apiVersion = "kiali.io/v1alpha1"
-#                kind = "Kiali"
-#                metadata = {
-#                    name = "kiali"
-#                    namespace = config.istio.system.namespace
-#                    annotations = {
-#                        "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-#                    }
-#                }
-#                spec = {
-#                    deployment.service_type = "LoadBalancer"
-#                    external_services = {
-#                        custom_dashboards.prometheus.url = "http://${charts.kube_prometheus_stack.name}-prometheus.${config.prometheus.namespace}:9090"
-#                        prometheus.url = "http://${charts.kube_prometheus_stack.name}-prometheus.${config.prometheus.namespace}:9090"
-#                    }
-#                }
-#            }
-
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
                 kind = "ProviderConfig"

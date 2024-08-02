@@ -185,11 +185,6 @@ vector = {
     }
 } 
 
-kiali_operator = {
-    namespace = "kiali-operator"
-    release_name = "kiali-operator"
-}
-
 config = {
     kafka_cluster_name = "neo4j-cdc"
     kafka_port = 9003
