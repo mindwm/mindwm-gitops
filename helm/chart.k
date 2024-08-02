@@ -56,3 +56,8 @@ grafana : schema.HelmChart = {
     repoURL = "https://grafana.github.io/helm-charts"
 } 
 
+loki : schema.HelmChart = {
+    name = "loki"
+    repoURL = "https://grafana.github.io/helm-charts"
+} 
+

@@ -131,13 +131,13 @@ crossplane = {
 monitoring = {
   namespace = "monitoring"
   loki = {
-    name = "loki"
+    release_name = "loki"
   } 
   tempo = {
-    name = "tempo"
+    release_name = "tempo"
   } 
   victoria_metrics = {
-    name = "vm-aio"
+    release_name = "vm-aio"
   } 
 } 
 

@@ -15,6 +15,7 @@ import .crossplane.function as CrossPlaneFunction
 import .crossplane.provider as CrossPlaneProvider
 import .config as config
 import .crossplane.xrd_kcl_function as XrdKclFunction
+import util
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -132,6 +133,15 @@ mindwm_app = ArgoCdOrder.make({
                         port.cluster.nodePort = 38081
                     }
                 }
+            })
+
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.loki.release_name
+                chart = charts.grafana
+                version = "3.1.0"
+                values = util.yaml_file_merge("observability/loki.yaml", {
+                })
             })
 
 
