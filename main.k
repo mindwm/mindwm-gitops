@@ -138,9 +138,18 @@ mindwm_app = ArgoCdOrder.make({
             argocdSchema.argoHelmRelease({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.loki.release_name
-                chart = charts.grafana
+                chart = charts.loki
                 version = "3.1.0"
                 values = util.yaml_file_merge("observability/loki.yaml", {
+                })
+            })
+
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.tempo.release_name
+                chart = charts.tempo
+                version = "2.5.0"
+                values = util.yaml_file_merge("observability/tempo.yaml", {
                 })
             })
 
