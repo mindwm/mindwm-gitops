@@ -128,24 +128,18 @@ crossplane = {
     namespace = "crossplane-system"
 }
 
-
-prometheus = {
-    namespace = "monitoring"
-    helm_values = {
-      # https://knative.dev/docs/serving/observability/metrics/collecting-metrics/
-      # collect knative metrics
-      "kube-state-metrics" = {
-        metricLabelsAllowlist = [ 
-          "pods=[*]"
-          "deployments=[app.kubernetes.io/name,app.kubernetes.io/component,app.kubernetes.io/instance]"
-        ]
-      } 
-      prometheus.prometheusSpec = {
-          serviceMonitorSelectorNilUsesHelmValues = False
-           podMonitorSelectorNilUsesHelmValues = False
-      } 
-    } 
-}
+monitoring = {
+  namespace = "monitoring"
+  loki = {
+    name = "loki"
+  } 
+  tempo = {
+    name = "tempo"
+  } 
+  victoria_metrics = {
+    name = "vm-aio"
+  } 
+} 
 
 delimiter = "-"
 
