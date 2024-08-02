@@ -153,6 +153,15 @@ mindwm_app = ArgoCdOrder.make({
                 })
             })
 
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.victoria_metrics.release_name
+                chart = charts.victoria_metrics
+                version = "v1.102.0"
+                values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
+                })
+            })
+
 
             argocdSchema.argoHelmRelease({
                 namespace = config.config.crossplane.namespace
