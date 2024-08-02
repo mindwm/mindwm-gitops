@@ -55,3 +55,14 @@ kube_prometheus_stack : schema.HelmChart = {
     name = "kube-prometheus-stack"
     repoURL ="https://prometheus-community.github.io/helm-charts"
 } 
+
+victoria_metrics : schema.HelmChart = {
+    name = "victoria-metrics"
+    repoURL ="https://victoriametrics.github.io/helm-charts/"
+} 
+
+grafana : schema.HelmChart = {
+    name = "grafana"
+    repoURL = "https://grafana.github.io/helm-charts"
+} 
+
