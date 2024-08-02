@@ -130,6 +130,9 @@ crossplane = {
 
 monitoring = {
   namespace = "monitoring"
+  otel_collector = {
+    release_name = "otel-collector"
+  } 
   loki = {
     release_name = "loki"
   } 
