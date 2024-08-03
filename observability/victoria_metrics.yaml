@@ -747,7 +747,7 @@ grafana:
       type: tempo
       url: http://tempo:3100
       access: proxy
-      isDefault: true
+      isDefault: false
       editable: true
 
   # - name: prometheus-sample
