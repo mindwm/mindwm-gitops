@@ -174,13 +174,15 @@ mindwm_app = ArgoCdOrder.make({
                 })
             })
 
-            argocdSchema.argoHelmRelease({
+            p.merge(argocdSchema.argoHelmRelease({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.victoria_metrics.release_name
                 chart = charts.victoria_metrics
                 version = "0.24.4"
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
+            }), {
+              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ] 
             })
 
             argocdSchema.argoHelmRelease({
