@@ -157,9 +157,8 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
-                version = "1.15.3"
-                values = util.yaml_file_merge("observability/tempo.yaml", {
-                })
+                version = "1.10.1"
+                values = {}
             })
 
             p.merge(argocdSchema.argoHelmRelease({

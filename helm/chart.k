@@ -62,7 +62,7 @@ loki : schema.HelmChart = {
 } 
 
 tempo : schema.HelmChart = {
-    name = "tempo-distributed"
+    name = "tempo"
     repoURL = "https://grafana.github.io/helm-charts"
 } 
 

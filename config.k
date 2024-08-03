@@ -146,7 +146,7 @@ monitoring = {
     release_name = "promtail"
   }
   zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
-    "http://${tempo_release_name}-distributor.${monitoring_ns}:9411/api/v2/spans"
+    "http://${tempo_release_name}.${monitoring_ns}:9411/api/v2/spans"
   }
 } 
 
