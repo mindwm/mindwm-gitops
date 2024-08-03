@@ -14,6 +14,15 @@ loki:
         period: 24h
       object_store: filesystem # we're storing on filesystem so there's no real persistence here.
       schema: v13
+  memcached:
+    chunk_cache:
+      enabled: false
+    results_cache:
+      enabled: false
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
 singleBinary:
   replicas: 1
 read:
