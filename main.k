@@ -171,6 +171,19 @@ mindwm_app = ArgoCdOrder.make({
                 })
             })
 
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.promtail.release_name
+                chart = charts.promtail
+                version = "3.0.0"
+                values = {
+                  config.clients = [{
+                    url = "http://${config.monitoring.loki.release_name}.${config.monitoring.namespace}:3100/loki/api/v1/push"
+                    tenant_id = 1
+                  }]
+                }
+            })
+
 
             argocdSchema.argoHelmRelease({
                 namespace = config.config.crossplane.namespace

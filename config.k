@@ -142,6 +142,9 @@ monitoring = {
   victoria_metrics = {
     release_name = "vm-aio"
   } 
+  promtail = {
+    release_name = "promtail"
+  }
 } 
 
 delimiter = "-"

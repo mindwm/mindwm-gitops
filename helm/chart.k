@@ -66,8 +66,14 @@ tempo : schema.HelmChart = {
     repoURL = "https://grafana.github.io/helm-charts"
 } 
 
+promtail : schema.HelmChart = {
+    name = "promtail"
+    repoURL = "https://grafana.github.io/helm-charts"
+} 
+
 otel_collector : schema.HelmChart = {
     name = "otel_collector"
     repoURL = "https://open-telemetry.github.io/opentelemetry-helm-charts"
 } 
+
 
