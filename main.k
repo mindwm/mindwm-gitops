@@ -151,7 +151,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.loki.release_name
                 chart = charts.loki
-                version = "3.1.0"
+                version = "6.7.3"
                 values = util.yaml_file_merge("observability/loki.yaml", {
                 })
             })
@@ -160,7 +160,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.otel_collector.release_name
                 chart = charts.otel_collector
-                version = "0.106.1"
+                version = "0.101.0"
                 values = util.yaml_file_merge("observability/otel-collector.yaml", {
                 })
             })
@@ -169,7 +169,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
-                version = "2.5.0"
+                version = "1.15.3"
                 values = util.yaml_file_merge("observability/tempo.yaml", {
                 })
             })
@@ -178,7 +178,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.victoria_metrics.release_name
                 chart = charts.victoria_metrics
-                version = "v1.102.0"
+                version = "0.24.4"
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             })
@@ -187,7 +187,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.promtail.release_name
                 chart = charts.promtail
-                version = "3.0.0"
+                version = "6.16.4"
                 values = {
                   config.clients = [{
                     url = "http://${config.monitoring.loki.release_name}.${config.monitoring.namespace}:3100/loki/api/v1/push"

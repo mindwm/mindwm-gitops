@@ -47,7 +47,7 @@ crossplane : schema.HelmChart = {
 }
 
 victoria_metrics : schema.HelmChart = {
-    name = "victoria-metrics"
+    name = "victoria-metrics-k8s-stack"
     repoURL ="https://victoriametrics.github.io/helm-charts/"
 } 
 
@@ -72,7 +72,7 @@ promtail : schema.HelmChart = {
 } 
 
 otel_collector : schema.HelmChart = {
-    name = "otel_collector"
+    name = "opentelemetry-collector"
     repoURL = "https://open-telemetry.github.io/opentelemetry-helm-charts"
 } 
 
