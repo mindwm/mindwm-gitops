@@ -742,6 +742,14 @@ grafana:
           - matcherRegex: "traceID=(\\w+)"
             name: TraceID
             internal: true
+
+    - name: tempo
+      type: tempo
+      url: http://tempo:3100
+      access: proxy
+      isDefault: true
+      editable: true
+
   # - name: prometheus-sample
   #   access: proxy
   #   basicAuth: true
