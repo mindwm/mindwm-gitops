@@ -119,18 +119,6 @@ mindwm_app = ArgoCdOrder.make({
             })
         ]
         [
-        k8core.ConfigMap {
-            metadata.name = "config-tracing"
-            metadata.namespace = n
-            data = {
-              backend = "zipkin"
-              "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
-              "sample-rate" = "1"
-              debug: "true"
-            }
-        }
-        for n in [config.knative.serving.namespace, config.knative.eventing.namespace]]
-        [
 
             argocdSchema.argoHelmRelease({
                 namespace = nats.nats_namespace
@@ -324,6 +312,18 @@ mindwm_app = ArgoCdOrder.make({
             })
             for resource in XrdKclFunction.makeContextXR() + XrdKclFunction.makeUserXR() + XrdKclFunction.makeHostXR()
         ]
+        [
+        k8core.ConfigMap {
+            metadata.name = "config-tracing"
+            metadata.namespace = n
+            data = {
+              backend = "zipkin"
+              "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+              "sample-rate" = "1"
+              debug: "true"
+            }
+        }
+        for n in [config.knative.serving.namespace, config.knative.eventing.namespace]]
 
     ]
 
