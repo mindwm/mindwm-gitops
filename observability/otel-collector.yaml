@@ -30,7 +30,6 @@ config:
       logs:
         receivers: [otlp]
         processors: []
-        exporters: [otlphttp, otlp]
 
 ports:
   jaeger-compact:
