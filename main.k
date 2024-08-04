@@ -158,7 +158,9 @@ mindwm_app = ArgoCdOrder.make({
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
                 version = "1.10.1"
-                values = {}
+                values = {
+                    tempo.receivers.zipkin.endpoint = "0.0.0.0:9411"
+                }
             })
 
             p.merge(argocdSchema.argoHelmRelease({
