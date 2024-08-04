@@ -162,7 +162,7 @@ mindwm_app = ArgoCdOrder.make({
                     tempo.receivers.zipkin.endpoint = "0.0.0.0:9411"
                     tempo.metricsGenerator = {
                         enabled = True
-                        remoteWriteUrl = config.monitoring.prometheus_endpoint()
+                        remoteWriteUrl = config.monitoring.prometheus_endpoint() + "/api/v1/write"
                     }
                 }
             })
