@@ -225,6 +225,12 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
+                spec.config.tracing = {
+                    backend = "zipkin"
+                    "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                    "sample-rate" = "1"
+                    debug = "true"
+                }
             }
 
             knative.KnativeEventing {
@@ -232,6 +238,12 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.namespace = config.knative.eventing.namespace
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+                spec.config.tracing = {
+                    backend = "zipkin"
+                    "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                    "sample-rate" = "1"
+                    debug = "true"
                 }
             }
 
@@ -311,21 +323,7 @@ mindwm_app = ArgoCdOrder.make({
             })
             for resource in XrdKclFunction.makeContextXR() + XrdKclFunction.makeUserXR() + XrdKclFunction.makeHostXR()
         ]
-        [
-        k8core.ConfigMap {
-            metadata.name = "config-tracing"
-            metadata.namespace = n
-            data = {
-              backend = "zipkin"
-              "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
-              "sample-rate" = "1"
-              debug: "true"
-            }
-        }
-        for n in [config.knative.serving.namespace, config.knative.eventing.namespace]]
-
     ]
-
 })
 
 manifests.yaml_stream([
