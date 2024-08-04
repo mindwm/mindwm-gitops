@@ -148,6 +148,9 @@ monitoring = {
   zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
     "http://${tempo_release_name}.${monitoring_ns}:9411/api/v2/spans"
   }
+  prometheus_endpoint = lambda {
+    "http://vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}:8429/"
+  } 
 } 
 
 delimiter = "-"

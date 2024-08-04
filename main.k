@@ -160,9 +160,12 @@ mindwm_app = ArgoCdOrder.make({
                 version = "1.10.1"
                 values = {
                     tempo.receivers.zipkin.endpoint = "0.0.0.0:9411"
+                    tempo.metricsGenerator = {
+                        enabled = True
+                        remoteWriteUrl = config.monitoring.prometheus_endpoint()
+                    }
                 }
             })
-
             p.merge(argocdSchema.argoHelmRelease({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.victoria_metrics.release_name
