@@ -46,12 +46,34 @@ crossplane : schema.HelmChart = {
     repoURL = "https://charts.crossplane.io/stable"
 }
 
-kiali_operator : schema.HelmChart = {
-    name = "kiali-operator"
-    repoURL = "https://kiali.org/helm-charts"
+victoria_metrics : schema.HelmChart = {
+    name = "victoria-metrics-k8s-stack"
+    repoURL ="https://victoriametrics.github.io/helm-charts/"
 } 
 
-kube_prometheus_stack : schema.HelmChart = {
-    name = "kube-prometheus-stack"
-    repoURL ="https://prometheus-community.github.io/helm-charts"
+grafana : schema.HelmChart = {
+    name = "grafana"
+    repoURL = "https://grafana.github.io/helm-charts"
 } 
+
+loki : schema.HelmChart = {
+    name = "loki"
+    repoURL = "https://grafana.github.io/helm-charts"
+} 
+
+tempo : schema.HelmChart = {
+    name = "tempo"
+    repoURL = "https://grafana.github.io/helm-charts"
+} 
+
+promtail : schema.HelmChart = {
+    name = "promtail"
+    repoURL = "https://grafana.github.io/helm-charts"
+} 
+
+otel_collector : schema.HelmChart = {
+    name = "opentelemetry-collector"
+    repoURL = "https://open-telemetry.github.io/opentelemetry-helm-charts"
+} 
+
+

@@ -15,6 +15,7 @@ import .crossplane.function as CrossPlaneFunction
 import .crossplane.provider as CrossPlaneProvider
 import .config as config
 import .crossplane.xrd_kcl_function as XrdKclFunction
+import util
 #import argoproj.v1alpha1 as argoproj
 
 
@@ -135,36 +136,60 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             argocdSchema.argoHelmRelease({
-                namespace = config.prometheus.namespace
-                name = charts.kube_prometheus_stack.name
-                chart = charts.kube_prometheus_stack
-                version = "58.6.0"
-                values = config.prometheus.helm_values
-            }) | {
-                spec.syncPolicy = {
-                    automated = {
-                        selfHeal = True
-                    }
-                    syncOptions = [
-                        "CreateNamespace=true"
-                        "ServerSideApply=true"
-                    ]
-                }
-            }
+                namespace = config.monitoring.namespace
+                name = config.monitoring.loki.release_name
+                chart = charts.loki
+                version = "6.7.3"
+                values = util.yaml_file_merge("observability/loki.yaml", {
+                })
+            })
 
-#            argocdSchema.argoHelmRelease({
-#                namespace = config.kiali_operator.namespace
-#                name = config.kiali_operator.release_name
-#                chart = charts.kiali_operator
-#                version = "v1.84.0"
-#                values = {
-#                    cr = {
-#                        create = True
-#                        namespace = config.istio.system.namespace
-#                        spec.auth.strategy = "anonymous"
-#                    }
-#                }
-#            })
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.otel_collector.release_name
+                chart = charts.otel_collector
+                version = "0.101.0"
+                values = util.yaml_file_merge("observability/otel-collector.yaml", {
+                })
+            })
+
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.tempo.release_name
+                chart = charts.tempo
+                version = "1.10.1"
+                values = {
+                    tempo.receivers.zipkin.endpoint = "0.0.0.0:9411"
+                    tempo.metricsGenerator = {
+                        enabled = True
+                        remoteWriteUrl = config.monitoring.prometheus_endpoint() + "/api/v1/write"
+                    }
+                }
+            })
+            p.merge(argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.victoria_metrics.release_name
+                chart = charts.victoria_metrics
+                version = "0.24.4"
+                values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
+                })
+            }), {
+              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ] 
+            })
+
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
+                name = config.monitoring.promtail.release_name
+                chart = charts.promtail
+                version = "6.16.4"
+                values = {
+                  config.clients = [{
+                    url = "http://${config.monitoring.loki.release_name}.${config.monitoring.namespace}:3100/loki/api/v1/push"
+                    tenant_id = 1
+                  }]
+                }
+            })
+
 
             argocdSchema.argoHelmRelease({
                 namespace = config.config.crossplane.namespace
@@ -205,6 +230,12 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
+                spec.config.tracing = {
+                    backend = "zipkin"
+                    "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                    "sample-rate" = "1"
+                    debug = "true"
+                }
             }
 
             knative.KnativeEventing {
@@ -212,6 +243,12 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.namespace = config.knative.eventing.namespace
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+                spec.config.tracing = {
+                    backend = "zipkin"
+                    "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                    "sample-rate" = "1"
+                    debug = "true"
                 }
             }
 
@@ -259,25 +296,6 @@ mindwm_app = ArgoCdOrder.make({
 
         ]
         [
-#            {
-#                apiVersion = "kiali.io/v1alpha1"
-#                kind = "Kiali"
-#                metadata = {
-#                    name = "kiali"
-#                    namespace = config.istio.system.namespace
-#                    annotations = {
-#                        "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-#                    }
-#                }
-#                spec = {
-#                    deployment.service_type = "LoadBalancer"
-#                    external_services = {
-#                        custom_dashboards.prometheus.url = "http://${charts.kube_prometheus_stack.name}-prometheus.${config.prometheus.namespace}:9090"
-#                        prometheus.url = "http://${charts.kube_prometheus_stack.name}-prometheus.${config.prometheus.namespace}:9090"
-#                    }
-#                }
-#            }
-
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
                 kind = "ProviderConfig"
@@ -310,9 +328,7 @@ mindwm_app = ArgoCdOrder.make({
             })
             for resource in XrdKclFunction.makeContextXR() + XrdKclFunction.makeUserXR() + XrdKclFunction.makeHostXR()
         ]
-
     ]
-
 })
 
 manifests.yaml_stream([

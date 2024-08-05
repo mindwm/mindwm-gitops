@@ -461,6 +461,14 @@ kind: InMemoryChannel
                     name = "NEO4J_PASSWORD"
                     value = "${config.neo4j.password}"
                 }
+                {
+                    name = "OTEL_EXPORTER_OTLP_ENDPOINT"
+                    value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
+                }
+                {
+                    name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+                    value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
+                }
             ]
             image = "${config.Mindwm.context.io_context.image}"
         }]
@@ -533,6 +541,14 @@ kind: InMemoryChannel
                 {
                     name = "NEO4J_PASSWORD"
                     value = "${config.neo4j.password}"
+                }
+                {
+                    name = "OTEL_EXPORTER_OTLP_ENDPOINT"
+                    value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
+                }
+                {
+                    name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+                    value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
                 }
             ]
             image = "${config.Mindwm.context.touch.image}"

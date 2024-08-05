@@ -1,0 +1,43 @@
+image:
+  repository: "otel/opentelemetry-collector-k8s"
+
+mode: deployment
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+          cors:
+            allowed_origins:
+              - http://*
+              - https://*
+  exporters:
+#    debug:
+#      verbosity: detailed
+    otlphttp:
+      #endpoint: http://loki:3100/otlp/v1/logs
+      endpoint: http://loki:3100/otlp
+  
+  service:
+    telemetry:
+      logs:
+        level: "debug"
+    pipelines:
+      logs:
+        receivers: [otlp]
+        processors: []
+        exporters: [otlphttp]
+
+ports:
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false

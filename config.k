@@ -128,24 +128,30 @@ crossplane = {
     namespace = "crossplane-system"
 }
 
-
-prometheus = {
-    namespace = "monitoring"
-    helm_values = {
-      # https://knative.dev/docs/serving/observability/metrics/collecting-metrics/
-      # collect knative metrics
-      "kube-state-metrics" = {
-        metricLabelsAllowlist = [ 
-          "pods=[*]"
-          "deployments=[app.kubernetes.io/name,app.kubernetes.io/component,app.kubernetes.io/instance]"
-        ]
-      } 
-      prometheus.prometheusSpec = {
-          serviceMonitorSelectorNilUsesHelmValues = False
-           podMonitorSelectorNilUsesHelmValues = False
-      } 
-    } 
-}
+monitoring = {
+  namespace = "monitoring"
+  otel_collector = {
+    release_name = "otel-collector"
+  } 
+  loki = {
+    release_name = "loki"
+  } 
+  tempo = {
+    release_name = "tempo"
+  } 
+  victoria_metrics = {
+    release_name = "vm-aio"
+  } 
+  promtail = {
+    release_name = "promtail"
+  }
+  zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
+    "http://${tempo_release_name}.${monitoring_ns}:9411/api/v2/spans"
+  }
+  prometheus_endpoint = lambda {
+    "http://vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}:8429"
+  } 
+} 
 
 delimiter = "-"
 
@@ -190,11 +196,6 @@ vector = {
         context_name + delimiter + "vector"
     }
 } 
-
-kiali_operator = {
-    namespace = "kiali-operator"
-    release_name = "kiali-operator"
-}
 
 config = {
     kafka_cluster_name = "neo4j-cdc"
