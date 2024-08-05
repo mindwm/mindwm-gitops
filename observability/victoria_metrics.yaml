@@ -749,7 +749,11 @@ grafana:
       access: proxy
       isDefault: false
       editable: true
-
+      jsonData:
+        nodeGraph:
+          enabled: true
+        serviceMap:
+          datasourceUid: VictoriaMetrics
   # - name: prometheus-sample
   #   access: proxy
   #   basicAuth: true
