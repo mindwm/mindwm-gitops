@@ -239,7 +239,7 @@ mindwm_app = ArgoCdOrder.make({
                 spec.config.observability = {
                     "metrics.backend-destination" = "prometheus"
                     "metrics.request-metrics-backend-destination" = "prometheus"
-                    //"metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                    # "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
                 }
             }
 
@@ -257,7 +257,7 @@ mindwm_app = ArgoCdOrder.make({
                 }
                 spec.config.observability = {
                     "metrics.backend-destination" = "prometheus"
-                    //"metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                    # "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
                 }
             }
 
