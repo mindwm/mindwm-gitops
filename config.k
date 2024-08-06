@@ -151,6 +151,9 @@ monitoring = {
   prometheus_endpoint = lambda {
     "http://vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}:8429"
   } 
+  opencensus_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
+    "${tempo_release_name}.${monitoring_ns}:55678"
+  }
 } 
 
 delimiter = "-"

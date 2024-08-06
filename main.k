@@ -236,6 +236,11 @@ mindwm_app = ArgoCdOrder.make({
                     "sample-rate" = "1"
                     debug = "true"
                 }
+                spec.config.observability = {
+                    "metrics.backend-destination" = "opencensus"
+                    "metrics.request-metrics-backend-destination" = "opencensus"
+                    "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                } 
             }
 
             knative.KnativeEventing {
@@ -250,6 +255,10 @@ mindwm_app = ArgoCdOrder.make({
                     "sample-rate" = "1"
                     debug = "true"
                 }
+                spec.config.observability = {
+                    "metrics.backend-destination" = "opencensus"
+                    "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                } 
             }
 
             k8core.ConfigMap {
