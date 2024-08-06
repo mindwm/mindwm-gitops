@@ -174,7 +174,7 @@ mindwm_app = ArgoCdOrder.make({
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             }), {
-              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ] 
+              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ]
             })
 
             argocdSchema.argoHelmRelease({
@@ -237,10 +237,10 @@ mindwm_app = ArgoCdOrder.make({
                     debug = "true"
                 }
                 spec.config.observability = {
-                    "metrics.backend-destination" = "opencensus"
-                    "metrics.request-metrics-backend-destination" = "opencensus"
-                    "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
-                } 
+                    "metrics.backend-destination" = "prometheus"
+                    "metrics.request-metrics-backend-destination" = "prometheus"
+                    //"metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                }
             }
 
             knative.KnativeEventing {
@@ -256,9 +256,9 @@ mindwm_app = ArgoCdOrder.make({
                     debug = "true"
                 }
                 spec.config.observability = {
-                    "metrics.backend-destination" = "opencensus"
-                    "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
-                } 
+                    "metrics.backend-destination" = "prometheus"
+                    //"metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                }
             }
 
             k8core.ConfigMap {
