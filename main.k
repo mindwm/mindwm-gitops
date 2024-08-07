@@ -146,6 +146,15 @@ mindwm_app = ArgoCdOrder.make({
 
             argocdSchema.argoHelmRelease({
                 namespace = config.monitoring.namespace
+                name = config.monitoring.otel_collector.release_name
+                chart = charts.otel_collector
+                version = "0.101.0"
+                values = util.yaml_file_merge("observability/otel-collector.yaml", {
+                })
+            })
+
+            argocdSchema.argoHelmRelease({
+                namespace = config.monitoring.namespace
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
                 version = "1.10.1"
