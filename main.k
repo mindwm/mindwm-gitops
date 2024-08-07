@@ -150,6 +150,7 @@ mindwm_app = ArgoCdOrder.make({
                 chart = charts.otel_collector
                 version = "0.101.0"
                 values = util.yaml_file_merge("observability/otel-collector.yaml", {
+                    config.exporters.otlphttp.endpoint = config.monitoring.loki_endpoint()
                 })
             })
 

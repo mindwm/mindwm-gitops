@@ -132,16 +132,16 @@ monitoring = {
   namespace = "monitoring"
   otel_collector = {
     release_name = "otel-collector"
-  } 
+  }
   loki = {
     release_name = "loki"
-  } 
+  }
   tempo = {
     release_name = "tempo"
-  } 
+  }
   victoria_metrics = {
     release_name = "vm-aio"
-  } 
+  }
   promtail = {
     release_name = "promtail"
   }
@@ -150,11 +150,17 @@ monitoring = {
   }
   prometheus_endpoint = lambda {
     "http://vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}:8429"
-  } 
+  }
   opencensus_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
     "${tempo_release_name}.${monitoring_ns}:55678"
   }
-} 
+  traces_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
+    "http://${tempo_release_name}.${monitoring_ns}:4317/v1/traces"
+  }
+  loki_endpoint = lambda {
+    "http://${monitoring.loki.release_name}.${monitoring.namespace}:3100/otlp"
+  }
+}
 
 delimiter = "-"
 
@@ -193,12 +199,12 @@ vector = {
     image = {
         repo = "ghcr.io/mindwm/vector-image/vector-image"
         tag = "main"
-    } 
+    }
     chart_version = "0.33.0"
     crossplane_name = lambda context_name : str -> str {
         context_name + delimiter + "vector"
     }
-} 
+}
 
 config = {
     kafka_cluster_name = "neo4j-cdc"
