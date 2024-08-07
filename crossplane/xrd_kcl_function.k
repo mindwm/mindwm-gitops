@@ -236,7 +236,7 @@ items = [
         }
         namespace = makeContextNamespace("{{ context_name }}")
         values = {
-            image = { 
+            image = {
                 # TODO(@metacoma) parametrize
                 repository = "${config.vector.image.repo}"
                 tag = "${config.vector.image.tag}"
@@ -247,14 +247,14 @@ items = [
                 transforms = {
                     cloudevent = {
                         type = "lua"
-                        version = "2" 
-                        inputs = ["neo4j-cdc"] 
+                        version = "2"
+                        inputs = ["neo4j-cdc"]
                         hooks = {
                             process = "process"
-                            init = "seed_init" 
-                        } 
+                            init = "seed_init"
+                        }
                         source = '''\
-        function seed_init() 
+        function seed_init()
           uuid = require("uuid")
           local socket = require("socket")  -- gettime() has higher precision than os.time()
           uuid.seed()
@@ -292,12 +292,12 @@ items = [
           emit(cloudevent)
         end
 '''
-                    } 
-                } 
+                    }
+                }
                 sources = {
                     "neo4j-cdc" = {
                         type = "kafka"
-                        bootstrap_servers: "${config.kafka.brokerEndpoint}" 
+                        bootstrap_servers: "${config.kafka.brokerEndpoint}"
                         group_id = "{{ context_name }}-vector"
                         topics = [ "{{ context_name }}-cdc-topic" ]
                         decoding.codec = "json"
@@ -314,14 +314,14 @@ items = [
                             "fetch.min.bytes" = "1000000"
                         }
 
-                    } 
-                } 
+                    }
+                }
                 sinks = {
                     console = {
                         type = "console"
                         inputs = [ "neo4j-cdc" ]
                         encoding.codec = "json"
-                    } 
+                    }
                     "context-broker" = {
                         type = "http"
                         inputs = [ "cloudevent" ]
@@ -330,7 +330,7 @@ items = [
                         batch = {
                             max_size = 1
                             max_events = 1
-                        } 
+                        }
                         framing.method = "newline_delimited"
                         uri = "http://broker-ingress.${config.knative.eventing.namespace}.svc.cluster.local/" +  makeContextNamespace("{{ context_name }}") + "/" + contextBroker.name("{{ context_name }}")
                         request = {
@@ -339,9 +339,9 @@ items = [
                                 "Content-Type" = "application/cloudevents+json"
                             }
                         }
-                    } 
-                } 
-            } 
+                    }
+                }
+            }
         }
       }
     }
@@ -461,14 +461,6 @@ kind: InMemoryChannel
                     name = "NEO4J_PASSWORD"
                     value = "${config.neo4j.password}"
                 }
-                {
-                    name = "OTEL_EXPORTER_OTLP_ENDPOINT"
-                    value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
-                }
-                {
-                    name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
-                    value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
-                }
             ]
             image = "${config.Mindwm.context.io_context.image}"
         }]
@@ -497,7 +489,7 @@ kind: InMemoryChannel
                 }
             }
             filters = [
-                { 
+                {
                     "any" = [
                         { exact.type = "iodocument" }
                     ]
@@ -541,14 +533,6 @@ kind: InMemoryChannel
                 {
                     name = "NEO4J_PASSWORD"
                     value = "${config.neo4j.password}"
-                }
-                {
-                    name = "OTEL_EXPORTER_OTLP_ENDPOINT"
-                    value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
-                }
-                {
-                    name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
-                    value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
                 }
             ]
             image = "${config.Mindwm.context.touch.image}"
@@ -716,7 +700,7 @@ kind: InMemoryChannel
                 }
             }
             filters = [
-                { 
+                {
                     "any" = [
                         { exact.type = "iodocument" }
                         { exact.type = "touch" }
@@ -838,7 +822,7 @@ spec:
                 }
             }
             filters = [
-                { 
+                {
                     "any" = [
                         { exact.type = "iodocument" }
                         { exact.type = "touch" }
