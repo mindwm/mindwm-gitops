@@ -247,6 +247,9 @@ items = [
             }
             service.enabled = False
             serviceHeadless.enalbed = False
+            podLabels = {
+                "sidecar.istio.io/inject" = "false"
+            }
             customConfig = {
                 transforms = {
                     cloudevent = {
