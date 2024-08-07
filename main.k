@@ -232,6 +232,26 @@ mindwm_app = ArgoCdOrder.make({
                     "metrics.request-metrics-backend-destination" = "prometheus"
                     # "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
                 }
+                spec.workloads = [
+                    knative.OperatorKnativeDevV1beta1KnativeServingSpecWorkloadsItems0 {
+                        replicas = 1
+                        env = [
+                            {
+                                container = "user-container"
+                                envVars = [
+                                    {
+                                        name: "OTEL_EXPORTER_OTLP_ENDPOINT"
+                                        value: ""
+                                    }
+                                    {
+                                        name: "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+                                        value: config.monitoring.traces_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             }
 
             knative.KnativeEventing {

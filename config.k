@@ -154,6 +154,9 @@ monitoring = {
   opencensus_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
     "${tempo_release_name}.${monitoring_ns}:55678"
   }
+  traces_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
+    "http://${tempo_release_name}.${monitoring_ns}:4317/v1/traces"
+  }
 } 
 
 delimiter = "-"
