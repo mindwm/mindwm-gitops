@@ -38,7 +38,9 @@ crossplane_rolebinding_workaround:
 		SA=crossplane-system:crossplane && \
 		i=crossplane && \
 		kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount=$$SA \
-	'
+		SA=knative-eventing:jetstream-ch-dispatcher && \
+		i=jetstream-ch-dispatcher && \
+		kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount=$$SA
 
 deinstall:
 	k3s-uninstall.sh ; \
