@@ -169,6 +169,9 @@ items = [
             }
             neo4j.password = "${config.neo4j.password}"
             services.neo4j.spec.type = "NodePort"
+            neo4j.labels = {
+                "sidecar.istio.io/inject" = "false"
+            }
             neo4j.resources = {
                 cpu = "500m"
                 memory: "2Gi"
@@ -247,6 +250,9 @@ items = [
             }
             service.enabled = False
             serviceHeadless.enalbed = False
+            podLabels = {
+                "sidecar.istio.io/inject" = "false"
+            }
             customConfig = {
                 transforms = {
                     cloudevent = {
