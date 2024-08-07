@@ -146,15 +146,6 @@ mindwm_app = ArgoCdOrder.make({
 
             argocdSchema.argoHelmRelease({
                 namespace = config.monitoring.namespace
-                name = config.monitoring.otel_collector.release_name
-                chart = charts.otel_collector
-                version = "0.101.0"
-                values = util.yaml_file_merge("observability/otel-collector.yaml", {
-                })
-            })
-
-            argocdSchema.argoHelmRelease({
-                namespace = config.monitoring.namespace
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
                 version = "1.10.1"
@@ -174,7 +165,7 @@ mindwm_app = ArgoCdOrder.make({
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             }), {
-              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ] 
+              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ]
             })
 
             argocdSchema.argoHelmRelease({
@@ -236,6 +227,11 @@ mindwm_app = ArgoCdOrder.make({
                     "sample-rate" = "1"
                     debug = "true"
                 }
+                spec.config.observability = {
+                    "metrics.backend-destination" = "prometheus"
+                    "metrics.request-metrics-backend-destination" = "prometheus"
+                    # "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                }
             }
 
             knative.KnativeEventing {
@@ -249,6 +245,10 @@ mindwm_app = ArgoCdOrder.make({
                     "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
                     "sample-rate" = "1"
                     debug = "true"
+                }
+                spec.config.observability = {
+                    "metrics.backend-destination" = "prometheus"
+                    # "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
                 }
             }
 
@@ -319,6 +319,17 @@ mindwm_app = ArgoCdOrder.make({
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-source.yaml"))
         yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
         yaml.decode_all(file.read("manifests/mdns.yaml"))
+
+        [
+            p.merge(resource, {
+                metadata.annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+            })
+            for resource in yaml.decode_all(file.read("observability/servicemonitor.yaml"))
+
+
+        ]
 
         [
             p.merge(resource, {

@@ -71,9 +71,4 @@ promtail : schema.HelmChart = {
     repoURL = "https://grafana.github.io/helm-charts"
 } 
 
-otel_collector : schema.HelmChart = {
-    name = "opentelemetry-collector"
-    repoURL = "https://open-telemetry.github.io/opentelemetry-helm-charts"
-} 
-
 

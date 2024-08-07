@@ -5,8 +5,8 @@ ARGOCD_HOST_PORT := 38080
 TARGET_REVISION := master
 
 KUBECTL_RUN_OPTS := --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
-KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS) 
-KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS) 
+KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
+KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS)
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
 
 
@@ -147,3 +147,5 @@ grafana_password:
 	$(KUBECTL_RUN) "kubectl -n monitoring get secret -o yaml vm-aio-grafana | yq '.data.admin-password' | base64 -d; echo"
 
 mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources
+
+# make mindwm_lifecycle TARGET_REVISION="`git branch ls --show-current`"
