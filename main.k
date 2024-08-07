@@ -251,7 +251,7 @@ mindwm_app = ArgoCdOrder.make({
                                 envVars = [
                                     {
                                         name: "OTEL_EXPORTER_OTLP_ENDPOINT"
-                                        value: ""
+                                        value: config.monitoring.otel_endpoint()
                                     }
                                     {
                                         name: "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"

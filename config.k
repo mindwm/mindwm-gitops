@@ -159,7 +159,10 @@ monitoring = {
   }
   loki_endpoint = lambda {
     "http://${monitoring.loki.release_name}.${monitoring.namespace}:3100/otlp"
-  } 
+  }
+  otel_endpoint = lambda {
+    "http://${monitoring.otel_collector.release_name}.${monitoring.namespace}:4317"
+  }
 } 
 
 delimiter = "-"
