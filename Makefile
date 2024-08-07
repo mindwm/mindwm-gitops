@@ -59,6 +59,14 @@ argocd:
 	$(KUBECTL_RUN) '\
 		kubectl apply -f ./kcl-cmp.yaml && \
 		kubectl -n argocd patch deploy/argocd-repo-server -p "`cat ./patch-argocd-repo-server.yaml`" && \
+		while :; do \
+			kubectl -n argocd get pods -l app.kubernetes.io/name=argocd-repo-server --field-selector=status.phase=Running | grep argocd-repo-server || { \
+				echo -n .; \
+				sleep 1; \
+				continue; \
+			}; \
+			break; \
+		done ; \
 		kubectl wait --for=condition=ready pod -n argocd -l app.kubernetes.io/name=argocd-repo-server --timeout=600s \
 	'
 
