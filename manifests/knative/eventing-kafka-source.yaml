@@ -370,7 +370,7 @@ spec:
               value: "-XX:+CrashOnOutOfMemoryError -XX:InitialRAMPercentage=70.0 -XX:MinRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0"
           resources:
             requests:
-              cpu: 1000m
+              cpu: 300m
               # 600Mi for virtual replicas + 100Mi overhead
               memory: 700Mi
             limits:
