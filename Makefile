@@ -9,6 +9,10 @@ KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
 KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS)
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
 
+MIN_DOCKER_SERVER_VERSION := 1.46
+
+verify_docker_server_version:
+	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
@@ -47,7 +51,7 @@ deinstall:
 	k3s-uninstall.sh ; \
 	sleep 10 # :)
 
-cluster: deinstall
+cluster: deinstall verify_docker_server_version
 	curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
 	$(MAKE) fix_dns_upstream

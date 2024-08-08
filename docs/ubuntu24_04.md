@@ -11,7 +11,7 @@ sudo apt-get update
 sudo apt-get install git
 ```
 
-## Step 3: Docker Installation
+## Step 3: Docker Installation (minimum docker server api version 1.4.6 required)
 ### 3.1 Set up Docker's apt repository
 ```bash
 sudo apt-get update
@@ -40,7 +40,7 @@ newgrp docker
 
 ## Step 4: Make installation
 ```bash
-sudo apt install make -y
+sudo apt install make yq -y
 ```
 
 ## Step 5: Removing the need for a password to use sudo
