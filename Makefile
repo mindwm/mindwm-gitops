@@ -130,7 +130,7 @@ argocd_app_async_wait: argocd_password
 	$(KUBECTL_RUN) "\
 		kubectl -n argocd exec -ti deployment/argocd-server -- sh -xc '\
 		argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 ;\
-		for n in 1 2 3 4 5; do \
+		for n in 1 2 3 4 5 6; do \
 		        argocd app sync mindwm-gitops --assumeYes --timeout 2100 --async || : \
 			sleep 1;\
 			argocd app wait mindwm-gitops --health --timeout=300 || continue;\
