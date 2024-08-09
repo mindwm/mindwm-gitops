@@ -11,10 +11,24 @@ HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/con
 
 MIN_DOCKER_SERVER_VERSION := 1.46
 
-verify_docker_server_version:
+verify_docker_api_server_version:
 	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
+
+.ONESHELL: dns_search_domain
+dns_search_domain:
+	grep -q '^search [^\.]' /etc/resolv.conf || exit 0
+	cat<<EOF
+	Please turn off search domain option from your resolv.conf file
+	More details here:
+	https://github.com/mindwm/mindwm-gitops/issues/64
+	https://github.com/k3s-io/k3s/issues/5567
+	https://github.com/k3s-io/k3s/issues/9286
+	EOF
+	exit 1 
+
+precheck: verify_docker_api_server_version dns_search_domain
 
 fix_dns_upstream:
 	$(KUBECTL_RUN) '\
@@ -51,7 +65,7 @@ deinstall:
 	k3s-uninstall.sh ; \
 	sleep 10 # :)
 
-cluster: deinstall verify_docker_server_version
+cluster: deinstall precheck
 	curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
 	test -d ~/.kube || mkdir ~/.kube ;\
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
