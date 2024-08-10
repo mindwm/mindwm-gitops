@@ -602,6 +602,63 @@ kind: InMemoryChannel
         }
     }
   }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.context.istio_gateway
+    spec.forProvider.manifest = {
+      apiVersion = "networking.istio.io/v1beta1"
+      kind = "Gateway"
+      metadata = {
+          name = "${config.Mindwm.context.istio_gateway}"
+          namespace = makeContextNamespace("{{ context_name }}")
+      }
+      spec = {
+        selector.istio = ingressgateway
+        servers = [
+          {
+            port = {
+              number = 80
+              name = "http"
+              protocol = "HTTP"
+            }
+            hosts = [ "${config.Mindwm.context.neo4j_url}" ]
+          } 
+        ]
+      }
+    }
+  }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.context.neo4j_vs_name
+    spec.forProvider.manifest = {
+      apiVersion = "networking.istio.io/v1beta1"
+      kind = "VirtualService"
+      metadata = {
+          name = "${config.Mindwm.context.neo4j_vs_name}"
+          namespace = makeContextNamespace("{{ context_name }}")
+      }
+      spec = {
+        hosts = [ "${config.Mindwm.context.neo4j_url}" ] # ??
+        gateways = [ "${config.Mindwm.context.istio_gateway}" ]
+        http = [
+          {
+            match = [
+              {
+                uri.prefix = "/"
+              }
+            ]
+            route = [{
+              destination.host = "{{ context_name }}-${config.neo4j.release_name}.{{ context_name }}.svc.cluster.local"
+              port.number = "${config.neo4j.http_port}"
+            }]
+
+          }
+        ]
+      }
+    }
+  }
 
 ]
 """, {
