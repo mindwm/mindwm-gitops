@@ -414,6 +414,48 @@ mindwm_app = ArgoCdOrder.make({
                 }]
               }
             }
+
+
+            istio_gateway.Gateway {
+              metadata.name = config.argocd.gateway_name
+              metadata.namespace = config.argocd.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
+                servers = [{
+                  port = {
+                    number = 80
+                    name = "http"
+                    protocol = "HTTP"
+                  }
+                  hosts = [
+                    config.argocd.url
+                  ]
+                }]
+              }
+            } 
+
+            istio_virtual_service.VirtualService {
+              metadata.name = config.argocd.virtual_service
+              metadata.namespace = config.argocd.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.argocd.url ]
+                gateways = [ config.argocd.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 80}]
+                  route = [{ 
+                    destination.host = config.argocd.destination()
+                    destination.port.number = 38080 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
           ]
     ]
 })

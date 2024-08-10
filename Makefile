@@ -184,10 +184,11 @@ service_dashboard:
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	export INGRESS_PORT=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
 	cat<<EOF
-	$$INGRESS_HOST grafana.mindwm.local vm.mindwm.local neo4j.mindwm.local | sudo tee /etc/hosts
+	$$INGRESS_HOST argocd.mindwm.local grafana.mindwm.local vm.mindwm.local neo4j.purple.mindwm.local | sudo tee -a /etc/hosts
+	http://argocd.purple.mindwm.local:$$INGRESS_PORT 
 	http://grafana.mindwm.local:$$INGRESS_PORT 
 	http://vm.mindwm.local:$$INGRESS_PORT 
-	http://neo4j.mindwm.local:$$INGRESS_PORT 
+	http://neo4j.purple.mindwm.local:$$INGRESS_PORT 
 	EOF
 
 	

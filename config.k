@@ -11,6 +11,17 @@ kafka = {
     }
 }
 
+argocd = {
+  release_name = "argocd"
+  gateway_name = "argocd-gateway"
+  namespace = "argocd"
+  url = "argocd.${mindwm_domain}"
+  virtual_service = "argocd-vs"
+  destination = lambda {
+    "${argocd.release_name}-server.${argocd.namespace}.svc.cluster.local"
+  } 
+} 
+
 knativeBroker = {
     deadLetterImage = "gcr.io/knative-releases/knative.dev/eventing/cmd/event_display"
 }
