@@ -385,7 +385,7 @@ mindwm_app = ArgoCdOrder.make({
                 hosts = [ config.monitoring.grafana.url ]
                 gateways = [ config.monitoring.gateway_name ]
                 http = [{
-                  match = [{ uri.prefix = "/", port = 3000}]
+                  match = [{ uri.prefix = "/", port = 80}]
                   route = [{ 
                     destination.host = config.monitoring.grafana.destination()
                     destination.port.number = 3000 # TODO(@metacoma) hardcode
@@ -405,7 +405,7 @@ mindwm_app = ArgoCdOrder.make({
                 hosts = [ config.monitoring.victoria_metrics.url ]
                 gateways = [ config.monitoring.gateway_name ]
                 http = [{
-                  match = [{ uri.prefix = "/", port = 8429}]
+                  match = [{ uri.prefix = "/", port = 80}]
                   route = [{ 
                     destination.host = config.monitoring.victoria_metrics.destination()
                     destination.port.number = 8429 # TODO(@metacoma) hardcode
