@@ -205,6 +205,9 @@ mindwm_app = ArgoCdOrder.make({
             istio_gateway.Gateway {
               metadata.name = config.monitoring.gateway_name
               metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
               spec = {
                 selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
                 servers = [{
