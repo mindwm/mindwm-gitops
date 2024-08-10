@@ -622,7 +622,7 @@ kind: InMemoryChannel
               name = "http"
               protocol = "HTTP"
             }
-            hosts = [ "${config.Mindwm.context.neo4j_url}" ]
+            hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
           } 
         ]
       }
@@ -640,7 +640,7 @@ kind: InMemoryChannel
           namespace = makeContextNamespace("{{ context_name }}")
       }
       spec = {
-        hosts = [ "${config.Mindwm.context.neo4j_url}" ] # ??
+        hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
         gateways = [ "${config.Mindwm.context.istio_gateway}" ]
         http = [
           {
