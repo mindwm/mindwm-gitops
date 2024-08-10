@@ -202,67 +202,6 @@ mindwm_app = ArgoCdOrder.make({
                 version = "1.15.2"
             })
 
-            istio_gateway.Gateway {
-              metadata.name = config.monitoring.gateway_name
-              metadata.namespace = config.monitoring.namespace
-              metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-              }
-              spec = {
-                selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
-                servers = [{
-                  port = {
-                    number = 80
-                    name = "http"
-                    protocol = "HTTP"
-                    targetPort = 80
-                  }
-                  hosts = [
-                    config.monitoring.grafana.url,
-                    config.monitoring.victoria_metrics.url
-                  ]
-                }]
-              }
-            } 
-            istio_virtual_service.VirtualService {            
-              metadata.name = config.monitoring.grafana.virtual_service
-              metadata.namespace = config.monitoring.namespace
-              metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-              }
-              spec = {
-                hosts = [ config.monitoring.grafana.url ]
-                gateways = [ config.monitoring.gateway_name ]
-                http = [{
-                  match = [{ uri.prefix = "/", port = 3000}]
-                  route = [{ 
-                    destination.host = config.monitoring.grafana.destination()
-                    destination.port.number = 3000 # TODO(@metacoma) hardcode
-                  }]
-
-                }]
-              }
-            }
-
-            istio_virtual_service.VirtualService {
-              metadata.name = config.monitoring.victoria_metrics.virtual_service
-              metadata.namespace = config.monitoring.namespace
-              metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-              }
-              spec = {
-                hosts = [ config.monitoring.victoria_metrics.url ]
-                gateways = [ config.monitoring.gateway_name ]
-                http = [{
-                  match = [{ uri.prefix = "/", port = 8429}]
-                  route = [{ 
-                    destination.host = config.monitoring.victoria_metrics.destination()
-                    destination.port.number = 8429 # TODO(@metacoma) hardcode
-                  }]
-
-                }]
-              }
-            }
         ]
         [
 
@@ -413,6 +352,69 @@ mindwm_app = ArgoCdOrder.make({
             })
             for resource in XrdKclFunction.makeContextXR() + XrdKclFunction.makeUserXR() + XrdKclFunction.makeHostXR()
         ]
+        [
+            istio_gateway.Gateway {
+              metadata.name = config.monitoring.gateway_name
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
+                servers = [{
+                  port = {
+                    number = 80
+                    name = "http"
+                    protocol = "HTTP"
+                    targetPort = 80
+                  }
+                  hosts = [
+                    config.monitoring.grafana.url,
+                    config.monitoring.victoria_metrics.url
+                  ]
+                }]
+              }
+            } 
+            istio_virtual_service.VirtualService {            
+              metadata.name = config.monitoring.grafana.virtual_service
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.monitoring.grafana.url ]
+                gateways = [ config.monitoring.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 3000}]
+                  route = [{ 
+                    destination.host = config.monitoring.grafana.destination()
+                    destination.port.number = 3000 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
+
+            istio_virtual_service.VirtualService {
+              metadata.name = config.monitoring.victoria_metrics.virtual_service
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.monitoring.victoria_metrics.url ]
+                gateways = [ config.monitoring.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 8429}]
+                  route = [{ 
+                    destination.host = config.monitoring.victoria_metrics.destination()
+                    destination.port.number = 8429 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
+          ]
     ]
 })
 
