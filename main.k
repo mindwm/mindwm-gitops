@@ -224,6 +224,9 @@ mindwm_app = ArgoCdOrder.make({
             istio_virtual_service.VirtualService {            
               metadata.name = config.monitoring.grafana.virtual_service
               metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
               spec = {
                 hosts = [ config.monitoring.grafana.url ]
                 gateways = [ config.monitoring.gateway_name ]
@@ -241,6 +244,9 @@ mindwm_app = ArgoCdOrder.make({
             istio_virtual_service.VirtualService {
               metadata.name = config.monitoring.victoria_metrics.virtual_service
               metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
               spec = {
                 hosts = [ config.monitoring.victoria_metrics.url ]
                 gateways = [ config.monitoring.gateway_name ]
