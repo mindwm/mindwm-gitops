@@ -136,6 +136,7 @@ crossplane = {
 
 monitoring = {
   namespace = "monitoring"
+  gateway_name = "${namespace}_gateway"
   otel_collector = {
     release_name = "otel-collector"
   }
@@ -147,10 +148,12 @@ monitoring = {
   }
   grafana = {
     url = "grafana.${mindwm_domain}"
+    virtual_service = "grafana-vs"
   } 
   victoria_metrics = {
     release_name = "vm-aio"
     url = "vm.${mindwm_domain}"
+    virtual_service = "vm-vs"
   }
   promtail = {
     release_name = "promtail"
