@@ -17,6 +17,7 @@ import .config as config
 import .crossplane.xrd_kcl_function as XrdKclFunction
 import util
 #import argoproj.v1alpha1 as argoproj
+import istio.v1 as istio
 
 
 mindwm_app = ArgoCdOrder.make({
@@ -190,6 +191,7 @@ mindwm_app = ArgoCdOrder.make({
                   }]
                 }
             })
+            
 
 
             argocdSchema.argoHelmRelease({
@@ -199,6 +201,27 @@ mindwm_app = ArgoCdOrder.make({
                 version = "1.15.2"
             })
 
+            istio.Gateway {
+              metadata.name = config.monitoring.gateway_name
+              metadata.namespace = config.monitoring.namespace
+              spec = {
+                selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
+                servers = [{
+                  port = {
+                    number = 80
+                    name = "http"
+                    protocol = "HTTP"
+                  }
+                  hosts = [
+                    config.monitoring.grafana.url,
+                    config.monitoring.victoria_metrics.url
+                  ]
+                }]
+              }
+            } 
+
+                #config.monitoring.victoria_metrics.url
+                #config.monitoring.grafana.url
         ]
         [
 
