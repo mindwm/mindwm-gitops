@@ -614,7 +614,7 @@ kind: InMemoryChannel
           namespace = makeContextNamespace("{{ context_name }}")
       }
       spec = {
-        selector.istio = ingressgateway
+        selector.istio = "ingressgateway"
         servers = [
           {
             port = {
