@@ -17,6 +17,9 @@ import .config as config
 import .crossplane.xrd_kcl_function as XrdKclFunction
 import util
 #import argoproj.v1alpha1 as argoproj
+import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
+import istio.v1alpha3.networking_istio_io_v1alpha3_virtual_service as istio_virtual_service
+
 
 
 mindwm_app = ArgoCdOrder.make({
@@ -190,6 +193,7 @@ mindwm_app = ArgoCdOrder.make({
                   }]
                 }
             })
+            
 
 
             argocdSchema.argoHelmRelease({
@@ -349,6 +353,110 @@ mindwm_app = ArgoCdOrder.make({
             })
             for resource in XrdKclFunction.makeContextXR() + XrdKclFunction.makeUserXR() + XrdKclFunction.makeHostXR()
         ]
+        [
+            istio_gateway.Gateway {
+              metadata.name = config.monitoring.gateway_name
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
+                servers = [{
+                  port = {
+                    number = 80
+                    name = "http"
+                    protocol = "HTTP"
+                  }
+                  hosts = [
+                    config.monitoring.grafana.url,
+                    config.monitoring.victoria_metrics.url
+                  ]
+                }]
+              }
+            } 
+            istio_virtual_service.VirtualService {            
+              metadata.name = config.monitoring.grafana.virtual_service
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.monitoring.grafana.url ]
+                gateways = [ config.monitoring.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 80}]
+                  route = [{ 
+                    destination.host = config.monitoring.grafana.destination()
+                    destination.port.number = 3000 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
+
+            istio_virtual_service.VirtualService {
+              metadata.name = config.monitoring.victoria_metrics.virtual_service
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.monitoring.victoria_metrics.url ]
+                gateways = [ config.monitoring.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 80}]
+                  route = [{ 
+                    destination.host = config.monitoring.victoria_metrics.destination()
+                    destination.port.number = 8429 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
+
+
+            istio_gateway.Gateway {
+              metadata.name = config.argocd.gateway_name
+              metadata.namespace = config.argocd.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
+                servers = [{
+                  port = {
+                    number = 80
+                    name = "http"
+                    protocol = "HTTP"
+                  }
+                  hosts = [
+                    config.argocd.url
+                  ]
+                }]
+              }
+            } 
+
+            istio_virtual_service.VirtualService {
+              metadata.name = config.argocd.virtual_service
+              metadata.namespace = config.argocd.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.argocd.url ]
+                gateways = [ config.argocd.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 80}]
+                  route = [{ 
+                    destination.host = config.argocd.destination()
+                    destination.port.number = 38080 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
+          ]
     ]
 })
 

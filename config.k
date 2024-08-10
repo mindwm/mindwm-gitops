@@ -1,3 +1,6 @@
+mindwm_domain = "mindwm.local"
+
+
 kafka = {
     cluster_name = "neo4j-cdc"
     namespace = "redpanda"
@@ -7,6 +10,17 @@ kafka = {
         context_name + "-cdc-topic"
     }
 }
+
+argocd = {
+  release_name = "argocd"
+  gateway_name = "argocd-gateway"
+  namespace = "argocd"
+  url = "argocd.${mindwm_domain}"
+  virtual_service = "argocd-vs"
+  destination = lambda {
+    "${argocd.release_name}-server.${argocd.namespace}.svc.cluster.local"
+  } 
+} 
 
 knativeBroker = {
     deadLetterImage = "gcr.io/knative-releases/knative.dev/eventing/cmd/event_display"
@@ -73,6 +87,8 @@ Mindwm = {
     }
 
     context = {
+        istio_gateway = "context-gateway"
+        neo4j_vs_name = "neo4j-ui"
         io_context = {
             name = "io-context"
             crossplane_name = lambda context_name : str -> str {
@@ -130,6 +146,7 @@ crossplane = {
 
 monitoring = {
   namespace = "monitoring"
+  gateway_name = "${namespace}-gateway"
   otel_collector = {
     release_name = "otel-collector"
   }
@@ -139,8 +156,22 @@ monitoring = {
   tempo = {
     release_name = "tempo"
   }
+  grafana = {
+    url = "grafana.${mindwm_domain}"
+    virtual_service = "grafana-vs"
+    destination = lambda {
+      "${monitoring.victoria_metrics.release_name}-grafana"
+      #"vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}.svc.cluster.local"
+    }
+  } 
   victoria_metrics = {
     release_name = "vm-aio"
+    url = "vm.${mindwm_domain}"
+    virtual_service = "vm-vs"
+    destination = lambda {
+      #"${monitoring.victoria_metrics.release_name}.${monitoring.namespace}.svc.cluster.local"
+      "vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}.svc.cluster.local"
+    }
   }
   promtail = {
     release_name = "promtail"
@@ -185,6 +216,7 @@ neo4j = {
     password = "password"
     release_name = "neo4j"
     port = 7687
+    http_port = 7474
 
     crossplane_pvc_name = lambda context_name : str -> str {
         context_name + delimiter + "neo4j-plugin-pvc"
