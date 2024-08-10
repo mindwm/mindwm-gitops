@@ -1,3 +1,6 @@
+mindwm_domain = "mindwm.local"
+
+
 kafka = {
     cluster_name = "neo4j-cdc"
     namespace = "redpanda"
@@ -73,6 +76,9 @@ Mindwm = {
     }
 
     context = {
+        istio_gateway = "context"
+        neo4j_url = "neo4j.${mindwm_domain}"
+        neo4j_vs_name = "neo4j-ui"
         io_context = {
             name = "io-context"
             crossplane_name = lambda context_name : str -> str {
@@ -139,8 +145,12 @@ monitoring = {
   tempo = {
     release_name = "tempo"
   }
+  grafana = {
+    url = "grafana.${mindwm_domain}"
+  } 
   victoria_metrics = {
     release_name = "vm-aio"
+    url = "vm.${mindwm_domain}"
   }
   promtail = {
     release_name = "promtail"
@@ -185,6 +195,7 @@ neo4j = {
     password = "password"
     release_name = "neo4j"
     port = 7687
+    http_port = 7474
 
     crossplane_pvc_name = lambda context_name : str -> str {
         context_name + delimiter + "neo4j-plugin-pvc"
