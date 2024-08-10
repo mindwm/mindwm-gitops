@@ -650,8 +650,8 @@ kind: InMemoryChannel
               }
             ]
             route = [{
-              destination.host = "{{ context_name }}-${config.neo4j.release_name}.{{ context_name }}.svc.cluster.local"
-              port.number = "${config.neo4j.http_port}"
+              destination.host = "{{ context_name }}-${config.neo4j.release_name}-neo4j.context-{{ context_name }}.svc.cluster.local"
+              destination.port.number = "${config.neo4j.http_port}"
             }]
 
           }
