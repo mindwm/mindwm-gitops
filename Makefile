@@ -185,7 +185,7 @@ service_dashboard:
 	export INGRESS_PORT=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
 	cat<<EOF
 	$$INGRESS_HOST argocd.mindwm.local grafana.mindwm.local vm.mindwm.local neo4j.purple.mindwm.local | sudo tee -a /etc/hosts
-	http://argocd.purple.mindwm.local:$$INGRESS_PORT 
+	http://argocd.mindwm.local:$$INGRESS_PORT 
 	http://grafana.mindwm.local:$$INGRESS_PORT 
 	http://vm.mindwm.local:$$INGRESS_PORT 
 	http://neo4j.purple.mindwm.local:$$INGRESS_PORT 
