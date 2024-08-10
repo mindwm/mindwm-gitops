@@ -17,7 +17,8 @@ import .config as config
 import .crossplane.xrd_kcl_function as XrdKclFunction
 import util
 #import argoproj.v1alpha1 as argoproj
-import istio.v1 as istio
+import istio.v1.networking_istio_io_v1_gateway as istio_gateway
+import istio.v1.networking_istio_io_v1_virtual_service as istio_virtual_service
 
 
 mindwm_app = ArgoCdOrder.make({
@@ -201,7 +202,7 @@ mindwm_app = ArgoCdOrder.make({
                 version = "1.15.2"
             })
 
-            istio.Gateway {
+            istio_gateway.Gateway {
               metadata.name = config.monitoring.gateway_name
               metadata.namespace = config.monitoring.namespace
               spec = {
@@ -211,6 +212,7 @@ mindwm_app = ArgoCdOrder.make({
                     number = 80
                     name = "http"
                     protocol = "HTTP"
+                    targetPort = 80
                   }
                   hosts = [
                     config.monitoring.grafana.url,
@@ -219,6 +221,22 @@ mindwm_app = ArgoCdOrder.make({
                 }]
               }
             } 
+            istio_virtual_service.VirtualService {            
+              metadata.name = config.monitoring.grafana.virtual_service
+              metadata.namespace = config.monitoring.namespace
+              spec = {
+                hosts = [ config.monitoring.grafana.url ]
+                gateways = [ config.monitoring.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 3000}]
+                  route = [{ 
+                    destination.host = ""
+                    destination.port.number = 3000 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
 
                 #config.monitoring.victoria_metrics.url
                 #config.monitoring.grafana.url
