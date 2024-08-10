@@ -76,8 +76,7 @@ Mindwm = {
     }
 
     context = {
-        istio_gateway = "context"
-        neo4j_url = "neo4j.${mindwm_domain}"
+        istio_gateway = "context-gateway"
         neo4j_vs_name = "neo4j-ui"
         io_context = {
             name = "io-context"
@@ -136,7 +135,7 @@ crossplane = {
 
 monitoring = {
   namespace = "monitoring"
-  gateway_name = "${namespace}_gateway"
+  gateway_name = "${namespace}-gateway"
   otel_collector = {
     release_name = "otel-collector"
   }
