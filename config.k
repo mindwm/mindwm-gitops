@@ -149,7 +149,8 @@ monitoring = {
     url = "grafana.${mindwm_domain}"
     virtual_service = "grafana-vs"
     destination = lambda {
-      "vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}.svc.cluster.local"
+      "${monitoring.victoria_metrics.release_name}-grafana"
+      #"vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}.svc.cluster.local"
     }
   } 
   victoria_metrics = {
@@ -157,7 +158,8 @@ monitoring = {
     url = "vm.${mindwm_domain}"
     virtual_service = "vm-vs"
     destination = lambda {
-      "${monitoring.victoria_metrics.release_name}.${monitoring.namespace}.svc.cluster.local"
+      #"${monitoring.victoria_metrics.release_name}.${monitoring.namespace}.svc.cluster.local"
+      "vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}.svc.cluster.local"
     }
   }
   promtail = {
