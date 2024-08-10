@@ -367,7 +367,6 @@ mindwm_app = ArgoCdOrder.make({
                     number = 80
                     name = "http"
                     protocol = "HTTP"
-                    targetPort = 80
                   }
                   hosts = [
                     config.monitoring.grafana.url,
