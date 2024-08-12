@@ -956,6 +956,7 @@ spec:
                 namespace = Mindwm.user.namespace("{{ user_name }}")
             }
         }
+      }
     }
 ]
 """, {
