@@ -133,7 +133,9 @@ mindwm_app = ArgoCdOrder.make({
                     service = {
                         merge.spec.type = "LoadBalancer"
                         port.cluster.enabled = True
-                        port.cluster.nodePort = 38081
+                        port.cluster.targetPort = nats.nats_port
+                        port.cluster.port = nats.nats_port
+
                     }
                 }
             })
