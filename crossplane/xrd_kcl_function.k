@@ -398,6 +398,43 @@ kind: InMemoryChannel
 
     }
   }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.user.trigger_back("{{ user_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Trigger"
+        metadata = {
+            name = Mindwm.user.trigger_back("{{ user_name }}")
+            namespace = makeContextNamespace("{{ context_name }}")
+        }
+        spec = {
+            broker = contextBroker.name("{{ context_name }}")
+            delivery = {
+                deadLetterSink.ref = {
+                    apiVersion = "serving.knative.dev/v1"
+                    kind = "Service"
+                    name = contextBroker.deadLetterName("{{ user_name }}")
+                }
+            }
+            filters = [
+                {
+                    "any" = [
+                        { cesql = "source LIKE 'graph.%'" }
+                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.%'" }
+                    ]
+                }
+            ]
+            subscriber.ref = {
+                apiVersion = "eventing.knative.dev/v1"
+                kind = "Broker"
+                name = Mindwm.user.broker.name("{{ user_name }}")
+                namespace = Mindwm.user.namespace("{{ user_name }}")
+            } 
+       }
+    }
+  }
   # kafkaSource
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
@@ -945,7 +982,7 @@ spec:
                 {
                     "any" = [
                         { cesql = "source LIKE 'graph.%'" }
-                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}'.%" }
+                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
                     ]
                 }
             ]

@@ -69,6 +69,9 @@ Mindwm = {
                 "trigger" + delimiter + user_name + delimiter + "broker-to" + delimiter + context_name
             }
         }
+        trigger_back = lambda user_name : str -> str {
+          "trigger-context-to-user" + delimiter + user_name
+        }
     }
     host = {
         broker = {
