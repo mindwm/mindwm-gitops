@@ -10,11 +10,13 @@ KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS)
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
 
 MIN_DOCKER_SERVER_VERSION := 1.46
+DOMAIN := mindwm.local
 
 verify_docker_api_server_version:
 	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
+
 
 .ONESHELL: dns_search_domain
 dns_search_domain:
@@ -184,14 +186,14 @@ service_dashboard:
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	export INGRESS_PORT=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
 	cat<<EOF
-	$$INGRESS_HOST argocd.mindwm.local grafana.mindwm.local vm.mindwm.local neo4j.purple.mindwm.local | sudo tee -a /etc/hosts
-	http://argocd.mindwm.local:$$INGRESS_PORT 
-	http://grafana.mindwm.local:$$INGRESS_PORT 
-	http://vm.mindwm.local:$$INGRESS_PORT 
-	http://neo4j.purple.mindwm.local:$$INGRESS_PORT 
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.purple.$(DOMAIN) | sudo tee -a /etc/hosts
+	http://argocd.$(DOMAIN):$$INGRESS_PORT
+	http://grafana.$(DOMAIN):$$INGRESS_PORT
+	http://vm.$(DOMAIN):$$INGRESS_PORT
+	http://neo4j.purple.$(DOMAIN):$$INGRESS_PORT
+	nats://root:r00tpass@nats.$(DOMAIN):4222
 	EOF
 
-	
 mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources service_dashboard
 
 # make mindwm_lifecycle TARGET_REVISION="`git branch ls --show-current`"
