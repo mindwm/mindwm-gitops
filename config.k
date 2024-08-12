@@ -84,6 +84,9 @@ Mindwm = {
             # host trigger name = "trigger-{host_name}-broker-to-user-broker
             "trigger-host-broker-to" + delimiter + host_name
         }
+        trigger_back = lambda host_name : str -> str {
+            "trigger-knative-to-host-" + delimiter + host_name
+        }
     }
 
     context = {
