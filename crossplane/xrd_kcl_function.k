@@ -816,7 +816,7 @@ kind: InMemoryChannel
                 deadLetterSink.ref = {
                     apiVersion = "serving.knative.dev/v1"
                     kind = "Service"
-                    name = contextBroker.deadLetterName("{{ user_name }}")
+                    name = contextBroker.deadLetterName("{{ context_name }}")
                 }
             }
             filters = [
