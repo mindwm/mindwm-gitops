@@ -836,6 +836,8 @@ kind: InMemoryChannel
        }
     }
   }
+  for context_name in context_names
+] + [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
