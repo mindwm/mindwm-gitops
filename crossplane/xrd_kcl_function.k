@@ -863,9 +863,11 @@ kind: InMemoryChannel
                     "any" = [
                         { exact.type = "iodocument" }
                         { exact.type = "touch" }
+                        { exact.type = "clipboard" }
                     ]
                 }
             ]
+            # context broker
             subscriber.ref = {
                 apiVersion = "eventing.knative.dev/v1"
                 kind = "Broker"
@@ -959,7 +961,6 @@ spec:
 
     }
   }
-
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
@@ -985,9 +986,11 @@ spec:
                     "any" = [
                         { exact.type = "iodocument" }
                         { exact.type = "touch" }
+                        { exact.type = "clipboard" }
                     ]
                 }
             ]
+            # user broker
             subscriber.ref = {
                 apiVersion = "eventing.knative.dev/v1"
                 kind = "Broker"
