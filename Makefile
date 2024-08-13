@@ -4,7 +4,7 @@ ARGOCD_HOST_PORT := 38080
 
 TARGET_REVISION := master
 
-KUBECTL_RUN_OPTS := --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
+KUBECTL_RUN_OPTS := -i --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
 KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
 KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS)
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
@@ -169,8 +169,13 @@ argocd_app: argocd
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
+.ONESHELL: mindwm_resources
 mindwm_resources:
-	$(KUBECTL_RUN) 'kubectl apply -f resources/context.yaml'
+	export CONTEXT_NAME=$(CONTEXT_NAME)
+	export HOSTNAME=`hostname`
+	cat resources/*.yaml | docker run -e CONTEXT_NAME -e USER -e HOST --rm -i bhgedigital/envsubst envsubst | $(KUBECTL_RUN) 'kubectl apply -f -'
+
+#	$(KUBECTL_RUN) 'kubectl apply -f resources/context.yaml'
 
 argocd_apps_ensure: argocd_password
 	$(KUBECTL_RUN) "kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 >/dev/null && argocd app list'" | awk '!/^NAME/ {if ($$6 != "Healthy") {print $$0; exit 1}}'
