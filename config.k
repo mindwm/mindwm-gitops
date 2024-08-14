@@ -1,6 +1,15 @@
 mindwm_domain = "mindwm.local"
 
 
+sources = {
+  mindwm_ns = "org.mindwm" 
+  func_ns = "knfunc"
+  knfunc_action = lambda user_name host_name {
+    hostname = "%" if host_name == "" else host_name
+    "${sources.mindwm_ns}.${sources.func_ns}.%.%.{{ user_name }}.{{ host_name }}.tmux.%.%.action"
+  } 
+} 
+
 kafka = {
     cluster_name = "neo4j-cdc"
     namespace = "redpanda"
@@ -93,7 +102,9 @@ Mindwm = {
     }
 
     context = {
-        istio_gateway = "context-gateway"
+        istio_gateway = lambda context_name : str - >str {
+          "context-${context_name}-gateway"
+        } 
         neo4j_vs_name = "neo4j-ui"
         io_context = {
             name = "io-context"

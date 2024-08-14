@@ -12,6 +12,7 @@ composite_version = "v1beta1"
 
 kcl_util_func = file.read("./config.k")
 
+
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]
     [
@@ -398,6 +399,7 @@ kind: InMemoryChannel
 
     }
   }
+  # ContextBroker to UserBroker
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
@@ -422,7 +424,7 @@ kind: InMemoryChannel
                 {
                     "any" = [
                         { cesql = "source LIKE 'graph.%'" }
-                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.%'" }
+                        { cesql = "subject LIKE '" + sources.knfunc_action("{{ user_name }}", "%") + "'" }
                     ]
                 }
             ]
@@ -642,12 +644,12 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = Mindwm.context.istio_gateway
+    metadata.name = Mindwm.context.istio_gateway("{{ context_name }}")
     spec.forProvider.manifest = {
       apiVersion = "networking.istio.io/v1beta1"
       kind = "Gateway"
       metadata = {
-          name = "${config.Mindwm.context.istio_gateway}"
+          name = Mindwm.context.istio_gateway("{{ context_name }}")
           namespace = makeContextNamespace("{{ context_name }}")
       }
       spec = {
@@ -678,7 +680,8 @@ kind: InMemoryChannel
       }
       spec = {
         hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
-        gateways = [ "${config.Mindwm.context.istio_gateway}" ]
+        gateways = [ Mindwm.context.istio_gateway("{{ context_name }}") ]
+          
         http = [
           {
             match = [
