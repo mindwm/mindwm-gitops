@@ -105,7 +105,9 @@ Mindwm = {
         istio_gateway = lambda context_name : str - >str {
           "context-${context_name}-gateway"
         } 
-        neo4j_vs_name = "neo4j-ui"
+        neo4j_vs_name = lambda context_name : str -> str {
+          "${context_name}-neo4j-ui"
+        }
         io_context = {
             name = "io-context"
             crossplane_name = lambda context_name : str -> str {

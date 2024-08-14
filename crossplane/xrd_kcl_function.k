@@ -632,12 +632,12 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = Mindwm.context.neo4j_vs_name
+    metadata.name = Mindwm.context.neo4j_vs_name("{{ context_name }}")
     spec.forProvider.manifest = {
       apiVersion = "networking.istio.io/v1beta1"
       kind = "VirtualService"
       metadata = {
-          name = "${config.Mindwm.context.neo4j_vs_name}"
+          name = Mindwm.context.neo4j_vs_name("{{ context_name }}")
           namespace = makeContextNamespace("{{ context_name }}")
       }
       spec = {
