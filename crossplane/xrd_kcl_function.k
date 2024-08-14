@@ -12,6 +12,7 @@ composite_version = "v1beta1"
 
 kcl_util_func = file.read("./config.k")
 
+
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]
     [
@@ -605,12 +606,12 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = Mindwm.context.istio_gateway
+    metadata.name = Mindwm.context.istio_gateway("{{ context_name }}")
     spec.forProvider.manifest = {
       apiVersion = "networking.istio.io/v1beta1"
       kind = "Gateway"
       metadata = {
-          name = "${config.Mindwm.context.istio_gateway}"
+          name = Mindwm.context.istio_gateway("{{ context_name }}")
           namespace = makeContextNamespace("{{ context_name }}")
       }
       spec = {
@@ -631,17 +632,18 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = Mindwm.context.neo4j_vs_name
+    metadata.name = Mindwm.context.neo4j_vs_name("{{ context_name }}")
     spec.forProvider.manifest = {
       apiVersion = "networking.istio.io/v1beta1"
       kind = "VirtualService"
       metadata = {
-          name = "${config.Mindwm.context.neo4j_vs_name}"
+          name = Mindwm.context.neo4j_vs_name("{{ context_name }}")
           namespace = makeContextNamespace("{{ context_name }}")
       }
       spec = {
         hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
-        gateways = [ "${config.Mindwm.context.istio_gateway}" ]
+        gateways = [ Mindwm.context.istio_gateway("{{ context_name }}") ]
+          
         http = [
           {
             match = [
@@ -765,6 +767,45 @@ kind: InMemoryChannel
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
+    metadata.name = Mindwm.user.trigger_back("{{ user_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Trigger"
+        metadata = {
+            name = Mindwm.user.trigger_back("{{ user_name }}")
+            namespace = makeContextNamespace("{{ context_name }}")
+        }
+        spec = {
+            broker = contextBroker.name("{{ context_name }}")
+            delivery = {
+                deadLetterSink.ref = {
+                    apiVersion = "serving.knative.dev/v1"
+                    kind = "Service"
+                    name = contextBroker.deadLetterName("{{ context_name }}")
+                }
+            }
+            filters = [
+                {
+                    "any" = [
+                        { cesql = "source LIKE 'graph.%'" }
+                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.%'" }
+                    ]
+                }
+            ]
+            subscriber.ref = {
+                apiVersion = "eventing.knative.dev/v1"
+                kind = "Broker"
+                name = Mindwm.user.broker.name("{{ user_name }}")
+                namespace = Mindwm.user.namespace("{{ user_name }}")
+            } 
+       }
+    }
+  }
+  for context_name in context_names
+] + [
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
     metadata.name = Mindwm.user.contextTrigger.crossplane_name("{{ user_name }}","{{ context_name }}")
     spec.forProvider.manifest = {
         apiVersion = "eventing.knative.dev/v1"
@@ -787,9 +828,11 @@ kind: InMemoryChannel
                     "any" = [
                         { exact.type = "iodocument" }
                         { exact.type = "touch" }
+                        { exact.type = "clipboard" }
                     ]
                 }
             ]
+            # context broker
             subscriber.ref = {
                 apiVersion = "eventing.knative.dev/v1"
                 kind = "Broker"
@@ -883,7 +926,6 @@ spec:
 
     }
   }
-
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
@@ -909,9 +951,11 @@ spec:
                     "any" = [
                         { exact.type = "iodocument" }
                         { exact.type = "touch" }
+                        { exact.type = "clipboard" }
                     ]
                 }
             ]
+            # user broker
             subscriber.ref = {
                 apiVersion = "eventing.knative.dev/v1"
                 kind = "Broker"
@@ -921,6 +965,43 @@ spec:
         }
     }
   }
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = Mindwm.host.trigger_back("{{ host_name }}")
+    spec.forProvider.manifest = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Trigger"
+        metadata = {
+            name = Mindwm.host.trigger_back("{{ host_name }}")
+            namespace = Mindwm.user.namespace("{{ user_name }}")
+        }
+        spec = {
+            broker = Mindwm.user.broker.name("{{ user_name }}")
+            delivery = {
+                deadLetterSink.ref = {
+                    apiVersion = "serving.knative.dev/v1"
+                    kind = "Service"
+                    name = Mindwm.user.deadLetter.name("{{ user_name }}")
+                }
+            }
+            filters = [
+                {
+                    "any" = [
+                        { cesql = "source LIKE 'graph.%'" }
+                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
+                    ]
+                }
+            ]
+            subscriber.ref = {
+                apiVersion = "eventing.knative.dev/v1"
+                kind = "Broker"
+                name = Mindwm.host.broker.name("{{ host_name }}")
+                namespace = Mindwm.user.namespace("{{ user_name }}")
+            }
+        }
+      }
+    }
 ]
 """, {
     user_name = r"${user_name}"

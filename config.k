@@ -1,6 +1,15 @@
 mindwm_domain = "mindwm.local"
 
 
+sources = {
+  mindwm_ns = "org.mindwm" 
+  func_ns = "knfunc"
+  knfunc_action = lambda user_name host_name {
+    hostname = "%" if host_name == "" else host_name
+    "${sources.mindwm_ns}.${sources.func_ns}.%.%.{{ user_name }}.{{ host_name }}.tmux.%.%.action"
+  } 
+} 
+
 kafka = {
     cluster_name = "neo4j-cdc"
     namespace = "redpanda"
@@ -69,6 +78,9 @@ Mindwm = {
                 "trigger" + delimiter + user_name + delimiter + "broker-to" + delimiter + context_name
             }
         }
+        trigger_back = lambda user_name : str -> str {
+          "trigger-context-to-user" + delimiter + user_name
+        }
     }
     host = {
         broker = {
@@ -84,11 +96,18 @@ Mindwm = {
             # host trigger name = "trigger-{host_name}-broker-to-user-broker
             "trigger-host-broker-to" + delimiter + host_name
         }
+        trigger_back = lambda host_name : str -> str {
+            "trigger-knative-to-host-" + delimiter + host_name
+        }
     }
 
     context = {
-        istio_gateway = "context-gateway"
-        neo4j_vs_name = "neo4j-ui"
+        istio_gateway = lambda context_name : str - >str {
+          "context-${context_name}-gateway"
+        } 
+        neo4j_vs_name = lambda context_name : str -> str {
+          "${context_name}-neo4j-ui"
+        }
         io_context = {
             name = "io-context"
             crossplane_name = lambda context_name : str -> str {
