@@ -25,6 +25,5 @@ data:
             error=$?
             if [ $error -eq 0 ]; then
               cat $tempfile
-              rm $tempfile
             fi
             exit $error

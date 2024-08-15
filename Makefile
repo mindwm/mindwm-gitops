@@ -174,7 +174,7 @@ argocd_sync: argocd_app argocd_login
 .ONESHELL: mindwm_resources
 mindwm_resources:
 	export CONTEXT_NAME=$(CONTEXT_NAME)
-	export HOSTNAME=`hostname`
+	export HOST=`hostname -s`
 	cat resources/*.yaml | docker run -e CONTEXT_NAME -e USER -e HOST --rm -i bhgedigital/envsubst envsubst | $(KUBECTL_RUN) 'kubectl apply -f -'
 
 #	$(KUBECTL_RUN) 'kubectl apply -f resources/context.yaml'
