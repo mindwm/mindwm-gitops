@@ -281,8 +281,12 @@ items = [
             type = event.log["meta"]["operation"],
             time = os.date("!%Y-%m-%dT%H:%M:%SZ", os.time()),
 
-            traceparent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
-            tracestate = "rojo=00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01,congo=lZWRzIHRoNhcm5hbCBwbGVhc3VyZS4"
+            if (event.log["payload"]["after"]["traceparent"]) then
+                traceparent = event.log["payload"]["after"]["traceparent"]
+            end
+            if (event.log["payload"]["after"]["tracestate"]) then
+                tracestate = event.log["payload"]["after"]["tracestate"]
+            end
           }
           if (cloudevent.log.type == "created") then
             if (event.log["payload"]["type"] == "node") then
