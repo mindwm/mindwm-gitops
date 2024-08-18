@@ -270,6 +270,54 @@ items = [
           local socket = require("socket")  -- gettime() has higher precision than os.time()
           uuid.seed()
         end
+        function generateHexString(length)
+            local hexChars = "0123456789abcdef"
+            local hexString = ""
+            math.randomseed(os.time()) -- Seed the random number generator
+
+            for i = 1, length do
+                local randIndex = math.random(1, #hexChars)
+                hexString = hexString .. hexChars:sub(randIndex, randIndex)
+            end
+
+            return hexString
+        end
+        function get_traceparent(event)
+            -- Check if the payload, after, and data fields exist
+            if event.log and event.log["payload"] and event.log["payload"]["after"] and event.log["payload"]["after"]["properties"] then
+                -- Check if traceparent exists
+                if event.log["payload"]["after"]["properties"]["traceparent"] then
+                    traceparent = event.log["payload"]["after"]["properties"]["traceparent"]
+                    part1, traceId, spanId, part2 = string.match(traceparent, "(%w+)%-(%w+)%-(%w+)%-(%w+)")
+                    traceparent_new = string.format("%s-%s-%s-%s", part1, traceId, generateHexString(16), part2)
+                    print(string.format("Transparent: old: %s -> new: %s", traceparent, traceparent_new))
+                    return traceparent_new
+                else
+                    print("traceparent does not exist")
+                    return ""
+                end
+            else
+                print("One or more intermediate fields are missing")
+                return ""
+            end
+        end
+        function get_tracestate(event)
+            -- Check if the payload, after, and data fields exist
+            if event.log and event.log["payload"] and event.log["payload"]["after"] and event.log["payload"]["after"]["properties"] then
+                -- Check if tracestate exists
+                if event.log["payload"]["after"]["properties"]["tracestate"] then
+                    tracestate = event.log["payload"]["after"]["properties"]["tracestate"]
+                    print(string.format("tracestate: %s", tracestate))
+                    return tracestate
+                else
+                    print("tracestate: does not exist")
+                    return ""
+                end
+            else
+                print("tracestate: One or more intermediate fields are missing")
+                return ""
+            end
+        end
         function process(event, emit)
           local cloudevent = {}
           cloudevent.log = {
@@ -280,14 +328,15 @@ items = [
             datacontenttype = "application/json",
             type = event.log["meta"]["operation"],
             time = os.date("!%Y-%m-%dT%H:%M:%SZ", os.time()),
-
-            if (event.log["payload"]["after"]["traceparent"]) then
-                traceparent = event.log["payload"]["after"]["traceparent"]
-            end
-            if (event.log["payload"]["after"]["tracestate"]) then
-                tracestate = event.log["payload"]["after"]["tracestate"]
-            end
           }
+          traceparent = get_traceparent(event)
+          if traceparent then
+            cloudevent.log["traceparent"] = traceparent
+          end
+          traceparent = get_tracestate(event)
+          if tracestate then
+            cloudevent.log["tracestate"] = tracestate
+          end
           if (cloudevent.log.type == "created") then
             if (event.log["payload"]["type"] == "node") then
               if event.log["payload"]["after"]["labels"] then
@@ -628,7 +677,7 @@ kind: InMemoryChannel
               protocol = "HTTP"
             }
             hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
-          } 
+          }
         ]
       }
     }
@@ -647,7 +696,7 @@ kind: InMemoryChannel
       spec = {
         hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
         gateways = [ Mindwm.context.istio_gateway("{{ context_name }}") ]
-          
+
         http = [
           {
             match = [
@@ -801,7 +850,7 @@ kind: InMemoryChannel
                 kind = "Broker"
                 name = Mindwm.user.broker.name("{{ user_name }}")
                 namespace = Mindwm.user.namespace("{{ user_name }}")
-            } 
+            }
        }
     }
   }
