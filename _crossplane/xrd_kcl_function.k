@@ -109,7 +109,7 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = getData(ctx.crossplane_neo4j_name())
+    metadata.name = getData(ctx.crossplane_neo4j_name)
     spec.forProvider.manifest = k8core.PersistentVolumeClaim {
         metadata.name = ctx.neo4j.pvc_name
         metadata.namespace = getData(ctx.name)
