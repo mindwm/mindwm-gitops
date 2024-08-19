@@ -81,7 +81,7 @@ makeContextXR = lambda {
             functionRef.name = "function-kcl"
             input = {
                 apiVersion = "krm.kcl.dev/v1alpha1"
-                kind = "KCLRun"
+                kind = "KCLInput"
                 dependencies = """
                 k8s = "1.29"
                 json_merge_path = "0.1.0"
@@ -748,7 +748,7 @@ makeUserXR = lambda {
             functionRef.name = "function-kcl"
             input = {
                 apiVersion = "krm.kcl.dev/v1alpha1"
-                kind = "KCLRun"
+                kind = "KCLInput"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""${kcl_util_func}
 ${kcl_config_schema}
@@ -930,7 +930,7 @@ makeHostXR = lambda {
             functionRef.name = "function-kcl"
             input = {
                 apiVersion = "krm.kcl.dev/v1alpha1"
-                kind = "KCLRun"
+                kind = "KCLInput"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""${kcl_util_func}
 ${kcl_config_schema}
