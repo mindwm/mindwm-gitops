@@ -82,6 +82,10 @@ makeContextXR = lambda {
             input = {
                 apiVersion = "krm.kcl.dev/v1alpha1"
                 kind = "KCLRun"
+                dependencies = """
+                k8s = "1.29"
+                json_merge_path = "0.1.0"
+                """
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""${kcl_util_func}
 ${kcl_config_schema}
