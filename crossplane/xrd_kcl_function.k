@@ -82,7 +82,7 @@ makeContextXR = lambda {
             input = {
                 apiVersion = "krm.kcl.dev/v1alpha1"
                 kind = "KCLInput"
-                dependencies = """
+                spec.dependencies = """
                 k8s = "1.29"
                 json_merge_path = "0.1.0"
                 """
