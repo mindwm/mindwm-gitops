@@ -91,7 +91,7 @@ schema Neo4j:
     version: str = "4.4.33"
     username: str = "neo4j"
     password: str = "password"
-    pvc: str = "neo4j-plugins"
+    pvc_name: str = "neo4j-plugins"
     pvc_size: str = "5Gi"
 
 schema Vector:

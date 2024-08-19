@@ -92,12 +92,16 @@ import k8s.api.core.v1 as k8core
 ${kcl_util_func}
 ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
+ctx = MindwmContext {
+    name.data = "{{ context_name }}"
+} 
+# TODO(@metacoma) get rid of context_name 
 kafkaTopicName = kafka.mkContextCdcTopicName("{{ context_name }}")
 items = [
   {
     apiVersion = "v1"
     kind = "Namespace"
-    metadata.name = makeContextNamespace("{{ context_name }}")
+    metadata.name = getData(ctx.name)
     metadata.labels = {
         "istio-injection" = "enabled"
     }
@@ -105,10 +109,10 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = neo4j.crossplane_pvc_name("{{ context_name }}")
+    metadata.name = getData(ctx.crossplane_neo4j_name())
     spec.forProvider.manifest = k8core.PersistentVolumeClaim {
-        metadata.name = "neo4j-plugins"
-        metadata.namespace = makeContextNamespace("{{ context_name }}")
+        metadata.name = ctx.neo4j.pvc_name
+        metadata.namespace = getData(ctx.name)
         spec = {
           accessModes = [ "ReadWriteOnce" ]
           resources.requests.storage = "1Gi"
