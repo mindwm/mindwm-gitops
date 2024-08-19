@@ -22,7 +22,7 @@ crossplaneResourceName = lambda ctx: MindwmContext, resourceName : str -> str {
 }
 
 
-schema Mindwm:
+schema Mindwm2:
     domain: DomainStr { data = "mindwm.local" }
     context: MindwmContext
     user: MindwmUser
@@ -102,15 +102,3 @@ schema Crossplane:
     compositeVersion: str = "v1beta1"
     domain: DomainStr { data = "mindwm.io" }
 
-
-config = Mindwm {
-    context = {
-        name = ResourceNameStr { data = "green"}
-    }
-    host.name = ResourceNameStr { data = "laptop" }
-    user.name = ResourceNameStr { data = "alice" }
-}
-
-manifests.yaml_stream([
-    crossplaneResourceName(config.context, "xxx")
-])
