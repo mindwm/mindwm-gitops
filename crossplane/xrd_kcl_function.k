@@ -11,7 +11,6 @@ api_version = "apiextensions.crossplane.io/v1"
 composite_version = "v1beta1"
 
 kcl_util_func = file.read("./config.k")
-kcl_config_schema = file.read("./config_schema.k")
 
 
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
@@ -84,7 +83,6 @@ makeContextXR = lambda {
                 kind = "KCLRun"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""${kcl_util_func}
-${kcl_config_schema}
 context_name = option("params").oxr.spec.name
 kafkaTopicName = kafka.mkContextCdcTopicName("{{ context_name }}")
 items = [
@@ -747,7 +745,6 @@ makeUserXR = lambda {
                 kind = "KCLRun"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""${kcl_util_func}
-${kcl_config_schema}
 user_name = option("params").oxr.spec.name
 context_names = option("params").oxr.spec.context
 items = [
@@ -929,7 +926,6 @@ makeHostXR = lambda {
                 kind = "KCLRun"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""${kcl_util_func}
-${kcl_config_schema}
 host_name = option("params").oxr.spec.name
 user_name = option("params").oxr.spec.username
 items = [
