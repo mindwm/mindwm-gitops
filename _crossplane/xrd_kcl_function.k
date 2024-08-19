@@ -105,14 +105,14 @@ items = [
     kind = "Object"
     metadata.name = neo4j.crossplane_pvc_name("{{ context_name }}")
     spec.forProvider.manifest = {
-        apiVersion = "v1"
-        kind = "PersistentVolumeClaim"
+      k8core.PersistentVolumeClaim {
         metadata.name = "neo4j-plugins"
         metadata.namespace = makeContextNamespace("{{ context_name }}")
         spec = {
-            accessModes = [ "ReadWriteOnce" ]
-            resources.requests.storage = "1Gi"
+          accessModes = [ "ReadWriteOnce" ]
+          resources.requests.storage = "1Gi"
         }
+      } 
     }
   }
   # redpanda (kafka topic) for broadcast graph changes to process eventing
