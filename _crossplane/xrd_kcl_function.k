@@ -87,7 +87,9 @@ makeContextXR = lambda {
                 json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.0" }
                 """
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
-                spec.source = template.execute("""${kcl_util_func}
+                spec.source = template.execute("""\
+import k8s.api.core.v1 as k8core
+${kcl_util_func}
 ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
 kafkaTopicName = kafka.mkContextCdcTopicName("{{ context_name }}")
