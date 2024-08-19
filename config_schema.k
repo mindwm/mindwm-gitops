@@ -53,7 +53,7 @@ schema MindwmContext:
         bootstrap_servers = [ "${getData(kafka.cluster_name)}.${getData(kafka.namespace)}:${kafka.port}" ]
     }
     crossplane_pvc_name: ResourceNameStr = (lambda -> ResourceNameStr {
-        { data = "${getData(name)}-${neo4j.pvc}" }
+        { data = "${getData(name)}-${neo4j.pvc_name}" }
     })()
     crossplane_neo4j_name: ResourceNameStr = (lambda -> ResourceNameStr {
         { data = "${getData(name)}-${getData(neo4j.name)}" }
