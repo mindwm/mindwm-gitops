@@ -1077,7 +1077,7 @@ spec:
 }
 
 manifests.yaml_stream([
-#    makeContextXR()
+    makeContextXR()
 #    makeUserXR()
-    makeHostXR()
+#    makeHostXR()
 ])
