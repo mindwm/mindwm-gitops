@@ -128,7 +128,7 @@ items = [
         kind = "Topic"
         metadata = {
             name = getData(ctx.cdc_topic.name)
-            namespace = "${config.kafka.namespace}"
+            namespace = getData(ctx.kafka.namespace)
         }
         spec = {
             partitions = 1

@@ -49,7 +49,7 @@ schema MindwmContext:
     vector: Vector {}
     cdc_topic: KafkaTopic { name = name}
     kafkaSource: KafkaSource = {
-        name.data = getData(cdc_topic)
+        name.data = getData(cdc_topic.name)
         topicName.data = "${getData(name)}-cdc-topic"
         bootstrap_servers = [ "${getData(kafka.cluster_name)}.${getData(kafka.namespace)}:${kafka.port}" ]
     }
