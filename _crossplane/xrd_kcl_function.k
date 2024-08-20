@@ -98,9 +98,8 @@ ctx = MindwmContext {
 # TODO(@metacoma) get rid of context_name 
 kafkaTopicName = kafka.mkContextCdcTopicName("{{ context_name }}")
 items = [
-  {
-    apiVersion = "v1"
-    kind = "Namespace"
+  
+  k8core.Namespace {
     metadata.name = getData(ctx.name)
     metadata.labels = {
         "istio-injection" = "enabled"
