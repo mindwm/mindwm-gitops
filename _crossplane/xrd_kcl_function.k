@@ -108,9 +108,9 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = getData(ctx.crossplane_neo4j_plugin_pvc_name)
+    metadata.name = crossplaneResourceName(ctx, ctx.neo4j.plugin_pvc_name) 
     spec.forProvider.manifest = k8core.PersistentVolumeClaim {
-        metadata.name = ctx.neo4j.plugin_pvc_name
+        metadata.name = getData(ctx.neo4j.plugin_pvc_name)
         metadata.namespace = getData(ctx.name)
         spec = {
           accessModes = [ "ReadWriteOnce" ]
@@ -122,12 +122,12 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = kafkaTopicName
+    metadata.name = crossplaneResourceName(ctx, ctx.cdc_topic)
     spec.forProvider.manifest = {
         apiVersion = "cluster.redpanda.com/v1alpha1"
         kind = "Topic"
         metadata = {
-            name = kafkaTopicName
+            name = getData(ctx.cdc_topic)
             namespace = "${config.kafka.namespace}"
         }
         spec = {
@@ -136,9 +136,7 @@ items = [
             additionalConfig = {
                 "cleanup.policy" = "compact"
             }
-            kafkaApiSpec.brokers = [
-                "${config.kafka.brokerEndpoint}"
-            ]
+            kafkaApiSpec.brokers = ctx.kafka.bootstrap_brokers
         }
 
     }

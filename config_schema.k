@@ -17,8 +17,8 @@ schema DomainStr:
 getData = lambda resourceStr : any -> str {
     resourceStr.data
 }
-crossplaneResourceName = lambda ctx: MindwmContext, resourceName : str -> str {
-    "${getData(ctx.name)}-${resourceName}"
+crossplaneResourceName = lambda ctx: MindwmContext, resourceName : ResourceNameStr -> str {
+    getData(ctx.name) + "-" + getData(resourceName)
 }
 
 
@@ -47,21 +47,15 @@ schema MindwmContext:
     kafka: Kafka {}
     neo4j: Neo4j {}
     vector: Vector {}
+    cdc_topic: KafkaTopic { name = name}
     kafkaSource: KafkaSource = {
-        name.data = "cdc-topic"
+        name.data = getData(cdc_topic)
         topicName.data = "${getData(name)}-cdc-topic"
         bootstrap_servers = [ "${getData(kafka.cluster_name)}.${getData(kafka.namespace)}:${kafka.port}" ]
     }
-    crossplane_pvc_name: ResourceNameStr = (lambda -> ResourceNameStr {
-        { data = "${getData(name)}-${neo4j.pvc_name}" }
-    })()
-    crossplane_neo4j_name: ResourceNameStr = (lambda -> ResourceNameStr {
-        { data = "${getData(name)}-${getData(neo4j.name)}" }
-    })()
-    crossplane_vector_name: ResourceNameStr = (lambda -> ResourceNameStr {
-        { data = "${getData(name)}-${getData(vector.name)}" }
-    })()
 
+schema KafkaTopic:
+    name: ResourceNameStr
 
 schema Broker:
     name: ResourceNameStr
@@ -85,13 +79,17 @@ schema Kafka:
     namespace: ResourceNameStr = { data = "redpanda" }
     port: int = 9093
     cluster_name: ResourceNameStr = { data = "neo4j-cdc" }
+    bootstrap_brokers: [str] = [
+       getData(cluster_name) + "." + getData(namespace) + ":" + str(port)
+    ]
+
 
 schema Neo4j:
     name: ResourceNameStr = { data = "neo4j" }
     version: str = "4.4.33"
     username: str = "neo4j"
     password: str = "password"
-    pvc_name: str = "neo4j-plugins"
+    plugin_pvc_name: ResourceNameStr = { data = "neo4j-plugins" }
     pvc_size: str = "5Gi"
 
 schema Vector:
