@@ -31,11 +31,6 @@ neo4j : schema.HelmChart = {
     repoURL = "https://helm.neo4j.com/neo4j"
 }
 
-vector : schema.HelmChart = {
-    name = "vector"
-    repoURL = "https://helm.vector.dev"
-}
-
 flux : schema.HelmChart = {
     name = "flux2" 
     repoURL = "https://fluxcd-community.github.io/helm-charts"

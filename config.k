@@ -246,17 +246,6 @@ neo4j = {
     }
 }
 
-vector = {
-    image = {
-        repo = "ghcr.io/mindwm/vector-image/vector-image"
-        tag = "main"
-    }
-    chart_version = "0.33.0"
-    crossplane_name = lambda context_name : str -> str {
-        context_name + delimiter + "vector"
-    }
-}
-
 config = {
     kafka_cluster_name = "neo4j-cdc"
     kafka_port = 9003
