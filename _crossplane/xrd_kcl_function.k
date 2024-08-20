@@ -108,9 +108,9 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = getData(ctx.crossplane_neo4j_name)
+    metadata.name = getData(ctx.crossplane_neo4j_plugin_pvc_name)
     spec.forProvider.manifest = k8core.PersistentVolumeClaim {
-        metadata.name = ctx.neo4j.pvc_name
+        metadata.name = ctx.neo4j.plugin_pvc_name
         metadata.namespace = getData(ctx.name)
         spec = {
           accessModes = [ "ReadWriteOnce" ]
