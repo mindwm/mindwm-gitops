@@ -122,12 +122,12 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = crossplaneResourceName(ctx, ctx.cdc_topic)
+    metadata.name = crossplaneResourceName(ctx, ctx.cdc_topic.name)
     spec.forProvider.manifest = {
         apiVersion = "cluster.redpanda.com/v1alpha1"
         kind = "Topic"
         metadata = {
-            name = getData(ctx.cdc_topic)
+            name = getData(ctx.cdc_topic.name)
             namespace = "${config.kafka.namespace}"
         }
         spec = {
