@@ -87,7 +87,7 @@ makeContextXR = lambda {
                 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.16.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.1.0" }
-                istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.12.3" }
+                istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.21.3" }
                 json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.0" }
                 """
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
