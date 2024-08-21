@@ -742,28 +742,24 @@ items = [
         }
     } 
   }
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.host.broker.name("{{ host_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Broker"
-        metadata = {
-            name = Mindwm.host.broker.name("{{ host_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
-            annotations = {
-                "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
-            }
-        }
-        spec.config = {
-            apiVersion = "v1"
-            kind = "ConfigMap"
-            name = Mindwm.host.broker.configmap("{{ host_name }}")
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(host, host.broker.name)
+    spec.forProvider.manifest = knative_broker.Broker {
+      metadata = {
+        name = getData(host.broker.name)
+        namespace = getData(user.namespace)
+        annotations = {
+          "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
         }
 
+      } 
+      spec.config = {
+          apiVersion = "v1"
+          kind = "ConfigMap"
+          name = getData(host.broker.configMapName)
+      }
     }
-  }
+  } 
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
