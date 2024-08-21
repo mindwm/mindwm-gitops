@@ -353,43 +353,42 @@ kind: InMemoryChannel
     } 
   } 
 
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.context.io_context.crossplane_trigger("{{ context_name }}")
+  # io-trigger
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.io_context.name) + "-trigger"
     spec.forProvider.manifest = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Trigger"
-        metadata = {
-            name = "${config.Mindwm.context.io_context.name}-trigger"
-            namespace = makeContextNamespace("{{ context_name }}")
+      apiVersion = "eventing.knative.dev/v1"
+      kind = "Trigger"
+      metadata = {
+        name = getData(ctx.io_context.name) + "-trigger"
+        namespace = getData(ctx.namespace)
+      }
+      spec = {
+        broker = getData(ctx.broker.name)
+        delivery.deadLetterSink.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service" 
+          name = getData(ctx.broker.deadLetter.name)
         }
-        spec = {
-            broker = contextBroker.name("{{ context_name }}")
-            delivery = {
-                deadLetterSink.ref = {
-                    apiVersion = "serving.knative.dev/v1"
-                    kind = "Service"
-                    name = contextBroker.deadLetterName("{{ context_name }}")
-                }
-            }
-            filters = [
-                {
-                    "any" = [
-                        { exact.type = "iodocument" }
-                    ]
-                }
-            ]
-            subscriber.ref = {
-                apiVersion = "serving.knative.dev/v1"
-                kind = "Service"
-                name = "${config.Mindwm.context.io_context.name}"
-                namespace = makeContextNamespace("{{ context_name }}")
-            }
-        }
-    }
-  }
+      } 
+      filters = [{
+        "all" = [
+          {
+            exact.type = "iodocument"
+          }
+          {
+            "not" = { prefix.subject = "#" }
+          }
+        ]
+      }]
+      subscriber.ref = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        name = getData(ctx.io_context.name)
+      }
 
+    } 
+  }
   # touch
 
   crossplane_kubernetes.Object {
