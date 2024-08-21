@@ -17,8 +17,8 @@ schema DomainStr:
 getData = lambda resourceStr : any -> str {
     resourceStr.data
 }
-crossplaneResourceName = lambda ctx: MindwmContext, resourceName : ResourceNameStr -> str {
-    getData(ctx.name) + "-" + getData(resourceName)
+crossplaneResourceName = lambda entity: any, resourceName : ResourceNameStr -> str {
+    getData(entity.name) + "-" + getData(resourceName)
 }
 
 domain: DomainStr { data = "mindwm.local" }
