@@ -522,11 +522,13 @@ makeUserXR = lambda {
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
                 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.1.0" }
+                crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 """
                 spec.source = template.execute("""\
 import k8s.api.core.v1 as k8core
 import knative_operator.v1.serving_knative_dev_v1_service as knative_service
 import knative_operator.v1.eventing_knative_dev_v1_broker as knative_broker
+import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
 ${kcl_util_func}
 ${kcl_config_schema}
 user_name = option("params").oxr.spec.name
@@ -699,10 +701,14 @@ makeHostXR = lambda {
                 apiVersion = "krm.kcl.dev/v1alpha1"
                 kind = "KCLInput"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
-                spec.source = template.execute("""${kcl_util_func}
+                spec.source = template.execute("""\
+${kcl_util_func}
 ${kcl_config_schema}
 host_name = option("params").oxr.spec.name
 user_name = option("params").oxr.spec.username
+
+host = MindwmHost { name.data = host_name }
+user = MindwmUser { name.data = user_name }
 items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
