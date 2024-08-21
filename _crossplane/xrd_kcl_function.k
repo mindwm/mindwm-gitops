@@ -537,7 +537,7 @@ items = [
     }
   }
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(ctx, user.broker.configMapName) 
+    metadata.name = crossplaneResourceName(user, user.broker.configMapName) 
     spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
             name = getData(user.broker.configMapName)
