@@ -110,7 +110,7 @@ kafkaTopicName = kafka.mkContextCdcTopicName("{{ context_name }}")
 items = [
   
   k8core.Namespace {
-    metadata.name = getData(ctx.name)
+    metadata.name = getData(ctx.namespace)
     metadata.labels = {
         "istio-injection" = "enabled"
     }
@@ -121,7 +121,7 @@ items = [
     metadata.name = crossplaneResourceName(ctx, ctx.neo4j.plugin_pvc_name) 
     spec.forProvider.manifest = k8core.PersistentVolumeClaim {
         metadata.name = getData(ctx.neo4j.plugin_pvc_name)
-        metadata.namespace = getData(ctx.name)
+        metadata.namespace = getData(ctx.namespace)
         spec = {
           accessModes = [ "ReadWriteOnce" ]
           resources.requests.storage = "1Gi"
@@ -480,7 +480,7 @@ kind: InMemoryChannel
     metadata.name = crossplaneResourceName(ctx, ctx.gateway.name)
     spec.forProvider.manifest = istio_gateway.Gateway {
       metadata.name = getData(ctx.gateway.name)
-      metadata.namespace = getData(ctx.name)
+      metadata.namespace = getData(ctx.namespace)
       spec = {
         selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
         servers = [{
