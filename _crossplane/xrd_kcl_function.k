@@ -276,30 +276,25 @@ kind: InMemoryChannel
     }
   } 
   # kafkaSource
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = contextBroker.kafkaSourceName("{{ context_name }}")
+  kafkaSource = crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.kafkaSource.name)
     spec.forProvider.manifest = {
-        apiVersion = "sources.knative.dev/v1beta1"
-        kind = "KafkaSource"
-        metadata = {
-            name = contextBroker.kafkaSourceName("{{ context_name }}")
-            namespace = makeContextNamespace("{{ context_name }}")
-        }
-        spec = {
-            bootstrapServers = [ "${config.kafka.brokerEndpoint}" ]
+      metadata = {
+        name = getData(ctx.kafkaSource.name)
+        namespace = getData(ctx.name)
+      }
+      spec = {
+            bootstrapServers = ctx.kafka.bootstrap_servers
             consumerGroup = "knative-group"
             sink.ref = {
                 apiVersion = "eventing.knative.dev/v1"
                 kind = "Broker"
-                name = contextBroker.name("{{ context_name }}")
+                name = getData(ctx.broker.name)
             }
-            topics = [ "{{ kafkaTopicName }}" ]
-        }
-
+            topics = [ getData(ctx.cdc_topic.name) ]
+      }  
     }
-  }
+  } 
   # deadLetter service
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
