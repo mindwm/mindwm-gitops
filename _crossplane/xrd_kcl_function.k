@@ -84,7 +84,7 @@ makeContextXR = lambda {
                 kind = "KCLInput"
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
-                crossplane = { oci = "oci://ghrc.io/kcl-lang/crossplane", tag = "1.16.0" }
+                crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.16.0" }
                 json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.0" }
                 """
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
