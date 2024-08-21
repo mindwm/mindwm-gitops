@@ -3,6 +3,7 @@ import manifests
 
 userPrefix = "user"
 contextPrefix = "context"
+hostPrefix = "host"
 
 schema ResourceNameStr:
     data: str
@@ -30,6 +31,7 @@ schema Mindwm2:
 
 schema MindwmHost:
     name: ResourceNameStr
+    namespace: ResourceNameStr = { data = "${hostPrefix}-${getData(name)}" }
     broker: Broker { name.data = "${getData(name)}-host-broker"}
     trigger: Trigger { name.data = "${getData(name)}-trigger-to-user-broker" }
 
