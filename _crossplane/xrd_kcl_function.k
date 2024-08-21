@@ -521,9 +521,11 @@ makeUserXR = lambda {
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
+                knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.1.0" }
                 """
                 spec.source = template.execute("""\
 import k8s.api.core.v1 as k8core
+import knative_operator.v1.serving_knative_dev_v1_service as knative_service
 ${kcl_util_func}
 ${kcl_config_schema}
 user_name = option("params").oxr.spec.name
@@ -536,6 +538,23 @@ items = [
         "istio-injection" = "enabled"
     }
   }
+  # deadLetter service
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(user, user.broker.deadLetter.name)
+    spec.forProvider.manifest = knative_service.Service {
+      metadata = {
+        name = getData(user.broker.deadLetter.name)
+        namespace = getData(user.namespace)
+      }
+      spec.template.spec.containers = [{
+          image = user.broker.deadLetter.image
+          env = [{
+            name: "REQUEST_LOGGING_ENABLED"
+            value: "1"
+          }] 
+      }]
+    } 
+  } 
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(user, user.broker.configMapName) 
     spec.forProvider.manifest = k8core.ConfigMap {
@@ -574,24 +593,6 @@ items = [
     }
   }
 
-  # deadLetter service
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.user.deadLetter.name("{{ user_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        metadata = {
-            name = Mindwm.user.deadLetter.name("{{ user_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
-        }
-        spec.template.spec.containers = [{
-            image = "${config.knativeBroker.deadLetterImage}"
-        }]
-
-    }
-  }
 ] + [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
