@@ -23,7 +23,6 @@ crossplaneResourceName = lambda ctx: MindwmContext, resourceName : ResourceNameS
 
 domain: DomainStr { data = "mindwm.local" }
 
-
 schema Mindwm2:
     context: MindwmContext
     user: MindwmUser
@@ -38,13 +37,13 @@ schema MindwmUser:
     name: ResourceNameStr
     namespace: ResourceNameStr = { data = "${userPrefix}-${getData(name)}" }
     broker: Broker { name.data = "user-broker" }
-    deadLetter: DeadLetter { name.data = "dead-letter" }
+    #deadLetter: DeadLetter { name.data = "dead-letter" }
 
 schema MindwmContext:
     name: ResourceNameStr
     namespace: ResourceNameStr = { data = "${contextPrefix}-${getData(name)}" }
     broker: Broker { name.data = "context-broker"}
-    deadLetter: DeadLetter { name.data = "dead-letter" }
+    #deadLetter: DeadLetter { name.data = "dead-letter" }
     kafka: Kafka {}
     neo4j: Neo4j {}
     vector: Vector {}
