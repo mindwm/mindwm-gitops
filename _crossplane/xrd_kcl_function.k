@@ -86,6 +86,7 @@ makeContextXR = lambda {
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
                 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.16.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghrc.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
+                knative-operator = { oci = "oci://ghrc.io/kcl-lang/knative-operator", tag = "0.1.0" }
                 json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.0" }
                 """
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
@@ -93,6 +94,7 @@ makeContextXR = lambda {
 import k8s.api.core.v1 as k8core
 import crossplane.v1alpha1.helm_crossplane_io_v1alpha1_release as crossplane_helm
 import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
+import knative_operator.v1.eventing_knative_dev_v1_broker as knative_broker
 ${kcl_util_func}
 ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
