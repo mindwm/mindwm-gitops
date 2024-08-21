@@ -59,7 +59,7 @@ schema KafkaTopic:
 
 schema Broker:
     name: ResourceNameStr
-    configMapName = (lambda brokerName : ResourceNameStr -> ResourceNameStr {
+    configMapName: ResourceNameStr = (lambda brokerName : ResourceNameStr -> ResourceNameStr {
         { data = "${getData(brokerName)}-config" }
     })(name)
 
@@ -100,3 +100,5 @@ schema Crossplane:
     compositeVersion: str = "v1beta1"
     domain: DomainStr { data = "mindwm.io" }
 
+
+# ctx = MindwmContext { name.data = "pinkj" }
