@@ -79,7 +79,7 @@ schema Kafka:
     namespace: ResourceNameStr = { data = "redpanda" }
     port: int = 9093
     cluster_name: ResourceNameStr = { data = "neo4j-cdc" }
-    bootstrap_brokers: [str] = [
+    bootstrap_servers: [str] = [
        getData(cluster_name) + "." + getData(namespace) + ":" + str(port)
     ]
 
