@@ -57,6 +57,9 @@ schema MindwmContext:
         "neo4j." + getData(name) + "." + getData(domain)
       ] 
     } 
+    neo4j_virtual_service: IstioVirtualService {
+      name.data = "neo4j-virtual-service"
+    } 
     kafkaSource: KafkaSource = {
         name.data = getData(cdc_topic.name)
         topicName.data = "${getData(name)}-cdc-topic"
@@ -101,6 +104,7 @@ schema Neo4j:
     password: str = "password"
     plugin_pvc_name: ResourceNameStr = { data = "neo4j-plugins" }
     pvc_size: str = "5Gi"
+    port: int = 7687
 
 schema Vector:
     name: ResourceNameStr = { data = "vector" }
@@ -113,6 +117,9 @@ schema Crossplane:
 schema IstioGateway:
     name: ResourceNameStr 
     hosts: [str]
+
+schema IstioVirtualService:
+    name: ResourceNameStr
 
 
 # ctx = MindwmContext { name.data = "pinkj" }

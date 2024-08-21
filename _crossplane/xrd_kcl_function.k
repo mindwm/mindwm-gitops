@@ -494,38 +494,26 @@ kind: InMemoryChannel
       }
     }
   } 
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.context.neo4j_vs_name("{{ context_name }}")
-    spec.forProvider.manifest = {
-      apiVersion = "networking.istio.io/v1beta1"
-      kind = "VirtualService"
-      metadata = {
-          name = Mindwm.context.neo4j_vs_name("{{ context_name }}")
-          namespace = makeContextNamespace("{{ context_name }}")
-      }
+
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.neo4j_virtual_service.name)
+    spec.forProvider.manifest = istio_virtual_service.VirtualService {
+      metadata.name = getData(ctx.neo4j_virtual_service.name)
+      metadata.namespace = getData(ctx.namespace)
       spec = {
-        hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
-        gateways = [ Mindwm.context.istio_gateway("{{ context_name }}") ]
+        hosts = ctx.gateway.hosts
+        gateways = [ getData(ctx.gateway.name) ]
+        http = [{
+          match = [{ uri.prefix = "/", port = 80}]
+          route = [{ 
+            destination.host = getData(ctx.neo4j.name) + "." + getData(ctx.namespace)
+            destination.port.number = ctx.neo4j.port # TODO(@metacoma) hardcode
+          }]
 
-        http = [
-          {
-            match = [
-              {
-                uri.prefix = "/"
-              }
-            ]
-            route = [{
-              destination.host = "{{ context_name }}-${config.neo4j.release_name}-neo4j.context-{{ context_name }}.svc.cluster.local"
-              destination.port.number = int("${config.neo4j.http_port}")
-            }]
-
-          }
-        ]
+        }]
       }
     }
-  }
+  } 
 
 ]
 """, {
