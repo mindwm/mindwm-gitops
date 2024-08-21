@@ -251,7 +251,7 @@ items = [
             namespace = getData(ctx.namespace)
         } 
         data = {
-            "channel-template-spec" = '''
+            "channel-template-spec" = '''\
 apiVersion: messaging.knative.dev/v1
 kind: InMemoryChannel
 '''
@@ -536,24 +536,20 @@ items = [
         "istio-injection" = "enabled"
     }
   }
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.user.broker.configmap("{{ user_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "v1"
-        kind = "ConfigMap"
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, user.broker.configMapName) 
+    spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
-            name = Mindwm.user.broker.configmap("{{ user_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
-        }
+            name = getData(user.broker.configMapName)
+            namespace = getData(user.namespace)
+        } 
         data = {
-            "channel-template-spec" = '''
-apiVersion: messaging.knative.dev/v1
-kind: InMemoryChannel
-'''
+            "channel-template-spec" = '''\
+  apiVersion: messaging.knative.dev/v1
+  kind: InMemoryChannel
+  '''
         }
-    }
+    } 
   }
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
