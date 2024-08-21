@@ -519,7 +519,12 @@ makeUserXR = lambda {
                 apiVersion = "krm.kcl.dev/v1alpha1"
                 kind = "KCLInput"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
-                spec.source = template.execute("""${kcl_util_func}
+                spec.dependencies = """\
+                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
+                """
+                spec.source = template.execute("""\
+import k8s.api.core.v1 as k8core
+${kcl_util_func}
 ${kcl_config_schema}
 user_name = option("params").oxr.spec.name
 context_names = option("params").oxr.spec.context
