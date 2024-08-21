@@ -153,7 +153,7 @@ items = [
   }
   crossplane_helm.Release {
     spec.forProvider = {
-        namespace = getData(ctx.name)
+        namespace = getData(ctx.namespace)
         chart = {
           name = "${charts.neo4j.name}"
           repository = "${charts.neo4j.repoURL}"
@@ -266,7 +266,7 @@ kind: InMemoryChannel
     spec.forProvider.manifest = knative_broker.Broker {
       metadata = {
         name = getData(ctx.broker.name)
-        namespace = getData(ctx.name)
+        namespace = getData(ctx.namespace)
         annotations = {
           "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
         }
@@ -285,7 +285,7 @@ kind: InMemoryChannel
     spec.forProvider.manifest = {
       metadata = {
         name = getData(ctx.kafkaSource.name)
-        namespace = getData(ctx.name)
+        namespace = getData(ctx.namespace)
       }
       spec = {
             bootstrapServers = ctx.kafka.bootstrap_servers
@@ -305,7 +305,7 @@ kind: InMemoryChannel
     spec.forProvider.manifest = knative_service.Service {
       metadata = {
         name = getData(ctx.broker.deadLetter.name)
-        namespace = getData(ctx.name)
+        namespace = getData(ctx.namespace)
       }
       spec.template.spec.containers = [{
           image = ctx.broker.deadLetter.image
