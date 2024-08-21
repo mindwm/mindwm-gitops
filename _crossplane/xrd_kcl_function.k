@@ -726,7 +726,7 @@ items = [
     spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
             name = getData(host.broker.configMapName)
-            namespace = getData(host.namespace)
+            namespace = getData(user.namespace)
         } 
         data = {
             "channel-template-spec" = '''\
