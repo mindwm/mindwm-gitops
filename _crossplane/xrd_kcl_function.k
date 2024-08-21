@@ -426,39 +426,33 @@ kind: InMemoryChannel
     } 
   } 
   # touch trigger
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.context.touch.crossplane_trigger("{{ context_name }}")
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.touch.name) + "-trigger"
     spec.forProvider.manifest = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Trigger"
-        metadata = {
-            name = "${config.Mindwm.context.touch.name}-trigger"
-            namespace = makeContextNamespace("{{ context_name }}")
+      apiVersion = "eventing.knative.dev/v1"
+      kind = "Trigger"
+      metadata = {
+        name = getData(ctx.touch.name) + "-trigger"
+        namespace = getData(ctx.namespace)
+      }
+      spec = {
+        broker = getData(ctx.broker.name)
+        delivery.deadLetterSink.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service" 
+          name = getData(ctx.broker.deadLetter.name)
         }
-        spec = {
-            broker = contextBroker.name("{{ context_name }}")
-            delivery = {
-                deadLetterSink.ref = {
-                    apiVersion = "serving.knative.dev/v1"
-                    kind = "Service"
-                    name = contextBroker.deadLetterName("{{ context_name }}")
-                }
-            }
-            filters = [
-                {
-                    exact.type = "touch"
-                }
-            ]
-            subscriber.ref = {
-                apiVersion = "serving.knative.dev/v1"
-                kind = "Service"
-                name = "${config.Mindwm.context.touch.name}"
-                namespace = makeContextNamespace("{{ context_name }}")
-            }
-        }
-    }
+      } 
+      filters = [{
+        exact.type = "touch"
+      }]
+      subscriber.ref = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        name = getData(ctx.touch.name)
+      }
+
+    } 
   }
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.gateway.name)
