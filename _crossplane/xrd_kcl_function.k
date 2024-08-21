@@ -721,33 +721,26 @@ user_name = option("params").oxr.spec.username
 host = MindwmHost { name.data = host_name }
 user = MindwmUser { name.data = user_name }
 items = [
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.host.broker.configmap("{{ host_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "v1"
-        kind = "ConfigMap"
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(host, host.broker.configMapName) 
+    spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
-            name = Mindwm.host.broker.configmap("{{ host_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
-            labels = {
-                "eventing.knative.dev/release" = "devel"
-            }
-        }
+            name = getData(host.broker.configMapName)
+            namespace = getData(host.namespace)
+        } 
         data = {
-            "channelTemplateSpec" = '''
-apiVersion: messaging.knative.dev/v1alpha1
-kind: NatsJetStreamChannel
-spec:
-  stream:
-    config:
-      additionalSubjects:
-        - "mindwm.{{ user_name }}.{{ host_name }}.>"
-      overrideName: {{ host_name }}
-'''
+            "channel-template-spec" = '''\
+  apiVersion: messaging.knative.dev/v1alpha1
+  kind: NatsJetStreamChannel
+  spec:
+    stream:
+      config:
+        additionalSubjects:
+          - "mindwm.{{ user_name }}.{{ host_name }}.>"
+        overrideName: {{ host_name }}
+  '''
         }
-    }
+    } 
   }
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
