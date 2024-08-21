@@ -85,12 +85,14 @@ makeContextXR = lambda {
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
                 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.16.0" }
+                crossplane-provider-kubernetes = { oci = "oci://ghrc.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.0" }
                 """
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""\
 import k8s.api.core.v1 as k8core
 import crossplane.v1alpha1.helm_crossplane_io_v1alpha1_release as crossplane_helm
+import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
 ${kcl_util_func}
 ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
@@ -236,26 +238,22 @@ items = [
         }
     }
   }
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = contextBroker.configMapName("{{ context_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "v1"
-        kind = "ConfigMap"
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.broker.configMapName) 
+    spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
-            name = contextBroker.configMapName("{{ context_name }}")
-            namespace = makeContextNamespace("{{ context_name }}")
-        }
+            name = getData(ctx.broker.configMapName)
+            namespace = getData(ctx.name)
+        } 
         data = {
             "channel-template-spec" = '''
 apiVersion: messaging.knative.dev/v1
 kind: InMemoryChannel
 '''
         }
+    } 
 
-    }
-  }
+  } 
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
