@@ -95,6 +95,7 @@ import k8s.api.core.v1 as k8core
 import crossplane.v1alpha1.helm_crossplane_io_v1alpha1_release as crossplane_helm
 import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
 import knative_operator.v1.eventing_knative_dev_v1_broker as knative_broker
+import knative_operator.v1.serving_knative_dev_v1_service as knative_service
 ${kcl_util_func}
 ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
@@ -142,7 +143,7 @@ items = [
             additionalConfig = {
                 "cleanup.policy" = "compact"
             }
-            kafkaApiSpec.brokers = ctx.kafka.bootstrap_brokers
+            kafkaApiSpec.brokers = ctx.kafka.bootstrap_servers
         }
 
     }
@@ -276,7 +277,7 @@ kind: InMemoryChannel
     }
   } 
   # kafkaSource
-  kafkaSource = crossplane_kubernetes.Object {
+  crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.kafkaSource.name)
     spec.forProvider.manifest = {
       metadata = {
