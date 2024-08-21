@@ -476,32 +476,24 @@ kind: InMemoryChannel
         }
     }
   }
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.context.istio_gateway("{{ context_name }}")
-    spec.forProvider.manifest = {
-      apiVersion = "networking.istio.io/v1beta1"
-      kind = "Gateway"
-      metadata = {
-          name = Mindwm.context.istio_gateway("{{ context_name }}")
-          namespace = makeContextNamespace("{{ context_name }}")
-      }
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.gateway.name)
+    spec.forProvider.manifest = istio_gateway.Gateway {
+      metadata.name = getData(ctx.gateway.name)
+      metadata.namespace = getData(ctx.name)
       spec = {
-        selector.istio = "ingressgateway"
-        servers = [
-          {
-            port = {
-              number = 80
-              name = "http"
-              protocol = "HTTP"
-            }
-            hosts = [ "neo4j.{{ context_name }}.${config.mindwm_domain}" ]
+        selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
+        servers = [{
+          port = {
+            number = 80
+            name = "http"
+            protocol = "HTTP"
           }
-        ]
+          hosts = ctx.gateway.hosts
+        }]
       }
     }
-  }
+  } 
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"

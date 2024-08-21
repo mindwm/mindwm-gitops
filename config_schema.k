@@ -21,9 +21,10 @@ crossplaneResourceName = lambda ctx: MindwmContext, resourceName : ResourceNameS
     getData(ctx.name) + "-" + getData(resourceName)
 }
 
+domain: DomainStr { data = "mindwm.local" }
+
 
 schema Mindwm2:
-    domain: DomainStr { data = "mindwm.local" }
     context: MindwmContext
     user: MindwmUser
     host: MindwmHost
@@ -47,7 +48,15 @@ schema MindwmContext:
     kafka: Kafka {}
     neo4j: Neo4j {}
     vector: Vector {}
-    cdc_topic: KafkaTopic { name = name}
+    cdc_topic: KafkaTopic { 
+      name = name
+    } 
+    gateway: IstioGateway { 
+      name.data = "gateway" 
+      hosts = [
+        "neo4j." + getData(name) + "." + getData(domain)
+      ] 
+    } 
     kafkaSource: KafkaSource = {
         name.data = getData(cdc_topic.name)
         topicName.data = "${getData(name)}-cdc-topic"
@@ -100,6 +109,10 @@ schema Crossplane:
     apiVersion: str = "apiextensions.crossplane.io/v1"
     compositeVersion: str = "v1beta1"
     domain: DomainStr { data = "mindwm.io" }
+
+schema IstioGateway:
+    name: ResourceNameStr 
+    hosts: [str]
 
 
 # ctx = MindwmContext { name.data = "pinkj" }
