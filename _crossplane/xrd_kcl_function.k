@@ -254,28 +254,25 @@ kind: InMemoryChannel
     } 
 
   } 
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = contextBroker.name("{{ context_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Broker"
-        metadata = {
-            name = contextBroker.name("{{ context_name }}")
-            namespace = makeContextNamespace("{{ context_name }}")
-            annotations = {
-                "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
-            }
-        }
-        spec.config = {
-            apiVersion = "v1"
-            kind = "ConfigMap"
-            name = contextBroker.configMapName("{{ context_name }}")
+  # contextBroker
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.broker.name)
+    spec.forProvider.manifest = knative_broker.Broker {
+      metadata = {
+        name = getData(ctx.broker.name)
+        namespace = getData(ctx.name)
+        annotations = {
+          "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
         }
 
+      } 
+      spec.config = {
+          apiVersion = "v1"
+          kind = "ConfigMap"
+          name = getData(ctx.broker.configMapName)
+      }
     }
-  }
+  } 
   # kafkaSource
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
