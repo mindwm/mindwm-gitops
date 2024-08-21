@@ -143,29 +143,25 @@ items = [
 
     }
   }
-  {
-    apiVersion = "helm.crossplane.io/v1beta1"
-    kind = "Release"
-    metadata.name = neo4j.crossplane_name("{{ context_name }}")
-    spec = {
-      forProvider = {
+  crossplane_helm.Release {
+    spec.forProvider = {
+        namespace = getData(ctx.name)
         chart = {
           name = "${charts.neo4j.name}"
           repository = "${charts.neo4j.repoURL}"
           version = "${config.neo4j.version}"
-        }
-        namespace = makeContextNamespace("{{ context_name }}")
+        } 
         values = {
             additionalVolumeMounts = [
                 {
                     mountPath = "/var/lib/neo4j/plugins"
-                    name = "neo4j-plugins"
+                    name = getData(ctx.neo4j.plugin_pvc_name)
                 }
             ]
             additionalVolumes = [
                 {
-                    name = "neo4j-plugins"
-                    persistentVolumeClaim.claimName = "neo4j-plugins"
+                    name = getData(ctx.neo4j.plugin_pvc_name)
+                    persistentVolumeClaim.claimName = getData(ctx.neo4j.plugin_pvc_name)
                 }
             ]
             env = {
@@ -174,8 +170,8 @@ items = [
                 "NEO4J_apoc_import_file_use__neo4j__config" = "true"
                 "NEO4J_dbms_logs_debug_level" = "DEBUG"
                 "NEO4J_kafka_bootstrap_servers" = "${config.kafka.brokerEndpoint}"
-                "NEO4J_streams_source_topic_nodes_{{ kafkaTopicName }}" = "*"
-                "NEO4J_streams_source_topic_relationships_{{ kafkaTopicName }}" = '*'
+                "NEO4J_streams_source_topic_nodes_" + getData(ctx.cdc_topic.name) = "*"
+                "NEO4J_streams_source_topic_relationships_"+ getData(ctx.cdc_topic.name) = '*'
             }
             neo4j.password = "${config.neo4j.password}"
             services.neo4j.spec.type = "NodePort"
@@ -195,6 +191,7 @@ items = [
                     mode = "dynamic"
                 }
             }
+            # TODO(@metacoma) k8.core.podSpec
             podSpec.initContainers = [
                 {
                     image = "curlimages/curl:8.6.0"
@@ -202,7 +199,7 @@ items = [
                     user = "root"
                     volumeMounts = [{
                         mountPath = "/var/lib/neo4j/plugins"
-                        name = "neo4j-plugins"
+                        name = getData(ctx.neo4j.plugin_pvc_name)
                     }]
                     workingDir = "/var/lib/neo4j/plugins"
                     command = [
@@ -222,7 +219,7 @@ items = [
                     workingDir = "/var/lib/neo4j/plugins"
                     volumeMounts = [{
                         mountPath = "/var/lib/neo4j/plugins"
-                        name = "neo4j-plugins"
+                        name = getData(ctx.neo4j.plugin_pvc_name)
                     }]
                     command = [
                         "curl",
@@ -237,7 +234,6 @@ items = [
             ]
 
         }
-      }
     }
   }
   {
