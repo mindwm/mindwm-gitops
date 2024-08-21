@@ -62,6 +62,7 @@ schema Broker:
     configMapName: ResourceNameStr = (lambda brokerName : ResourceNameStr -> ResourceNameStr {
         { data = "${getData(brokerName)}-config" }
     })(name)
+    deadLetter: DeadLetter { name.data = "dead-letter" }
 
 schema DeadLetter:
     name: ResourceNameStr

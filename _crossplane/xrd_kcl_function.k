@@ -277,8 +277,6 @@ kind: InMemoryChannel
     }
   } 
   # kafkaSource
-  crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(ctx, ctx.kafkaSource.name)
     spec.forProvider.manifest = {
       metadata = {
         name = getData(ctx.kafkaSource.name)
@@ -297,24 +295,22 @@ kind: InMemoryChannel
     }
   } 
   # deadLetter service
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = contextBroker.deadLetterName("{{ context_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        metadata = {
-            name = contextBroker.deadLetterName("{{ context_name }}")
-            namespace = makeContextNamespace("{{ context_name }}")
-        }
-        spec.template.spec.containers = [{
-            image = "${config.knativeBroker.deadLetterImage}"
-        }]
-
-    }
-  }
-
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.broker.deadLetter.name)
+    spec.forProvider.manifest = knative_service.Service {
+      metadata = {
+        name = getData(ctx.broker.deadLetter.name)
+        namespace = getData(ctx.name)
+      }
+      spec.template.spec.containers = [{
+          image = ctx.broker.deadLetter.image
+          env = [{
+            name: "REQUEST_LOGGING_ENABLED"
+            value: "1"
+          }] 
+      }]
+    } 
+  } 
   # io_context
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
