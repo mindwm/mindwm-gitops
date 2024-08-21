@@ -528,11 +528,10 @@ ${kcl_util_func}
 ${kcl_config_schema}
 user_name = option("params").oxr.spec.name
 context_names = option("params").oxr.spec.context
+user = MindwmUser { name.data = user_name }
 items = [
-  {
-    apiVersion = "v1"
-    kind = "Namespace"
-    metadata.name = Mindwm.user.namespace("{{ user_name }}")
+  k8core.Namespace {
+    metadata.name = getData(user.namespace)
     metadata.labels = {
         "istio-injection" = "enabled"
     }
