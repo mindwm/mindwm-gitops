@@ -152,6 +152,7 @@ items = [
     }
   }
   crossplane_helm.Release {
+    metadata.name = crossplaneResourceName(ctx, ctx.neo4j.name)
     spec.forProvider = {
         namespace = getData(ctx.namespace)
         chart = {
