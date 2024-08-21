@@ -105,8 +105,6 @@ context_name = option("params").oxr.spec.name
 ctx = MindwmContext {
     name.data = "{{ context_name }}"
 } 
-# TODO(@metacoma) get rid of context_name 
-kafkaTopicName = kafka.mkContextCdcTopicName("{{ context_name }}")
 items = [
   
   k8core.Namespace {
@@ -496,7 +494,6 @@ kind: InMemoryChannel
 ]
 """, {
     context_name = r"${context_name}"
-    kafkaTopicName = r"${kafkaTopicName}"
 })
             }
         }
