@@ -280,6 +280,8 @@ kind: InMemoryChannel
     }
   } 
   # kafkaSource
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.kafkaSource.name)
     spec.forProvider.manifest = {
       metadata = {
         name = getData(ctx.kafkaSource.name)
