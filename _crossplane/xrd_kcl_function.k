@@ -526,6 +526,7 @@ makeUserXR = lambda {
                 spec.source = template.execute("""\
 import k8s.api.core.v1 as k8core
 import knative_operator.v1.serving_knative_dev_v1_service as knative_service
+import knative_operator.v1.eventing_knative_dev_v1_broker as knative_broker
 ${kcl_util_func}
 ${kcl_config_schema}
 user_name = option("params").oxr.spec.name
@@ -570,28 +571,24 @@ items = [
         }
     } 
   }
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.user.broker.name("{{ user_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Broker"
-        metadata = {
-            name = Mindwm.user.broker.name("{{ user_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
-            annotations = {
-                "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
-            }
-        }
-        spec.config = {
-            apiVersion = "v1"
-            kind = "ConfigMap"
-            name = Mindwm.user.broker.configmap("{{ user_name }}")
-        }
 
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(user, user.broker.name)
+    spec.forProvider.manifest = knative_broker.Broker {
+      metadata = {
+        name = getData(user.broker.name)
+        namespace = getData(user.namespace)
+        annotations = {
+          "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
+        }
+      } 
+      spec.config = {
+          apiVersion = "v1"
+          kind = "ConfigMap"
+          name = getData(user.broker.configMapName)
+      }
     }
-  }
+  } 
 
 ] + [
   {
