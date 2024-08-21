@@ -65,6 +65,10 @@ schema MindwmContext:
         topicName.data = "${getData(name)}-cdc-topic"
         bootstrap_servers = [ "${getData(kafka.cluster_name)}.${getData(kafka.namespace)}:${kafka.port}" ]
     }
+    io_context: KnativeFunction {
+        name.data = "iocontext"
+        image = "ghcr.io/mindwm/io-context:latest"
+    }
 
 schema KafkaTopic:
     name: ResourceNameStr
@@ -121,5 +125,7 @@ schema IstioGateway:
 schema IstioVirtualService:
     name: ResourceNameStr
 
-
+schema KnativeFunction:
+    name: ResourceNameStr 
+    image: str
 # ctx = MindwmContext { name.data = "pinkj" }
