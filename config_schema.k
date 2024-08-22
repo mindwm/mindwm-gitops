@@ -60,7 +60,8 @@ schema MindwmContext:
     neo4j: Neo4j {}
     vector: Vector {}
     cdc_topic: KafkaTopic { 
-      name = name
+      name.data = getData(name) + "-cdc"
+      topic = name
     } 
     gateway: IstioGateway { 
       name.data = "gateway" 
@@ -87,6 +88,7 @@ schema MindwmContext:
 
 schema KafkaTopic:
     name: ResourceNameStr
+    topic: ResourceNameStr
 
 schema Broker:
     name: ResourceNameStr
