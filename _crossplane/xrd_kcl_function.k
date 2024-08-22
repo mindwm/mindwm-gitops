@@ -760,7 +760,7 @@ items = [
         namespace = getData(user.namespace)
       }
       spec = {
-        broker = getData(user.broker.name)
+        broker = getData(host.broker.name)
         delivery.deadLetterSink.ref = {
           apiVersion = "serving.knative.dev/v1"
           kind = "Service" 
@@ -775,8 +775,8 @@ items = [
           ]
         }]
         subscriber.ref = {
-          apiVersion = "serving.knative.dev/v1"
-          kind = "Service"
+          apiVersion = "eventing.knative.dev/v1"
+          kind = "Broker"
           name = getData(user.broker.name)
           namespace = getData(user.namespace)
         }
