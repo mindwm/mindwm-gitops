@@ -22,6 +22,14 @@ crossplaneResourceName = lambda entity: any, resourceName : ResourceNameStr -> s
     getData(entity.name) + "-" + getData(resourceName)
 }
 
+crossplane_user2context_trigger_name = lambda user : MindwmUser, ctx: MindwmContext -> str {
+  "user-" + getData(user.name) + "-to-context-" + getData(ctx.name)
+} 
+
+crossplane_context2user_trigger_name = lambda user : MindwmUser, ctx: MindwmContext -> str {
+  "context-" + getData(ctx.name) + "-to-user-" + getData(user.name)
+} 
+
 domain: DomainStr { data = "mindwm.local" }
 
 schema Mindwm2:
@@ -43,13 +51,11 @@ schema MindwmUser:
     name: ResourceNameStr
     namespace: ResourceNameStr = { data = "${userPrefix}-${getData(name)}" }
     broker: Broker { name.data = "user-broker" }
-    #deadLetter: DeadLetter { name.data = "dead-letter" }
 
 schema MindwmContext:
     name: ResourceNameStr
     namespace: ResourceNameStr = { data = "${contextPrefix}-${getData(name)}" }
     broker: Broker { name.data = "context-broker"}
-    #deadLetter: DeadLetter { name.data = "dead-letter" }
     kafka: Kafka {}
     neo4j: Neo4j {}
     vector: Vector {}
