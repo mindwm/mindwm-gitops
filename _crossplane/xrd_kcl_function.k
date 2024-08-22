@@ -655,8 +655,8 @@ items = [
           subscriber.ref = {
             apiVersion = "eventing.knative.dev/v1"
             kind = "Broker"
-            namespace = getData(user.broker.name)
-            name = getData(user.namespace)
+            namespace = getData(user.broker.namespace)
+            name = getData(user.names)
           }
         } 
       } 
