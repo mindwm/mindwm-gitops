@@ -135,7 +135,7 @@ items = [
         apiVersion = "cluster.redpanda.com/v1alpha1"
         kind = "Topic"
         metadata = {
-            name = getData(ctx.cdc_topic.topic)
+            name = getData(ctx.cdc_topic.name)
             namespace = getData(ctx.kafka.namespace)
         }
         spec = {
