@@ -60,8 +60,7 @@ schema MindwmContext:
     neo4j: Neo4j {}
     vector: Vector {}
     cdc_topic: KafkaTopic { 
-      name.data = getData(name) + "-cdc"
-      topic = name
+      name.data = "context-" + getData(name) + "-cdc"
     } 
     gateway: IstioGateway { 
       name.data = "gateway" 
@@ -73,8 +72,8 @@ schema MindwmContext:
       name.data = "neo4j-virtual-service"
     } 
     kafkaSource: KafkaSource = {
-        name.data = getData(cdc_topic.name)
-        topicName.data = "${getData(name)}-cdc-topic"
+        name = cdc_topic.name
+        topicName = cdc_topic.name
         bootstrap_servers = [ "${getData(kafka.cluster_name)}.${getData(kafka.namespace)}:${kafka.port}" ]
     }
     io_context: KnativeFunction {
@@ -88,7 +87,6 @@ schema MindwmContext:
 
 schema KafkaTopic:
     name: ResourceNameStr
-    topic: ResourceNameStr
 
 schema Broker:
     name: ResourceNameStr
