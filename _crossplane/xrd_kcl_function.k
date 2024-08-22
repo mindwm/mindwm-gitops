@@ -370,23 +370,22 @@ kind: InMemoryChannel
           kind = "Service" 
           name = getData(ctx.broker.deadLetter.name)
         }
+        filters = [{
+          "all" = [
+            {
+              exact.type = "iodocument"
+            }
+            {
+              "not" = { prefix.subject = "#" }
+            }
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(ctx.io_context.name)
+        }
       } 
-      filters = [{
-        "all" = [
-          {
-            exact.type = "iodocument"
-          }
-          {
-            "not" = { prefix.subject = "#" }
-          }
-        ]
-      }]
-      subscriber.ref = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        name = getData(ctx.io_context.name)
-      }
-
     } 
   }
   # touch
@@ -442,16 +441,15 @@ kind: InMemoryChannel
           kind = "Service" 
           name = getData(ctx.broker.deadLetter.name)
         }
+        filters = [{
+          exact.type = "touch"
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(ctx.touch.name)
+        }
       } 
-      filters = [{
-        exact.type = "touch"
-      }]
-      subscriber.ref = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        name = getData(ctx.touch.name)
-      }
-
     } 
   }
   crossplane_kubernetes.Object {
@@ -616,19 +614,18 @@ items = [
             kind = "Service" 
             name = getData(user.broker.deadLetter.name)
           }
+          filters = [
+            {exact.type = "org.mindwm.v1.iodocument"}
+            {exact.type = "org.mindwm.v1.touch"}
+            {exact.type = "org.mindwm.v1.clipboard"}
+          ]
+          subscriber.ref = {
+            apiVersion = "eventing.knative.dev/v1"
+            kind = "Broker"
+            namespace = getData(ctx.namespace)
+            name = getData(ctx.broker.name)
+          }
         } 
-        filters = [
-          {exact.type = "org.mindwm.v1.iodocument"}
-          {exact.type = "org.mindwm.v1.touch"}
-          {exact.type = "org.mindwm.v1.clipboard"}
-        ]
-        subscriber.ref = {
-          apiVersion = "eventing.knative.dev/v1"
-          kind = "Broker"
-          namespace = getData(ctx.namespace)
-          name = getData(ctx.broker.name)
-        }
-
       } 
     }
     for ctx in contexts
@@ -650,20 +647,19 @@ items = [
             kind = "Service" 
             name = getData(ctx.broker.deadLetter.name)
           }
+          filters = [{
+            "any" = [
+                { cesql = "source LIKE 'graph.%'" }
+                { cesql = "subject LIKE 'mindwm." + getData(user.name) + ".%'" }
+            ]
+          }]
+          subscriber.ref = {
+            apiVersion = "eventing.knative.dev/v1"
+            kind = "Broker"
+            namespace = getData(user.broker.name)
+            name = getData(user.namespace)
+          }
         } 
-        filters = [{
-          "any" = [
-              { cesql = "source LIKE 'graph.%'" }
-              { cesql = "subject LIKE 'mindwm." + getData(user.name) + ".%'" }
-          ]
-        }]
-        subscriber.ref = {
-          apiVersion = "eventing.knative.dev/v1"
-          kind = "Broker"
-          namespace = getData(user.broker.name)
-          name = getData(user.namespace)
-        }
-
       } 
     }
     for ctx in contexts
@@ -770,21 +766,21 @@ items = [
           kind = "Service" 
           name = getData(user.broker.deadLetter.name)
         }
+        filters = [{
+          # TODO (@metacoma) use variables
+          "any" = [
+            {exact.type = "org.mindwm.v1.iodocument"}
+            {exact.type = "org.mindwm.v1.touch"}
+            {exact.type = "org.mindwm.v1.clipboard"}
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(user.broker.name)
+          namespace = getData(user.namespace)
+        }
       } 
-      filters = [{
-        # TODO (@metacoma) use variables
-        "any" = [
-          {exact.type = "org.mindwm.v1.iodocument"}
-          {exact.type = "org.mindwm.v1.touch"}
-          {exact.type = "org.mindwm.v1.clipboard"}
-        ]
-      }]
-      subscriber.ref = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        name = getData(user.broker.name)
-        namespace = getData(user.namespace)
-      }
 
     } 
   }
@@ -804,19 +800,19 @@ items = [
           kind = "Service" 
           name = getData(user.broker.deadLetter.name)
         }
+        filters = [{
+          "any" = [
+            { cesql = "source LIKE 'graph.%'" }
+            { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "eventing.knative.dev/v1"
+          kind = "Broker"
+          name = getData(host.broker.name)
+          namespace = getData(user.namespace)
+        }
       } 
-      filters = [{
-        "any" = [
-          { cesql = "source LIKE 'graph.%'" }
-          { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
-        ]
-      }]
-      subscriber.ref = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Broker"
-        name = getData(host.broker.name)
-        namespace = getData(user.namespace)
-      }
 
     } 
   }
