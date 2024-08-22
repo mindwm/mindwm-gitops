@@ -370,23 +370,22 @@ kind: InMemoryChannel
           kind = "Service" 
           name = getData(ctx.broker.deadLetter.name)
         }
+        filters = [{
+          "all" = [
+            {
+              exact.type = "iodocument"
+            }
+            {
+              "not" = { prefix.subject = "#" }
+            }
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(ctx.io_context.name)
+        }
       } 
-      filters = [{
-        "all" = [
-          {
-            exact.type = "iodocument"
-          }
-          {
-            "not" = { prefix.subject = "#" }
-          }
-        ]
-      }]
-      subscriber.ref = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        name = getData(ctx.io_context.name)
-      }
-
     } 
   }
   # touch
@@ -442,16 +441,15 @@ kind: InMemoryChannel
           kind = "Service" 
           name = getData(ctx.broker.deadLetter.name)
         }
+        filters = [{
+          exact.type = "touch"
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(ctx.touch.name)
+        }
       } 
-      filters = [{
-        exact.type = "touch"
-      }]
-      subscriber.ref = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        name = getData(ctx.touch.name)
-      }
-
     } 
   }
   crossplane_kubernetes.Object {
@@ -535,6 +533,10 @@ ${kcl_util_func}
 ${kcl_config_schema}
 user_name = option("params").oxr.spec.name
 context_names = option("params").oxr.spec.context
+contexts = [
+  MindwmContext { name.data = context_name }
+  for context_name in context_names
+]
 user = MindwmUser { name.data = user_name }
 items = [
   k8core.Namespace {
@@ -595,85 +597,72 @@ items = [
   } 
 
 ] + [
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.user.trigger_back("{{ user_name }}")
-    spec.forProvider.manifest = {
+    # user broker -> context broker
+    crossplane_kubernetes.Object {
+      metadata.name = crossplane_user2context_trigger_name(user, ctx)
+      spec.forProvider.manifest = {
         apiVersion = "eventing.knative.dev/v1"
         kind = "Trigger"
         metadata = {
-            name = Mindwm.user.trigger_back("{{ user_name }}")
-            namespace = makeContextNamespace("{{ context_name }}")
+          name = crossplane_user2context_trigger_name(user, ctx)
+          namespace = getData(user.namespace)
         }
         spec = {
-            broker = contextBroker.name("{{ context_name }}")
-            delivery = {
-                deadLetterSink.ref = {
-                    apiVersion = "serving.knative.dev/v1"
-                    kind = "Service"
-                    name = contextBroker.deadLetterName("{{ context_name }}")
-                }
-            }
-            filters = [
-                {
-                    "any" = [
-                        { cesql = "source LIKE 'graph.%'" }
-                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.%'" }
-                    ]
-                }
-            ]
-            subscriber.ref = {
-                apiVersion = "eventing.knative.dev/v1"
-                kind = "Broker"
-                name = Mindwm.user.broker.name("{{ user_name }}")
-                namespace = Mindwm.user.namespace("{{ user_name }}")
-            }
-       }
+          broker = getData(user.broker.name)
+          delivery.deadLetterSink.ref = {
+            apiVersion = "serving.knative.dev/v1"
+            kind = "Service" 
+            name = getData(user.broker.deadLetter.name)
+          }
+          filters = [
+            {exact.type = "org.mindwm.v1.iodocument"}
+            {exact.type = "org.mindwm.v1.touch"}
+            {exact.type = "org.mindwm.v1.clipboard"}
+          ]
+          subscriber.ref = {
+            apiVersion = "eventing.knative.dev/v1"
+            kind = "Broker"
+            namespace = getData(ctx.namespace)
+            name = getData(ctx.broker.name)
+          }
+        } 
+      } 
     }
-  }
-  for context_name in context_names
+    for ctx in contexts
 ] + [
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.user.contextTrigger.crossplane_name("{{ user_name }}","{{ context_name }}")
-    spec.forProvider.manifest = {
+    # context broker -> user broker
+    crossplane_kubernetes.Object {
+      metadata.name = crossplane_context2user_trigger_name(user, ctx)
+      spec.forProvider.manifest = {
         apiVersion = "eventing.knative.dev/v1"
         kind = "Trigger"
         metadata = {
-            name = Mindwm.user.contextTrigger.name("{{ context_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
+          name = crossplane_context2user_trigger_name(user, ctx)
+          namespace = getData(user.namespace)
         }
         spec = {
-            broker = Mindwm.user.broker.name("{{ user_name }}")
-            delivery = {
-                deadLetterSink.ref = {
-                    apiVersion = "serving.knative.dev/v1"
-                    kind = "Service"
-                    name = Mindwm.user.deadLetter.name("{{ user_name }}")
-                }
-            }
-            filters = [
-                {
-                    "any" = [
-                        { exact.type = "iodocument" }
-                        { exact.type = "touch" }
-                        { exact.type = "clipboard" }
-                    ]
-                }
+          broker = getData(ctx.broker.name)
+          delivery.deadLetterSink.ref = {
+            apiVersion = "serving.knative.dev/v1"
+            kind = "Service" 
+            name = getData(ctx.broker.deadLetter.name)
+          }
+          filters = [{
+            "any" = [
+                { cesql = "source LIKE 'graph.%'" }
+                { cesql = "subject LIKE 'mindwm." + getData(user.name) + ".%'" }
             ]
-            # context broker
-            subscriber.ref = {
-                apiVersion = "eventing.knative.dev/v1"
-                kind = "Broker"
-                name = contextBroker.name("{{ context_name }}")
-                namespace = makeContextNamespace("{{ context_name }}")
-            }
-        }
+          }]
+          subscriber.ref = {
+            apiVersion = "eventing.knative.dev/v1"
+            kind = "Broker"
+            namespace = getData(user.broker.name)
+            name = getData(user.namespace)
+          }
+        } 
+      } 
     }
-  }
-  for context_name in context_names
+    for ctx in contexts
 ]
 """, {
     user_name = r"${user_name}"
@@ -777,21 +766,21 @@ items = [
           kind = "Service" 
           name = getData(user.broker.deadLetter.name)
         }
+        filters = [{
+          # TODO (@metacoma) use variables
+          "any" = [
+            {exact.type = "org.mindwm.v1.iodocument"}
+            {exact.type = "org.mindwm.v1.touch"}
+            {exact.type = "org.mindwm.v1.clipboard"}
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(user.broker.name)
+          namespace = getData(user.namespace)
+        }
       } 
-      filters = [{
-        # TODO (@metacoma) use variables
-        "any" = [
-          {exact.type = "org.mindwm.v1.iodocument"}
-          {exact.type = "org.mindwm.v1.touch"}
-          {exact.type = "org.mindwm.v1.clipboard"}
-        ]
-      }]
-      subscriber.ref = {
-        apiVersion = "serving.knative.dev/v1"
-        kind = "Service"
-        name = getData(user.broker.name)
-        namespace = getData(user.namespace)
-      }
 
     } 
   }
@@ -811,19 +800,19 @@ items = [
           kind = "Service" 
           name = getData(user.broker.deadLetter.name)
         }
+        filters = [{
+          "any" = [
+            { cesql = "source LIKE 'graph.%'" }
+            { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "eventing.knative.dev/v1"
+          kind = "Broker"
+          name = getData(host.broker.name)
+          namespace = getData(user.namespace)
+        }
       } 
-      filters = [{
-        "any" = [
-          { cesql = "source LIKE 'graph.%'" }
-          { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
-        ]
-      }]
-      subscriber.ref = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Broker"
-        name = getData(host.broker.name)
-        namespace = getData(user.namespace)
-      }
 
     } 
   }
