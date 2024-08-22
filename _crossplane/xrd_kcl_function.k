@@ -713,8 +713,6 @@ import knative_operator.v1.eventing_knative_dev_v1_broker as knative_broker
 import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
 ${kcl_util_func}
 ${kcl_config_schema}
-${kcl_util_func}
-${kcl_config_schema}
 host_name = option("params").oxr.spec.name
 user_name = option("params").oxr.spec.username
 
