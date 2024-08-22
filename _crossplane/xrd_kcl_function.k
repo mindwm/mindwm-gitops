@@ -599,6 +599,7 @@ items = [
   } 
 
 ] + [
+    [
     # user broker -> context broker
     crossplane_kubernetes.Object {
       metadata.name = crossplane_user2context_trigger_name(user, ctx)
@@ -665,7 +666,7 @@ items = [
       } 
     }
   ]
-  for ctx in b
+  for ctx in contexts
 
 ]
 """, {
