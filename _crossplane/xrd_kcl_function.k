@@ -282,6 +282,8 @@ kind: InMemoryChannel
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.kafkaSource.name)
     spec.forProvider.manifest = {
+      apiVersion = "sources.knative.dev/v1beta1"
+      kind = "KafkaSource"
       metadata = {
         name = getData(ctx.kafkaSource.name)
         namespace = getData(ctx.namespace)
