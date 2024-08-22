@@ -760,53 +760,46 @@ items = [
       }
     }
   } 
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.host.trigger("{{ host_name }}")
+  # hostBroker -> UserBroker trigger
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(host, host.trigger.name) 
     spec.forProvider.manifest = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Trigger"
-        metadata = {
-            name = Mindwm.host.trigger("{{ host_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
+      apiVersion = "eventing.knative.dev/v1"
+      kind = "Trigger"
+      metadata = {
+        name = getData(host.trigger.name) + "-trigger"
+        namespace = getData(user.namespace)
+      }
+      spec = {
+        broker = getData(user.broker.name)
+        delivery.deadLetterSink.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service" 
+          name = getData(user.broker.deadLetter.name)
         }
-        spec = {
-            broker = Mindwm.host.broker.name("{{ host_name }}")
-            delivery = {
-                deadLetterSink.ref = {
-                    apiVersion = "serving.knative.dev/v1"
-                    kind = "Service"
-                    name = Mindwm.user.deadLetter.name("{{ user_name }}")
-                }
-            }
-            filters = [
-                {
-                    "any" = [
-                        { exact.type = "iodocument" }
-                        { exact.type = "touch" }
-                        { exact.type = "clipboard" }
-                    ]
-                }
-            ]
-            # user broker
-            subscriber.ref = {
-                apiVersion = "eventing.knative.dev/v1"
-                kind = "Broker"
-                name = Mindwm.user.broker.name("{{ user_name }}")
-                namespace = Mindwm.user.namespace("{{ user_name }}")
-            }
-        }
-    }
+      } 
+      filters = [{
+        # TODO (@metacoma) use variables
+        "any" = [
+          {exact.type = "org.mindwm.v1.iodocument"}
+          {exact.type = "org.mindwm.v1.touch"}
+          {exact.type = "org.mindwm.v1.clipboard"}
+        ]
+      }]
+      subscriber.ref = {
+        apiVersion = "serving.knative.dev/v1"
+        kind = "Service"
+        name = getData(user.broker.name)
+        namespace = getData(user.namespace)
+      }
+
+    } 
   }
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
     metadata.name = Mindwm.host.trigger_back("{{ host_name }}")
-    spec.forProvider.manifest = {
-        apiVersion = "eventing.knative.dev/v1"
-        kind = "Trigger"
-        metadata = {
+    spec.forProvider.manifest = { apiVersion = "eventing.knative.dev/v1" kind = "Trigger" metadata = {
             name = Mindwm.host.trigger_back("{{ host_name }}")
             namespace = Mindwm.user.namespace("{{ user_name }}")
         }

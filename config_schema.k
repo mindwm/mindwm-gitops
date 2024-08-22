@@ -32,7 +32,12 @@ schema Mindwm2:
 schema MindwmHost:
     name: ResourceNameStr
     broker: Broker { name.data = "${getData(name)}-host-broker"}
+    # from host_broker to user broker trigger
     trigger: Trigger { name.data = "${getData(name)}-trigger-to-user-broker" }
+    # from user_broker to host broker trigger
+    trigger_back: Trigger {
+      name.data = "user-broker-to-" + getData(name) + "-broker-trigger"
+    } 
 
 schema MindwmUser:
     name: ResourceNameStr
