@@ -795,40 +795,39 @@ items = [
 
     } 
   }
-  {
-    apiVersion = "kubernetes.crossplane.io/v1alpha2"
-    kind = "Object"
-    metadata.name = Mindwm.host.trigger_back("{{ host_name }}")
-    spec.forProvider.manifest = { apiVersion = "eventing.knative.dev/v1" kind = "Trigger" metadata = {
-            name = Mindwm.host.trigger_back("{{ host_name }}")
-            namespace = Mindwm.user.namespace("{{ user_name }}")
-        }
-        spec = {
-            broker = Mindwm.user.broker.name("{{ user_name }}")
-            delivery = {
-                deadLetterSink.ref = {
-                    apiVersion = "serving.knative.dev/v1"
-                    kind = "Service"
-                    name = Mindwm.user.deadLetter.name("{{ user_name }}")
-                }
-            }
-            filters = [
-                {
-                    "any" = [
-                        { cesql = "source LIKE 'graph.%'" }
-                        { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
-                    ]
-                }
-            ]
-            subscriber.ref = {
-                apiVersion = "eventing.knative.dev/v1"
-                kind = "Broker"
-                name = Mindwm.host.broker.name("{{ host_name }}")
-                namespace = Mindwm.user.namespace("{{ user_name }}")
-            }
-        }
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(host, host.trigger_back.name) 
+    spec.forProvider.manifest = {
+      apiVersion = "eventing.knative.dev/v1"
+      kind = "Trigger"
+      metadata = {
+        name = getData(host.trigger_back.name) 
+        namespace = getData(user.namespace)
       }
-    }
+      spec = {
+        broker = getData(user.broker.name)
+        delivery.deadLetterSink.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service" 
+          name = getData(user.broker.deadLetter.name)
+        }
+      } 
+      filters = [{
+        "any" = [
+          { cesql = "source LIKE 'graph.%'" }
+          { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
+        ]
+      }]
+      subscriber.ref = {
+        apiVersion = "eventing.knative.dev/v1"
+        kind = "Broker"
+        name = getData(host.broker.name)
+        namespace = getData(user.namespace)
+      }
+
+    } 
+  }
+}
 ]
 """, {
     user_name = r"${user_name}"
