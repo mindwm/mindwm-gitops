@@ -827,7 +827,6 @@ items = [
 
     } 
   }
-}
 ]
 """, {
     user_name = r"${user_name}"
