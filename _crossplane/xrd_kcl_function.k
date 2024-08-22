@@ -638,7 +638,7 @@ items = [
         kind = "Trigger"
         metadata = {
           name = crossplane_context2user_trigger_name(user, ctx)
-          namespace = getData(user.namespace)
+          namespace = getData(ctx.namespace)
         }
         spec = {
           broker = getData(ctx.broker.name)
