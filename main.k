@@ -11,10 +11,10 @@ import json_merge_patch as p
 import .flux as flux
 import .redpanda.config as redpanda_config
 import .redpanda.schema as RedPandaSchema
-import ._crossplane.function as CrossPlaneFunction
-import ._crossplane.provider as CrossPlaneProvider
+import .crossplane.function as CrossPlaneFunction
+import .crossplane.provider as CrossPlaneProvider
 import .config as config
-import ._crossplane.xrd_kcl_function as XrdKclFunction
+import .crossplane.xrd_kcl_function as XrdKclFunction
 import util
 #import argoproj.v1alpha1 as argoproj
 import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
