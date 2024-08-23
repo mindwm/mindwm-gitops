@@ -27,6 +27,8 @@ spec:
       initContainers:
         setDataDirOwnership:
           enabled: true
+      livenessProbe:
+        timeoutSeconds: 15
     storage:
       persistentVolume:
         enabled: true
