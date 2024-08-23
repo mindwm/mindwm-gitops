@@ -229,9 +229,6 @@ mindwm_app = ArgoCdOrder.make({
                 name = "redpanda-operator"
                 chart = charts.redpanda_operator
                 version = "0.4.21"
-                values = {
-                  image.tag = "v2.2.0-24.2.2"
-                }
             })
 
             RedPandaSchema.makeKafkaCluster(config.kafka.cluster_name)
