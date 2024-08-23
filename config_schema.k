@@ -72,7 +72,7 @@ schema MindwmContext:
       name.data = "neo4j-virtual-service"
     } 
     kafkaSource: KafkaSource = {
-        name = cdc_topic.name
+        name.data = getData(cdc_topic.name) + "-kafkasource"
         topicName = cdc_topic.name
         bootstrap_servers = [ "${getData(kafka.cluster_name)}.${getData(kafka.namespace)}:${kafka.port}" ]
     }
