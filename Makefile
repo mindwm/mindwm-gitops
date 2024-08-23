@@ -111,6 +111,9 @@ kcl_log:
 my_plugin:
 	kubectl -n argocd logs -f `kubectl -n argocd get pod -l app.kubernetes.io/component=repo-server -o name` -c my-plugin
 
+# cd /tmp/sandbox{{ uniq_id }}/
+# check Context
+# kcl run -D params='{"oxr": {"spec": {"name": "username"^C}' -D params='{"oxr": {"spec": {"name": "contextname"}}}'
 function_kcl_exec:
 	kubectl -n crossplane-system exec -ti `kubectl -n crossplane-system get pods -l pkg.crossplane.io/function=function-kcl -o name` -- /bin/bash
 

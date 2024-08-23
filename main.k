@@ -19,6 +19,7 @@ import util
 #import argoproj.v1alpha1 as argoproj
 import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
 import istio.v1alpha3.networking_istio_io_v1alpha3_virtual_service as istio_virtual_service
+import crossplane.v1 as crossplane
 
 
 
