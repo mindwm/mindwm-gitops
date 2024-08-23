@@ -14,6 +14,7 @@ kcl_util_func = file.read("./config.k")
 kcl_config_schema = file.read("./config_schema.k")
 
 
+# TODO(@metacoma) rewrite using knative-operator module
 mkComposition = lambda claim_ref : any, schemaSpec : any, steps :[any] {
     group = claim_ref.apiVersion.split("/")[0]
     [
@@ -328,24 +329,24 @@ kind: InMemoryChannel
           image = ctx.io_context.image
           env = [
             {
-              name: "NEO4J_URL"
-              value: getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              name = "NEO4J_URL"
+              value = getData(ctx.namespace) + "-" - getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
-              name: "NEO4J_USERNAME"
-              value: ctx.neo4j.username
+              name: = "NEO4J_USERNAME"
+              value =  ctx.neo4j.username
             }
             {
-              name: "NEO4J_PASSWORD"
-              value: ctx.neo4j.password
+              name = "NEO4J_PASSWORD"
+              value = ctx.neo4j.password
             }
             {
-              name: "OTEL_EXPORTER_OTLP_ENDPOINT"
-              value: ""
+              name = "OTEL_EXPORTER_OTLP_ENDPOINT"
+              value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
             }
             {
-              name: "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
-              value: ""
+              name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+              value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
             }
           ] 
       }]
@@ -400,24 +401,24 @@ kind: InMemoryChannel
           image = ctx.touch.image
           env = [
             {
-              name: "NEO4J_URL"
-              value: getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              name = "NEO4J_URL"
+              value = getData(ctx.namespace) + "-" - getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
-              name: "NEO4J_USERNAME"
-              value: ctx.neo4j.username
+              name: = "NEO4J_USERNAME"
+              value =  ctx.neo4j.username
             }
             {
-              name: "NEO4J_PASSWORD"
-              value: ctx.neo4j.password
+              name = "NEO4J_PASSWORD"
+              value = ctx.neo4j.password
             }
             {
-              name: "OTEL_EXPORTER_OTLP_ENDPOINT"
-              value: ""
+              name = "OTEL_EXPORTER_OTLP_ENDPOINT"
+              value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
             }
             {
-              name: "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
-              value: ""
+              name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+              value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
             }
           ] 
       }]
