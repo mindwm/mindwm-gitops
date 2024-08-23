@@ -431,6 +431,7 @@ kind: InMemoryChannel
       apiVersion = "eventing.knative.dev/v1"
       kind = "Trigger"
       metadata = {
+        # TODO(@metacoma) fix -trigger
         name = getData(ctx.touch.name) + "-trigger"
         namespace = getData(ctx.namespace)
       }
@@ -758,6 +759,7 @@ items = [
       apiVersion = "eventing.knative.dev/v1"
       kind = "Trigger"
       metadata = {
+        # TODO(@metacoma) -trigger
         name = getData(host.trigger.name) + "-trigger"
         namespace = getData(user.namespace)
       }
