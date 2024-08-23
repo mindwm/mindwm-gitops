@@ -311,8 +311,8 @@ kind: InMemoryChannel
       spec.template.spec.containers = [{
           image = ctx.broker.deadLetter.image
           env = [{
-            name: "REQUEST_LOGGING_ENABLED"
-            value: "1"
+            name = "REQUEST_LOGGING_ENABLED"
+            value = "1"
           }] 
       }]
     } 
@@ -330,10 +330,10 @@ kind: InMemoryChannel
           env = [
             {
               name = "NEO4J_URL"
-              value = getData(ctx.namespace) + "-" - getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              value = getData(ctx.namespace) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
-              name: = "NEO4J_USERNAME"
+              name = "NEO4J_USERNAME"
               value =  ctx.neo4j.username
             }
             {
@@ -373,7 +373,7 @@ kind: InMemoryChannel
         filters = [{
           "all" = [
             {
-              exact.type = "iodocument"
+              exact.type = "org.mindwm.v1.iodocument"
             }
             {
               "not" = { prefix.subject = "#" }
@@ -402,10 +402,10 @@ kind: InMemoryChannel
           env = [
             {
               name = "NEO4J_URL"
-              value = getData(ctx.namespace) + "-" - getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              value = getData(ctx.namespace) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
-              name: = "NEO4J_USERNAME"
+              name = "NEO4J_USERNAME"
               value =  ctx.neo4j.username
             }
             {
@@ -442,7 +442,7 @@ kind: InMemoryChannel
           name = getData(ctx.broker.deadLetter.name)
         }
         filters = [{
-          exact.type = "touch"
+          exact.type = "org.mindwm.v1.touch"
         }]
         subscriber.ref = {
           apiVersion = "serving.knative.dev/v1"
@@ -556,8 +556,8 @@ items = [
       spec.template.spec.containers = [{
           image = user.broker.deadLetter.image
           env = [{
-            name: "REQUEST_LOGGING_ENABLED"
-            value: "1"
+            name = "REQUEST_LOGGING_ENABLED"
+            value = "1"
           }] 
       }]
     } 
@@ -618,6 +618,7 @@ items = [
             {exact.type = "org.mindwm.v1.iodocument"}
             {exact.type = "org.mindwm.v1.touch"}
             {exact.type = "org.mindwm.v1.clipboard"}
+            {exact.type = "org.mindwm.v1.ping"}
           ]
           subscriber.ref = {
             apiVersion = "eventing.knative.dev/v1"
@@ -648,9 +649,10 @@ items = [
             name = getData(ctx.broker.deadLetter.name)
           }
           filters = [{
-            "any" = [
-                { cesql = "source LIKE 'graph.%'" }
-                { cesql = "subject LIKE 'mindwm." + getData(user.name) + ".%'" }
+            "all" = [
+                { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+                { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+                #{ cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
             ]
           }]
           subscriber.ref = {
@@ -725,7 +727,7 @@ items = [
     stream:
       config:
         additionalSubjects:
-          - "mindwm.{{ user_name }}.{{ host_name }}.>"
+          - "org.mindwm.{{ user_name }}.{{ host_name }}.>"
         overrideName: {{ host_name }}
   '''
         }
@@ -772,6 +774,7 @@ items = [
             {exact.type = "org.mindwm.v1.iodocument"}
             {exact.type = "org.mindwm.v1.touch"}
             {exact.type = "org.mindwm.v1.clipboard"}
+            {exact.type = "org.mindwm.v1.ping"}
           ]
         }]
         subscriber.ref = {
@@ -801,9 +804,10 @@ items = [
           name = getData(user.broker.deadLetter.name)
         }
         filters = [{
-          "any" = [
-            { cesql = "source LIKE 'graph.%'" }
-            { cesql = "subject LIKE 'mindwm.{{ user_name }}.{{ host_name }}.%'" }
+          "all" = [
+            { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+            { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+            #{ cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
           ]
         }]
         subscriber.ref = {
