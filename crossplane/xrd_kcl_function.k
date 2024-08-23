@@ -11,7 +11,6 @@ api_version = "apiextensions.crossplane.io/v1"
 composite_version = "v1beta1"
 
 kcl_util_func = file.read("./config.k")
-kcl_config_schema = file.read("./config_schema.k")
 
 
 # TODO(@metacoma) rewrite using knative-operator module
