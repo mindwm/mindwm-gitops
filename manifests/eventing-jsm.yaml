@@ -301,7 +301,7 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           # This is the Go import path for the binary that is containerized
           # and substituted here.
-          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/webhook:sha256-cbb2c379e4d2222d913f2ea2eae78a38f755b1846398fc24a54415f1e6600f92.sbom
+          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/webhook:latest
           resources:
             requests:
               # taken from serving.
@@ -1960,14 +1960,14 @@ spec:
       serviceAccountName: jetstream-ch-controller
       containers:
         - name: controller
-          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/jetstream/controller:sha256-80959129a8b110206c1b37062eb9d3db354724f8a27e27c526569c1a1121790a.sbom
+          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/jetstream/controller:latest
           env:
             - name: CONFIG_LOGGING_NAME
               value: config-logging
             - name: METRICS_DOMAIN
               value: knative.dev/eventing
             - name: DISPATCHER_IMAGE
-              value: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/jetstream/dispatcher:sha256-9bc8973df2a6f13f9a4e2c7eeba6ecc8593842b28dc0de6e430e545b000665c3.sbom 
+              value: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/jetstream/dispatcher:latest
             - name: DISPATCHER_SERVICE_ACCOUNT
               value: jetstream-ch-dispatcher
             - name: SYSTEM_NAMESPACE
