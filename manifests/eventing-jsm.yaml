@@ -301,7 +301,7 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           # This is the Go import path for the binary that is containerized
           # and substituted here.
-          image: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/webhook@sha256:a2829e854ec9e402181c0ab6b6603f76dd78da757aae7911768c72a8aaa96c07
+          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/webhook@sha256:87c9ec92a695cbdc647971fd44b6d6f27f66e1bbe5e00e1a285f535636679a61
           resources:
             requests:
               # taken from serving.
@@ -1960,7 +1960,7 @@ spec:
       serviceAccountName: jetstream-ch-controller
       containers:
         - name: controller
-          image: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/jetstream/controller@sha256:debf9483b1a897b5e60c65ad85d7bb01a324d25440547e97cd0e3610d2fedf28
+          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/jetstream/controller@sha256:0ad12f0399f3a0ee31a179eb1bac63fca2ea36b93687833c810ef6638ecfcc50
           env:
             - name: CONFIG_LOGGING_NAME
               value: config-logging
