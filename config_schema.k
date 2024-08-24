@@ -78,7 +78,7 @@ schema MindwmContext:
     }
     io_context: KnativeFunction {
         name.data = "iocontext"
-        image = "ghcr.io/mindwm/io-context:latest"
+        image = "ghcr.io/mindwm/knfunc-io-context:latest"
     }
     touch: KnativeFunction {
         name.data = "mindwm-touch"
