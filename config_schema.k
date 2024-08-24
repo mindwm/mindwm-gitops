@@ -84,6 +84,10 @@ schema MindwmContext:
         name.data = "mindwm-touch"
         image = "ghcr.io/mindwm/mindwm-touch:latest"
     }
+    pong: KnativeFunction {
+        name.data = "pong"
+        image = "ghcr.io/mindwm/knfunc-pong:latest"
+    }
 
 schema KafkaTopic:
     name: ResourceNameStr

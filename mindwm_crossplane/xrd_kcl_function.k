@@ -388,8 +388,67 @@ kind: InMemoryChannel
       } 
     } 
   }
-  # touch
 
+  # pong
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.pong.name)
+    spec.forProvider.manifest = knative_service.Service {
+      metadata = {
+        name = getData(ctx.pong.name)
+        namespace = getData(ctx.namespace)
+      }
+      spec.template.spec.containers = [{
+          image = ctx.pong.image
+          env = [
+            {
+              name = "OTEL_EXPORTER_OTLP_ENDPOINT"
+              value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
+            }
+            {
+              name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+              value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
+            }
+          ] 
+      }]
+    } 
+  } 
+  #pong trigger
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.pong.name) + "-trigger"
+    spec.forProvider.manifest = {
+      apiVersion = "eventing.knative.dev/v1"
+      kind = "Trigger"
+      metadata = {
+        name = getData(ctx.pong.name) + "-trigger"
+        namespace = getData(ctx.namespace)
+      }
+      spec = {
+        broker = getData(ctx.broker.name)
+        delivery.deadLetterSink.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service" 
+          name = getData(ctx.broker.deadLetter.name)
+        }
+        filters = [{
+          "all" = [
+            {
+              exact.type = "org.mindwm.v1.iodocument"
+            }
+            {
+              prefix.subject = "#" 
+            }
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(ctx.pong.name)
+        }
+      } 
+    } 
+  }
+
+  # touch
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.touch.name)
     spec.forProvider.manifest = knative_service.Service {
