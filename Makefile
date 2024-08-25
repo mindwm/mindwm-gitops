@@ -17,7 +17,7 @@ DOMAIN := stg1.mindwm.local
 verify_docker_api_server_version:
 	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';
 
-CONTEXT_NAME := pink
+CONTEXT_NAME := cyan
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
