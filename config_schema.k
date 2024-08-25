@@ -30,7 +30,7 @@ crossplane_context2user_trigger_name = lambda user : MindwmUser, ctx: MindwmCont
   "context-" + getData(ctx.name) + "-to-user-" + getData(user.name)
 } 
 
-domain: DomainStr { data = "mindwm.local" }
+domain: DomainStr { data = "stg1.mindwm.local" }
 
 schema Mindwm2:
     context: MindwmContext
