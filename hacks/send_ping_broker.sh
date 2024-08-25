@@ -1,5 +1,12 @@
 HOST=`hostname`
 
+trace_id_gen() {
+	local traceid="$(tr -dc 'a-f0-9' < /dev/urandom | head -c 32)"
+	local spanid="$(tr -dc 'a-f0-9' < /dev/urandom | head -c 16)"
+	echo "00-${traceid}-${spanid}-01" 
+}
+TRACE_ID=$(trace_id_gen)
+
 payload() {
 cat<<EOF
 {
@@ -17,7 +24,7 @@ kexec() {
 } 
 
 payload | jq | kexec 'curl \
-    -vvv \
+    -vvvv \
     -XPOST  \
     http://broker-ingress.knative-eventing.svc.cluster.local/context-pink/context-broker  \
     -H "Content-Type: application/json" \
@@ -25,6 +32,7 @@ payload | jq | kexec 'curl \
     -H "Ce-id: XXX" \
     -H "ce-source:org.mindwm.'$USER'.'$HOST'.tmux.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36" \
     -H "ce-subject:#ping" \
+    -H "traceparent:'$TRACE_ID'" \
     -H "ce-type: org.mindwm.v1.iodocument" \
     -d@-
 '
