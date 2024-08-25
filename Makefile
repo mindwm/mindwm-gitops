@@ -12,7 +12,7 @@ KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS)
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
 
 MIN_DOCKER_SERVER_VERSION := 1.46
-DOMAIN := mindwm.local
+DOMAIN := stg1.mindwm.local
 
 verify_docker_api_server_version:
 	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';

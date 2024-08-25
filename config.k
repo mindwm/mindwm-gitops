@@ -1,4 +1,4 @@
-mindwm_domain = "mindwm.local"
+mindwm_domain = "stg1.mindwm.local"
 
 
 sources = {
