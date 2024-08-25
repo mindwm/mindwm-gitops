@@ -29,6 +29,8 @@ spec:
           enabled: true
       livenessProbe:
         timeoutSeconds: 15
+      readinessProbe:
+        timeoutSeconds: 15
     storage:
       persistentVolume:
         enabled: true
