@@ -3,6 +3,8 @@
 ARGOCD_HOST_PORT := 38080
 
 TARGET_REVISION := master
+TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(.+)/https:\/\/\1\/\2/')
+
 
 KUBECTL_RUN_OPTS := -i --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
 KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
@@ -166,10 +168,9 @@ argocd_exec: argocd_password
 	@echo kubectl -n argocd exec -ti deployment/argocd-server -- sh -c 'argocd login --plaintext --username admin --password $(ARGOCD_PASSWORD) localhost:8080 && argocd app sync mindwm-gitops'
 	$(KUBECTL_IT_RUN) "kubectl -n argocd exec -ti deployment/argocd-server -- bash"
 
-
 .PHONY: argocd_app
 argocd_app: argocd
-	 $(KUBECTL_RUN) 'cat argocd_mindwm_app.json | jq ".spec.source.targetRevision = \"$(TARGET_REVISION)\"" | kubectl apply -f -'
+	 $(KUBECTL_RUN) 'cat argocd_mindwm_app.json | jq ".spec.source.targetRevision = \"$(TARGET_REVISION)\"" | jq ".spec.source.repoURL = \"$(TARGET_REPO)\""  | kubectl apply -f -'
 
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
