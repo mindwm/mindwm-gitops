@@ -11,9 +11,9 @@ env:
   TF_VAR_linode_token: ${{ secrets.CI_LINODE_TOKEN }}
   TF_VAR_root_password: ${{ secrets.CI_ROOT_PASSWORD }}
   TF_DIR: "./tests/e2e"
-  TF_VAR_git_repository: "${{ env.GITHUB_REPOSITORY }}"
-  TF_VAR_git_commit_sha: "${{ env.GITHUB_SHA }}"
-  TF_VAR_git_ref_name: "${{ env.GITHUB_REF_NAME }}"
+  TF_VAR_git_repository: "${{ github.event.pull_request.head.repo.full_name }}"
+  TF_VAR_git_commit_sha: "${{ github.sha }}"
+  TF_VAR_git_ref_name: "${{ github.event.pull_request.head.ref }}"
 
 jobs:
   ci:
