@@ -2,10 +2,8 @@ name: ci
 
 on:
   pull_request:
-    branches: [ "master" ]
     branches-ignore: [ "devs/*" ]
   push:
-    branches: [ "master" ]
     branches-ignore: [ "devs/*" ]
 
 env:
