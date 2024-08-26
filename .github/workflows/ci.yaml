@@ -3,8 +3,10 @@ name: ci
 on:
   pull_request:
     branches: [ "master" ]
+    branches-ignore: [ "devs/*" ]
   push:
     branches: [ "master" ]
+    branches-ignore: [ "devs/*" ]
 
 env:
   TF_VAR_ssh_private_key: ${{ secrets.CI_SSH_KEY }}
