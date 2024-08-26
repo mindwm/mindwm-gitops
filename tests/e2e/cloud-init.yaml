@@ -1,0 +1,32 @@
+#cloud-config
+ssh_pwauth: true
+packages:
+  - git
+  - ca-certificates
+  - curl
+  - make 
+  - yq
+groups:
+  - ci
+  - docker
+users:
+-   gecos: Linux User2
+    groups: ci, sudo, docker
+    lock_passwd: true
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    name: ci
+    primary_group: ci
+    shell: /bin/bash
+    passwd: "$6$rounds=4096$RWK7Xzd2AmIkMDFn$kQOkIaN9HjzT2B1LERN5pletj1TL0jCVTsG7LorawrHC/bcRAh7Tl5fH91F.IWkGKMRKjiTQhhx6liAkYDR5s/"
+    ssh-authorized-keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICZu5HNWRwNF05fROu+QjEM1KANXkuDMZAuroU4jzqhx
+expire: False
+runcmd:
+  - [sed, "-i''", "/^search/d", "/etc/resolv.conf" ]
+  - [install, "-m", "0755", "-d", "/etc/apt/keyrings"]
+  - [curl, "-fsSL", "https://download.docker.com/linux/ubuntu/gpg", "-o", "/etc/apt/keyrings/docker.asc"]
+  - [chmod, "a+r", "/etc/apt/keyrings/docker.asc"]
+  - |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  
