@@ -4,6 +4,12 @@ on:
   pull_request:
     branches: [ "master", "feat/ci" ]
 
+env:
+  TF_VAR_ssh_private_key: ${{ secrets.CI_SSH_KEY }}
+  TF_VAR_linode_token: ${{ secrets.CI_LINODE_TOKEN }}
+  TF_VAR_root_password: ${{ secrets.CI_ROOT_PASSWORD }}
+  TF_DIR: "./tests/e2e"
+
 jobs:
   ci:
     steps:
@@ -17,31 +23,19 @@ jobs:
       with:
         terraform_version: "1.1.7"
 
-    - name: terraform plan
-      working-directory: &terraform_dir ./tests/e2e
+    - name: terraform init
+      working-directory: "${{ env.TF_DIR }}"
       run: terraform init
-      env: &env
-        TF_VAR_ssh_private_key: ${{ secrets.CI_SSH_KEY }}
-        TF_VAR_linode_token: ${{ secrets.CI_LINODE_TOKEN }}
-        TF_VAR_root_password: ${{ secrets.CI_ROOT_PASSWORD }}
 
     - name: terraform plan
-      working-directory: *terraform_dir
-      env:
-        <<: *env
+      working-directory: "${{ env.TF_DIR }}"
       run: terraform plan
 
     - name: terraform apply
-      working-directory: *terraform_dir
+      working-directory: "${{ env.TF_DIR }}"
       run: terraform apply -auto-approve
-      env: 
-        <<: *env
       continue-on-error: true
 
     - name: terraform destroy
-      working-directory: *terraform_dir
+      working-directory: "${{ env.TF_DIR }}"
       run: terraform destroy -auto-approve
-      continue-on-error: true
-      env: 
-        <<: *env
-
