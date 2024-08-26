@@ -38,6 +38,10 @@ jobs:
       working-directory: "${{ env.TF_DIR }}"
       run: terraform apply -auto-approve
       continue-on-error: true
+      env:
+        TF_VAR_git_repository: "${{ env.GITHUB_REPOSITORY }}"
+        TF_VAR_git_commit_sha: "${{ env.GITHUB_SHA }}"
+        TF_VAR_git_ref_name: "${{ env.GITHUB_REF_NAME }}"
 
     - name: terraform destroy
       working-directory: "${{ env.TF_DIR }}"
