@@ -1,4 +1,4 @@
-.PHONY: argocd
+SHELL := /bin/bash
 
 ARGOCD_HOST_PORT := 38080
 
@@ -78,6 +78,7 @@ cluster: deinstall precheck
 	$(MAKE) fix_dns_upstream
 
 
+.PHONY: argocd
 argocd:
 	$(HELM_RUN) "\
 		helm repo add argocd https://argoproj.github.io/argo-helm && \
@@ -205,6 +206,17 @@ service_dashboard:
 	nats://root:r00tpass@nats.$(DOMAIN):4222
 	EOF
 
+.ONESHELL: mindwm_test
+.PHONY: mindwm_test
+mindwm_test:
+	cd tests/mindwm_tests
+	python3 -m venv .venv
+	source .venv/bin/activate
+	pip3 install -r ./requirements.txt
+	python3 -m pytest -s -v
+	
 mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources service_dashboard
+
+
 
 # make mindwm_lifecycle TARGET_REVISION="`git branch ls --show-current`"
