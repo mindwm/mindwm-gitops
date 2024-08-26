@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [ "master", "feat/ci" ]
+
+jobs:
+  ci:
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{github.event.pull_request.head.ref}}
+        repository: ${{github.event.pull_request.head.repo.full_name}}
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.1.7"
+
+    - name: terraform plan
+      working-directory: &terraform_dir ./tests/e2e
+      run: terraform init
+      env: &env
+        TF_VAR_ssh_private_key: ${{ secrets.CI_SSH_KEY }}
+        TF_VAR_linode_token: ${{ secrets.CI_LINODE_TOKEN }}
+        TF_VAR_root_password: ${{ secrets.CI_ROOT_PASSWORD }}
+
+    - name: terraform plan
+      working-directory: *terraform_dir
+      env:
+        <<: *env
+      run: terraform plan
+
+    - name: terraform apply
+      working-directory: *terraform_dir
+      run: terraform apply -auto-approve
+      env: 
+        <<: *env
+      continue-on-error: true
+
+    - name: terraform destroy
+      working-directory: *terraform_dir
+      run: terraform destroy -auto-approve
+      continue-on-error: true
+      env: 
+        <<: *env
+
