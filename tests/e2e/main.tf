@@ -49,7 +49,7 @@ resource "linode_instance" "ci" {
     inline = [
         "git clone https://github.com/mindwm/mindwm-gitops",
         "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
-        "cd mindwm-gitops && make mindwm_lifecycle",
+        "cd mindwm-gitops && make mindwm_lifecycle mindwm_test",
     ]
   }
   metadata {
