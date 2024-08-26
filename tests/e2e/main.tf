@@ -17,8 +17,22 @@ variable ssh_private_key {
 } 
 
 variable root_password {
-    description = "ssh private key"
+    description = "root password"
     sensitive = true
+} 
+
+variable git_repository {
+    description = "git repo"
+    sensitive = false
+} 
+
+variable git_commit_sha {
+    description = "git commit sha"
+    sensitive = false
+} 
+variable git_ref_name {
+    description = "branch name"
+    sensitive = false
 } 
 
 # Configure the Linode Provider
@@ -47,9 +61,11 @@ resource "linode_instance" "ci" {
 
   provisioner "remote-exec" {
     inline = [
-        "git clone https://github.com/mindwm/mindwm-gitops",
+        "git clone -b ${var.git_ref_name} ${var.git_repository}",
         "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
-        "cd mindwm-gitops && make mindwm_lifecycle",
+        "echo dir: `basename ${var.git_repository}` checkout ${var.git_commit_sha} TARGET_REVISION=${var.git_ref_name}",
+        "cd `basename ${var.git_repository}` && git checkout ${var.git_commit_sha} && make mindwm_lifecycle mindwm_test TARGET_REVISION=${var.git_ref_name}",
+>>>>>>> d6d3f54 (fix: run ci on the correct branch and commit)
     ]
   }
   metadata {
