@@ -76,3 +76,4 @@ output "ci_instance_ip" {
   description = "The public IP address of the CI instance"
   value       = linode_instance.ci.ip_address
 }
+
