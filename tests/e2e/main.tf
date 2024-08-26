@@ -41,14 +41,14 @@ provider "linode" {
 }
 
 resource "linode_instance" "ci" {
-  label           = "mindwm-ci"
+  label           = "mindwm-ci-${var.git_commit_sha}"
   image           = "linode/ubuntu24.04"
   region          = "nl-ams"
   type            = "g6-standard-6"
   authorized_keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICZu5HNWRwNF05fROu+QjEM1KANXkuDMZAuroU4jzqhx"]
   root_pass       = var.root_password
 
-  tags       = ["mindwm-ci"]
+  tags       = ["mindwm-ci", "${var.git_commit_sha}"]
   swap_size  = 0
   private_ip = true
 
