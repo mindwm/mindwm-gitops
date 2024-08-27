@@ -1,0 +1,4 @@
+pytest-depends
+pytest-md-report
+pytest
+git+https://github.com/elapfra/kubetest/

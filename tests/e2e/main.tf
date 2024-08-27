@@ -41,14 +41,14 @@ provider "linode" {
 }
 
 resource "linode_instance" "ci" {
-  label           = "mindwm-ci"
+  label           = "mindwm-ci-${var.git_commit_sha}"
   image           = "linode/ubuntu24.04"
   region          = "nl-ams"
   type            = "g6-standard-6"
   authorized_keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICZu5HNWRwNF05fROu+QjEM1KANXkuDMZAuroU4jzqhx"]
   root_pass       = var.root_password
 
-  tags       = ["mindwm-ci"]
+  tags       = ["mindwm-ci", "${var.git_commit_sha}"]
   swap_size  = 0
   private_ip = true
 
@@ -61,11 +61,10 @@ resource "linode_instance" "ci" {
 
   provisioner "remote-exec" {
     inline = [
-        "git clone -b ${var.git_ref_name} ${var.git_repository}",
+        "git clone -b ${var.git_ref_name} https://github.com/${var.git_repository}",
         "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
         "echo dir: `basename ${var.git_repository}` checkout ${var.git_commit_sha} TARGET_REVISION=${var.git_ref_name}",
-        "cd `basename ${var.git_repository}` && git checkout ${var.git_commit_sha} && make mindwm_lifecycle mindwm_test TARGET_REVISION=${var.git_ref_name}",
->>>>>>> d6d3f54 (fix: run ci on the correct branch and commit)
+        "cd `basename ${var.git_repository}` && make mindwm_lifecycle mindwm_test TARGET_REVISION=${var.git_ref_name}",
     ]
   }
   metadata {
@@ -77,3 +76,4 @@ output "ci_instance_ip" {
   description = "The public IP address of the CI instance"
   value       = linode_instance.ci.ip_address
 }
+

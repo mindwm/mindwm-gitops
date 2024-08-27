@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+addopts = [
+    "--kube-config=~/.kube/config",
+]
+md_report = true
+md_report_verbose = 0
+md_report_color = "auto"
