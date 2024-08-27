@@ -542,7 +542,7 @@ kind: InMemoryChannel
         http = [{
           match = [{ uri.prefix = "/", port = 80}]
           route = [{ 
-            destination.host = getData(ctx.neo4j.name) + "." + getData(ctx.namespace)
+            destination.host = getData(ctx.neo4j.name)
             destination.port.number = ctx.neo4j.port # TODO(@metacoma) hardcode
           }]
 
