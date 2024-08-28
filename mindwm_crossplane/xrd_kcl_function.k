@@ -480,7 +480,7 @@ items = [
             name = getData(user.broker.deadLetter.name)
           }
           filters = [
-            { any = [
+            { "any" = [
                 {exact.type = "org.mindwm.v1.iodocument"}
                 {exact.type = "org.mindwm.v1.touch"}
                 {exact.type = "org.mindwm.v1.clipboard"}
