@@ -14,7 +14,10 @@ class test_namespace():
             for deployment_name in self.deployment:
                 deployment = deployments.get(deployment_name)
                 assert deployment is not None,  f"Deployment '{deployment_name}' was not found in namespace '{self.namespace}'"
-                assert deployment.is_ready() is not False,  f"Deployment '{deployment_name}' is not ready in '{self.namespace}'"
+                status = deployment.status()
+                replicas = status.replicas
+                ready_replicas = status.ready_replicas
+                assert replicas == ready_replicas,  f"Deployment '{deployment_name}' status is not True in '{self.namespace}'"
 
     @pytest.mark.depends(on=['test_ns'])
     def test_statefulset(self, kube):
