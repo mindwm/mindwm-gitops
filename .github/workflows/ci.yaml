@@ -50,6 +50,21 @@ jobs:
       run: | 
         echo $CI_INSTANCE_IP
 
+    - name: Download file via SSH
+      uses: nicklasfrahm/scp-action@main
+      with:
+        direction: download
+        host: ${{ env.CI_INSTANCE_IP }}
+        insecure_ignore_fingerprint: true
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        source: /tmp/report.md
+        target: report.md
+
+    - name: print report.md
+      run: | 
+        cat report.md
+
     - name: terraform destroy
       if: always()
       working-directory: "${{ env.TF_DIR }}"
