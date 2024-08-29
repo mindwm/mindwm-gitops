@@ -65,19 +65,15 @@ jobs:
       run: | 
         cat results/report.md
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/github-script@v6
       with:
-        name: results
-        path: results
-    - uses: actions/download-artifact@v1
-      with:
-        name: results
-    - name: comment PR
-      uses: machine-learning-apps/pr-comment@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.MINDWM_TOKEN }}
-      with:
-        path: results/results.txt
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '👋 Thanks for reporting!'
+          })
 
     - name: terraform destroy
       if: always()
