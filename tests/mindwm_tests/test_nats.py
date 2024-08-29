@@ -7,6 +7,7 @@ nats_deployment = "nats-box"
 
 class Test_Nats(test_namespace):
     namespace = "nats"
+    deployment = [ "nats-box" ]
 
 #class Test_Nats(object):
 #    def test_ns(self, kube):
