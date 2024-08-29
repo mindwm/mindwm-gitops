@@ -1,5 +1,10 @@
 name: ci
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 on:
   pull_request:
     branches-ignore: [ "dev/*" ]
@@ -71,7 +76,6 @@ jobs:
       env:
         COMMENT_BODY: ${{env.REPORT_MD}}
       with:
-        github-token: ${{ secrets.MINDWM_TOKEN }}
         script: |
           github.rest.issues.createComment({
             issue_number: context.issue.number,
