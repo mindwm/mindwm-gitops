@@ -676,8 +676,10 @@ items = [
         filters = [{
           "all" = [
             { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
-            { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
-            #{ cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
+            { "any" = [
+              { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+              { cesql = "subject LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
+            ]}
           ]
         }]
         subscriber.ref = {
