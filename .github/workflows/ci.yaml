@@ -59,11 +59,25 @@ jobs:
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
         source: /tmp/report.md
-        target: report.md
+        target: results/report.md
 
     - name: print report.md
       run: | 
-        cat report.md
+        cat results/report.md
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: results
+        path: results
+    - uses: actions/download-artifact@v1
+      with:
+        name: results
+    - name: comment PR
+      uses: machine-learning-apps/pr-comment@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.MINDWM_TOKEN }}
+      with:
+        path: results/results.txt
 
     - name: terraform destroy
       if: always()
