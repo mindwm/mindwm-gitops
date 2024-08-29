@@ -17,7 +17,7 @@ class test_namespace():
                 status = deployment.status()
                 replicas = status.replicas
                 ready_replicas = status.ready_replicas
-                assert replicas == ready_replicas,  f"Deployment '{deployment_name}' status is not True in '{self.namespace}'"
+                assert replicas == ready_replicas,  f"Deployment '{deployment_name}' status is not True in '{self.namespace}', {replicas} != {ready_replicas}"
 
     @pytest.mark.depends(on=['test_ns'])
     def test_statefulset(self, kube):

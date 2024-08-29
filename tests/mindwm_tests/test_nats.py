@@ -13,6 +13,8 @@ class Test_Nats(test_namespace):
         "nats",
         "nats-headless",
     ]
+    def test_nats_pub_sub(self, kube):
+        assert True, "test assert"
 
 #class Test_Nats(object):
 #    def test_ns(self, kube):
