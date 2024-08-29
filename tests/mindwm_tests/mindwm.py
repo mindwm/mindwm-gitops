@@ -1,10 +1,11 @@
 import pytest
+import pprint
 
 class test_namespace(): 
     def test_ns(self, kube):
         namespaces = kube.get_namespaces()
         ns = namespaces.get(self.namespace)
-        assert ns is not None
+        assert ns is not None, f"Namespace '{namespace}' was not found in namespaces"
 
     @pytest.mark.depends(on=['test_ns'])
     def test_deployment(self, kube):
@@ -13,4 +14,5 @@ class test_namespace():
             for deployment_name in self.deployment:
                 deployment = deployments.get(deployment_name)
                 assert deployment is not None,  f"Deployment '{deployment_name}' was not found in namespace '{self.namespace}'"
+                assert deployment.is_ready() is not False,  f"Deployment '{deployment_name}' is not ready in '{self.namespace}'"
 
