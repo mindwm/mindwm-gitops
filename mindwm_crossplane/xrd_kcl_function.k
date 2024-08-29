@@ -520,7 +520,7 @@ items = [
                 { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
                 { "any" = [
                   { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
-                  { cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
+                  { cesql = "subject LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
                 ]}
             ]
           }]
