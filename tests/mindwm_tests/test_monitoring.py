@@ -12,4 +12,9 @@ class Test_Monitoring(test_namespace):
         "vmalert-vm-aio-victoria-metrics-k8s-stack",
         "vmsingle-vm-aio-victoria-metrics-k8s-stack"
     ]
+    statefulset = [ 
+        "tempo",
+        "loki",
+        "vmalertmanager-vm-aio-victoria-metrics-k8s-stack"
+    ]
 

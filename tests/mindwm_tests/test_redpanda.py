@@ -7,3 +7,4 @@ class Test_Redpanda(test_namespace):
         "neo4j-cdc-console",
         "redpanda-operator"
     ]
+    statefulset = [ "neo4j-cdc" ]
