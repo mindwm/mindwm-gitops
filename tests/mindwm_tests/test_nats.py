@@ -1,11 +1,17 @@
 import pytest
+import asyncio
+import pytest_asyncio
+import nats
+from nats.errors import ConnectionClosedError, TimeoutError, NoServersError
 from mindwm import test_namespace
 
 nats_namespace = "nats"
 nats_statefulset = "nats"
 nats_deployment = "nats-box"
 
+@pytest.mark.asyncio(loop_scope="class")
 class Test_Nats(test_namespace):
+    loop: asyncio.AbstractEventLoop
     namespace = "nats"
     deployment = [ "nats-box" ]
     statefulset = [ "nats" ]
@@ -13,31 +19,21 @@ class Test_Nats(test_namespace):
         "nats",
         "nats-headless",
     ]
-    def test_nats_pub_sub(self, kube):
-        assert True, "test assert"
+    @pytest.mark.depends(on=['Test_Nats::test_deployment'])
+    @pytest.mark.asyncio
+    async def test_nats_pub_sub(self, kube):
+        async def message_handler(msg):
+            print("XXX")
+        assert True
+        nc = await nats.connect("nats://demo.nats.io:4222")
+        #nc = await nats.connect("nats://176.124.198.10:4222")
+        sub = await nc.subscribe("foo", cb=message_handler) 
+        await sub.unsubscribe(limit=1)
+        await nc.publish("foo", b'Hello')
+        print("XXX")
+        #sub = await nc.subscribe("foo", cb=message_handler)
+        #await sub.unsubscribe(limit=1)
+        #await nc.publish("foo", b'Hello')
+        #await nc.publish("foo", b'Hello')
+        #await nc.publish("foo", b'Hello')
 
-#class Test_Nats(object):
-#    def test_ns(self, kube):
-#        namespaces = kube.get_namespaces()
-#        ns = namespaces.get(nats_namespace)
-#        assert ns is not None
-#
-#    @pytest.mark.depends(on=["test_ns"])
-#    def test_deployment(self, kube):
-#        deployments = kube.get_deployments(namespace=nats_namespace)
-#        nats_box = deployments.get(nats_deployment)
-#        assert nats_box is not None
-#        
-#    @pytest.mark.depends(on=["test_ns"])
-#    def test_statefulset(self, kube):
-#        statefulsets = kube.get_statefulsets(namespace=nats_namespace)
-#        nats = statefulsets.get(nats_statefulset)
-#        assert nats is not None
-#
-##
-##
-##def test_nats_namespace(kube):
-##    deployments = kube.get_deployments(namespace=nats_namespace)
-##    nats_box = deployments.get(nats_deployment)
-##    assert 0 and nats_box is not None
-##
