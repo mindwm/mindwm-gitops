@@ -24,3 +24,10 @@ class test_namespace():
                 statefulset = statefulsets.get(statefulset_name)
                 assert statefulset is not None, f"Statefulset '{statefulset_name}' was not found in namespace '{self.namespace}'"
                 assert statefulset.is_ready() is not False,  f"Statefulset '{statefulset_name}' is not ready in '{self.namespace}'"
+    @pytest.mark.depends(on=['test_ns', 'test_statefulset', 'test_deployment'])
+    def test_service(self, kube):
+        if hasattr(self, 'service'):
+            services = kube.get_services(self.namespace)
+            for service_name in self.service:
+                service = services.get(service_name)
+                assert service is not None, f"Service '{service_name}' was not found in namespace '{self.namespace}'"

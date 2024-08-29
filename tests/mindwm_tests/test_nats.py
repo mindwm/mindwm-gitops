@@ -9,6 +9,10 @@ class Test_Nats(test_namespace):
     namespace = "nats"
     deployment = [ "nats-box" ]
     statefulset = [ "nats" ]
+    service = [
+        "nats",
+        "nats-headless",
+    ]
 
 #class Test_Nats(object):
 #    def test_ns(self, kube):

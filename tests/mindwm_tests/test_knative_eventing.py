@@ -15,3 +15,16 @@ class Test_KnativeEventing(test_namespace):
         #"kafka-channel-dispatcher",
         "kafka-source-dispatcher"
     ]
+    service = [
+        "broker-filter",
+        "broker-ingress",
+        "eventing-webhook",
+        "imc-dispatcher",
+        "inmemorychannel-webhook",
+        "jetstream-ch-dispatcher",
+        "job-sink",
+        "kafka-broker-ingress",
+        "kafka-channel-ingress",
+        "kafka-webhook-eventing",
+        "nats-webhook",
+    ]

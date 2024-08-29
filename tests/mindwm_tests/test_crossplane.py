@@ -6,4 +6,11 @@ class Test_Crossplane(test_namespace):
     deployment = [
         "crossplane",
     ]
+    service = [
+        "crossplane-webhooks",
+        "function-auto-ready",
+        "function-kcl",
+        "provider-helm",
+        "provider-kubernetes",
+    ]
 
