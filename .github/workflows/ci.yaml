@@ -59,11 +59,11 @@ jobs:
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
         source: /tmp/report.md
-        target: results/report.md
+        target: report.md
 
     - name: print report.md
       run: | 
-        cat results/report.md
+        cat report.md
 
     - uses: actions/github-script@v6
       with:
