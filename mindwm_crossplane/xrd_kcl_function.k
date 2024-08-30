@@ -448,6 +448,42 @@ kind: InMemoryChannel
     } 
   }
 
+  # kafka_cdc
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.kafka_cdc.name)
+    spec.forProvider.manifest = knative_service.Service {
+      metadata = {
+        name = getData(ctx.kafka_cdc.name)
+        namespace = getData(ctx.namespace)
+      }
+      spec.template.spec.containers = [{
+          image = ctx.kafka_cdc.image
+          env = [
+            {
+              name = "NEO4J_URL"
+              value = getData(ctx.namespace) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+            }
+            {
+              name = "NEO4J_USERNAME"
+              value =  ctx.neo4j.username
+            }
+            {
+              name = "NEO4J_PASSWORD"
+              value = ctx.neo4j.password
+            }
+            {
+              name = "OTEL_EXPORTER_OTLP_ENDPOINT"
+              value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
+            }
+            {
+              name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+              value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
+            }
+          ] 
+      }]
+    } 
+  } 
+
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.gateway.name)
     spec.forProvider.manifest = istio_gateway.Gateway {
