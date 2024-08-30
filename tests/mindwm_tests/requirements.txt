@@ -1,4 +1,7 @@
 pytest-depends
 pytest-md-report
 pytest
+pytest-asyncio
+nats-py
+asyncio
 git+https://github.com/elapfra/kubetest/
