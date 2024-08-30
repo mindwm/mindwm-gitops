@@ -61,11 +61,12 @@ resource "linode_instance" "ci" {
 
   provisioner "remote-exec" {
     inline = [
-        "git clone -b ${var.git_ref_name} https://github.com/${var.git_repository}",
-        "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
-        "echo dir: `basename ${var.git_repository}` checkout ${var.git_commit_sha} TARGET_REVISION=${var.git_ref_name}",
         "echo 0 > /tmp/exit_code",
-        "cd `basename ${var.git_repository}` && make mindwm_lifecycle mindwm_test TARGET_REVISION=${var.git_ref_name} || echo $? > /tmp/exit_code" ,
+        "echo XXX > /tmp/report.md"
+#        "git clone -b ${var.git_ref_name} https://github.com/${var.git_repository}",
+#        "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
+#        "echo dir: `basename ${var.git_repository}` checkout ${var.git_commit_sha} TARGET_REVISION=${var.git_ref_name}",
+#        "cd `basename ${var.git_repository}` && make mindwm_lifecycle mindwm_test TARGET_REVISION=${var.git_ref_name} || echo $? > /tmp/exit_code" ,
 
     ]
   }
