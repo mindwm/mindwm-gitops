@@ -48,15 +48,18 @@ jobs:
 
     - name: set CI_INSTANCE_IP variable
       working-directory: "${{ env.TF_DIR }}"
+      if: always()
       run: |
         echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
     - name: show CI_INSTANCE_IP
+      if: always()
       run: | 
         echo $CI_INSTANCE_IP
 
     - name: Download file via SSH
       uses: nicklasfrahm/scp-action@main
+      if: always()
       with:
         direction: download
         host: ${{ env.CI_INSTANCE_IP }}
@@ -67,12 +70,14 @@ jobs:
         target: report.md
 
     - name: prepare env variable for report.md
+      if: always()
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
         cat report.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - uses: actions/github-script@v7
+      if: always()
       env:
         COMMENT_BODY: ${{env.REPORT_MD}}
       with:
