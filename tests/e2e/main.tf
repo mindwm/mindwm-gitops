@@ -61,7 +61,7 @@ resource "linode_instance" "ci" {
 
   provisioner "remote-exec" {
     inline = [
-        "echo 0 > /tmp/exit_code",
+        "echo 1 > /tmp/exit_code",
         "echo XXX > /tmp/report.md"
 #        "git clone -b ${var.git_ref_name} https://github.com/${var.git_repository}",
 #        "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
