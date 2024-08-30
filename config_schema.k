@@ -80,10 +80,6 @@ schema MindwmContext:
         name.data = "iocontext"
         image = "ghcr.io/mindwm/knfunc-io-context:latest"
     }
-    touch: KnativeFunction {
-        name.data = "mindwm-touch"
-        image = "ghcr.io/mindwm/mindwm-touch:latest"
-    }
     pong: KnativeFunction {
         name.data = "pong"
         image = "ghcr.io/mindwm/knfunc-pong:latest"
