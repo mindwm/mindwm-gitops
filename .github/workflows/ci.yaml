@@ -55,7 +55,7 @@ jobs:
       run: | 
         echo $CI_INSTANCE_IP
 
-    - name: Download file via SSH
+    - name: Download /tmp/report.md
       uses: nicklasfrahm/scp-action@main
       with:
         direction: download
@@ -63,10 +63,19 @@ jobs:
         insecure_ignore_fingerprint: true
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
-        source: 
-          - /tmp/report.md
-          - /tmp/exit_code
-        target: .
+        source: /tmp/report.md
+        target: report.md
+
+    - name: Download /tmp/exit_code
+      uses: nicklasfrahm/scp-action@main
+      with:
+        direction: download
+        host: ${{ env.CI_INSTANCE_IP }}
+        insecure_ignore_fingerprint: true
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        source: /tmp/exit_code
+        target: exit_code
 
     - name: prepare env variable for report.md
       run: | 
