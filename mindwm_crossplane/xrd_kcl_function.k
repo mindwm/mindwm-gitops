@@ -448,16 +448,16 @@ kind: InMemoryChannel
     } 
   }
 
-  # touch
+  # kafka_cdc
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(ctx, ctx.touch.name)
+    metadata.name = crossplaneResourceName(ctx, ctx.kafka_cdc.name)
     spec.forProvider.manifest = knative_service.Service {
       metadata = {
-        name = getData(ctx.touch.name)
+        name = getData(ctx.kafka_cdc.name)
         namespace = getData(ctx.namespace)
       }
       spec.template.spec.containers = [{
-          image = ctx.touch.image
+          image = ctx.kafka_cdc.image
           env = [
             {
               name = "NEO4J_URL"
@@ -483,35 +483,43 @@ kind: InMemoryChannel
       }]
     } 
   } 
-  # touch trigger
+
+  #kafka-cdc trigger
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(ctx, ctx.touch.name) + "-trigger"
+    metadata.name = crossplaneResourceName(ctx, ctx.kafka_cdc.name) + "-trigger"
     spec.forProvider.manifest = {
       apiVersion = "eventing.knative.dev/v1"
       kind = "Trigger"
       metadata = {
-        # TODO(@metacoma) fix -trigger
-        name = getData(ctx.touch.name) + "-trigger"
+        name = getData(ctx.kafka_cdc.name) + "-trigger"
         namespace = getData(ctx.namespace)
       }
       spec = {
         broker = getData(ctx.broker.name)
         delivery.deadLetterSink.ref = {
           apiVersion = "serving.knative.dev/v1"
-          kind = "Service" 
+          kind = "Service"
           name = getData(ctx.broker.deadLetter.name)
         }
         filters = [{
-          exact.type = "org.mindwm.v1.touch"
+          "all" = [
+            {
+              exact.type = "dev.knative.kafka.event"
+            }
+            {
+              "not" = { prefix.source = "org.mindwm" }
+            }
+          ]
         }]
         subscriber.ref = {
           apiVersion = "serving.knative.dev/v1"
           kind = "Service"
-          name = getData(ctx.touch.name)
+          name = getData(ctx.kafka_cdc.name)
         }
-      } 
-    } 
+      }
+    }
   }
+
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.gateway.name)
     spec.forProvider.manifest = istio_gateway.Gateway {
@@ -677,7 +685,6 @@ items = [
           filters = [{
             "any" = [
               {exact.type = "org.mindwm.v1.iodocument"}
-              {exact.type = "org.mindwm.v1.touch"}
               {exact.type = "org.mindwm.v1.clipboard"}
               {exact.type = "org.mindwm.v1.ping"}
             ]
@@ -835,7 +842,6 @@ items = [
           # TODO (@metacoma) use variables
           "any" = [
             {exact.type = "org.mindwm.v1.iodocument"}
-            {exact.type = "org.mindwm.v1.touch"}
             {exact.type = "org.mindwm.v1.clipboard"}
             {exact.type = "org.mindwm.v1.ping"}
           ]
