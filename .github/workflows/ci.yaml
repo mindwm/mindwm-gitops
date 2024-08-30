@@ -1,5 +1,10 @@
 name: ci
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 on:
   pull_request:
     branches-ignore: [ "dev/*" ]
@@ -40,6 +45,44 @@ jobs:
     - name: terraform apply
       working-directory: "${{ env.TF_DIR }}"
       run: terraform apply -auto-approve
+
+    - name: set CI_INSTANCE_IP variable
+      working-directory: "${{ env.TF_DIR }}"
+      run: |
+        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
+
+    - name: show CI_INSTANCE_IP
+      run: | 
+        echo $CI_INSTANCE_IP
+
+    - name: Download file via SSH
+      uses: nicklasfrahm/scp-action@main
+      with:
+        direction: download
+        host: ${{ env.CI_INSTANCE_IP }}
+        insecure_ignore_fingerprint: true
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        source: /tmp/report.md
+        target: report.md
+
+    - name: prepare env variable for report.md
+      run: | 
+        echo "REPORT_MD<<EOF" >> $GITHUB_ENV
+        cat report.md >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - uses: actions/github-script@v7
+      env:
+        COMMENT_BODY: ${{env.REPORT_MD}}
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: process.env.COMMENT_BODY
+          })
 
     - name: terraform destroy
       if: always()

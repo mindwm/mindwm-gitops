@@ -213,7 +213,7 @@ mindwm_test:
 	python3 -m venv .venv
 	source .venv/bin/activate
 	pip3 install -r ./requirements.txt
-	python3 -m pytest -s -v
+	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=/tmp/report.md .
 	
 mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources service_dashboard
 
