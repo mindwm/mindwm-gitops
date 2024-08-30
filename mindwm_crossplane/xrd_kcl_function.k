@@ -484,6 +484,42 @@ kind: InMemoryChannel
     } 
   } 
 
+  #kafka-cdc trigger
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.kafka_cdc.name) + "-trigger"
+    spec.forProvider.manifest = {
+      apiVersion = "eventing.knative.dev/v1"
+      kind = "Trigger"
+      metadata = {
+        name = getData(ctx.kafka_cdc.name) + "-trigger"
+        namespace = getData(ctx.namespace)
+      }
+      spec = {
+        broker = getData(ctx.broker.name)
+        delivery.deadLetterSink.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(ctx.broker.deadLetter.name)
+        }
+        filters = [{
+          "all" = [
+            {
+              exact.type = "dev.knative.kafka.event"
+            }
+            {
+              "not" = { prefix.source = "org.mindwm" }
+            }
+          ]
+        }]
+        subscriber.ref = {
+          apiVersion = "serving.knative.dev/v1"
+          kind = "Service"
+          name = getData(ctx.kafka_cdc.name)
+        }
+      }
+    }
+  }
+
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.gateway.name)
     spec.forProvider.manifest = istio_gateway.Gateway {
