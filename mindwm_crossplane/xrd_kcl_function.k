@@ -674,12 +674,14 @@ items = [
             kind = "Service" 
             name = getData(user.broker.deadLetter.name)
           }
-          filters = [
-            {exact.type = "org.mindwm.v1.iodocument"}
-            {exact.type = "org.mindwm.v1.touch"}
-            {exact.type = "org.mindwm.v1.clipboard"}
-            {exact.type = "org.mindwm.v1.ping"}
-          ]
+          filters = [{
+            "any" = [
+              {exact.type = "org.mindwm.v1.iodocument"}
+              {exact.type = "org.mindwm.v1.touch"}
+              {exact.type = "org.mindwm.v1.clipboard"}
+              {exact.type = "org.mindwm.v1.ping"}
+            ]
+          }]
           subscriber.ref = {
             apiVersion = "eventing.knative.dev/v1"
             kind = "Broker"
