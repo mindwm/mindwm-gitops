@@ -48,18 +48,15 @@ jobs:
 
     - name: set CI_INSTANCE_IP variable
       working-directory: "${{ env.TF_DIR }}"
-      if: always()
       run: |
         echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
     - name: show CI_INSTANCE_IP
-      if: always()
       run: | 
         echo $CI_INSTANCE_IP
 
-    - name: Download file via SSH
+    - name: Download /tmp/report.md
       uses: nicklasfrahm/scp-action@main
-      if: always()
       with:
         direction: download
         host: ${{ env.CI_INSTANCE_IP }}
@@ -69,15 +66,24 @@ jobs:
         source: /tmp/report.md
         target: report.md
 
+    - name: Download /tmp/exit_code
+      uses: nicklasfrahm/scp-action@main
+      with:
+        direction: download
+        host: ${{ env.CI_INSTANCE_IP }}
+        insecure_ignore_fingerprint: true
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        source: /tmp/exit_code
+        target: exit_code
+
     - name: prepare env variable for report.md
-      if: always()
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
         cat report.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - uses: actions/github-script@v7
-      if: always()
       env:
         COMMENT_BODY: ${{env.REPORT_MD}}
       with:
@@ -88,6 +94,10 @@ jobs:
             repo: context.repo.repo,
             body: process.env.COMMENT_BODY
           })
+
+    - name: return exit code
+      run: | 
+        exit `cat exit_code`
 
     - name: terraform destroy
       if: always()
