@@ -10,11 +10,11 @@ class Test_KnativeEventing(test_namespace):
         "jetstream-ch-controller",
         "kafka-controller"
     ]
-    statefulset = [ 
+    #statefulset = [ 
         #"kafka-broker-dispatcher",
         #"kafka-channel-dispatcher",
-        "kafka-source-dispatcher"
-    ]
+          #"kafka-source-dispatcher"
+    #]
     service = [
         "broker-filter",
         "broker-ingress",
