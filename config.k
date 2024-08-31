@@ -173,14 +173,18 @@ monitoring = {
     release_name = "loki"
   }
   tempo = {
+    url = "tempo.${mindwm_domain}"
+    virtual_service = "tempo-vs"
     release_name = "tempo"
+    destination = lambda {
+      "tempo"
+    }
   }
   grafana = {
     url = "grafana.${mindwm_domain}"
     virtual_service = "grafana-vs"
     destination = lambda {
       "${monitoring.victoria_metrics.release_name}-grafana"
-      #"vmsingle-${monitoring.victoria_metrics.release_name}-victoria-metrics-k8s-stack.${monitoring.namespace}.svc.cluster.local"
     }
   } 
   victoria_metrics = {
