@@ -198,13 +198,21 @@ service_dashboard:
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	export INGRESS_PORT=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
 	cat<<EOF
-	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.purple.$(DOMAIN) | sudo tee -a /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
 	http://argocd.$(DOMAIN):$$INGRESS_PORT
 	http://grafana.$(DOMAIN):$$INGRESS_PORT
 	http://vm.$(DOMAIN):$$INGRESS_PORT
-	http://neo4j.purple.$(DOMAIN):$$INGRESS_PORT
+	http://neo4j.$(CONTEXT_NAME).$(DOMAIN):$$INGRESS_PORT
 	nats://root:r00tpass@nats.$(DOMAIN):4222
 	EOF
+
+.ONESHELL: edit_hosts
+edit_hosts:	
+	export INGRESS_NAME=istio-ingressgateway
+	export INGRESS_NS=istio-system
+	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+	sudo sed -i -e '/$(DOMAIN)/d' /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
 
 .ONESHELL: mindwm_test
 .PHONY: mindwm_test
@@ -215,7 +223,7 @@ mindwm_test:
 	pip3 install -r ./requirements.txt
 	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=/tmp/report.md .
 	
-mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources service_dashboard
+mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts mindwm_resources service_dashboard
 
 
 
