@@ -55,7 +55,12 @@ schema MindwmUser:
 schema MindwmContext:
     name: ResourceNameStr
     namespace: ResourceNameStr = { data = "${contextPrefix}-${getData(name)}" }
-    broker: Broker { name.data = "context-broker"}
+    broker: Broker { 
+      name.data = "context-broker"
+      virtual_service = {
+        name.data = getData(name) + "-virtual-service"
+      } 
+    } 
     kafka: Kafka {}
     neo4j: Neo4j {}
     vector: Vector {}
@@ -98,6 +103,7 @@ schema Broker:
         { data = "${getData(brokerName)}-config" }
     })(name)
     deadLetter: DeadLetter { name.data = "dead-letter" }
+    virtual_service?: IstioVirtualService 
 
 schema DeadLetter:
     name: ResourceNameStr
@@ -147,4 +153,4 @@ schema IstioVirtualService:
 schema KnativeFunction:
     name: ResourceNameStr 
     image: str
-# ctx = MindwmContext { name.data = "pinkj" }
+ctx = MindwmContext { name.data = "pinkj" }
