@@ -223,16 +223,15 @@ edit_hosts:
 	sudo sed -i -e '/$(DOMAIN)/d' /etc/hosts
 	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
 
-.ONESHELL: mindwm_test
 .PHONY: mindwm_test
 mindwm_test:
-	export INGRESS_NAME=istio-ingressgateway
-	export INGRESS_NS=istio-system
-	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-	cd tests/mindwm_tests
-	python3 -m venv .venv
-	source .venv/bin/activate
-	pip3 install -r ./requirements.txt
+	$(eval ingress_host := $(shell docker run $(KUBECTL_RUN_OPTS) "kubectl -n istio-system get service "istio-ingressgateway" -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"))
+	cd tests/mindwm_tests && \
+	python3 -m venv .venv && \
+	source .venv/bin/activate && \
+	pip3 install -r ./requirements.txt && \
+	export INGRESS_HOST=$(ingress_host) && \
+	echo ingress_host = $$INGRESS_HOST && \
 	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=/tmp/report.md .
 	
 sleep-%:

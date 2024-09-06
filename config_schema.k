@@ -58,7 +58,7 @@ schema MindwmContext:
     broker: Broker { 
       name.data = "context-broker"
       virtual_service = {
-        name.data = getData(name) + "-virtual-service"
+        name.data = "broker-virtual-service"
       } 
     } 
     kafka: Kafka {}
