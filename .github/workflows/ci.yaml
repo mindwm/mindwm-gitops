@@ -83,6 +83,7 @@ jobs:
       if: always()
       continue-on-error: true
       with:
+        token: ${{ secrets.MINDWM_TOKEN }}
         repository: 'mindwm/mindwm.github.io'
         ref: master
         path: gh-pages
