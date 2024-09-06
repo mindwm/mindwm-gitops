@@ -109,7 +109,7 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.MINDWM_TOKEN }}
       with:
-        source-directory: gh-pages/allure-history 
+        source-directory: allure-history 
         destination-github-username: 'mindwm'
         destination-repository-name: 'mindwm.github.io'
         user-email: github-actions@github.com
