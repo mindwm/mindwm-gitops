@@ -19,6 +19,7 @@ env:
   TF_VAR_git_repository: "${{ github.event.pull_request.head.repo.full_name }}"
   TF_VAR_git_commit_sha: "${{ github.sha }}"
   TF_VAR_git_ref_name: "${{ github.event.pull_request.head.ref }}"
+  TV_VAR_artifact_dir: "/tmp/artifacts"
 
 jobs:
   ci:
@@ -55,7 +56,7 @@ jobs:
       run: | 
         echo $CI_INSTANCE_IP
 
-    - name: Download /tmp/report.md
+    - name: Download artifacts
       uses: nicklasfrahm/scp-action@main
       with:
         direction: download
@@ -63,24 +64,19 @@ jobs:
         insecure_ignore_fingerprint: true
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
-        source: /tmp/report.md
-        target: report.md
+        source: /tmp/artifacts.tar
+        target: artifacts.tar
 
-    - name: Download /tmp/exit_code
-      uses: nicklasfrahm/scp-action@main
-      with:
-        direction: download
-        host: ${{ env.CI_INSTANCE_IP }}
-        insecure_ignore_fingerprint: true
-        username: ci
-        key: ${{ secrets.CI_SSH_KEY }}
-        source: /tmp/exit_code
-        target: exit_code
+    - name: Unpack artifacts
+      run: |
+        mkdir artifacts
+        tar xvf artifacts.tar -C artifacts
+
 
     - name: prepare env variable for report.md
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
-        cat report.md >> $GITHUB_ENV
+        cat artifacts/report.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - uses: actions/github-script@v7
@@ -97,7 +93,7 @@ jobs:
 
     - name: return exit code
       run: | 
-        exit `cat exit_code`
+        exit `cat artifacts/exit_code`
 
     - name: terraform destroy
       if: always()
