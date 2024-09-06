@@ -18,6 +18,7 @@ verify_docker_api_server_version:
 	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';
 
 CONTEXT_NAME := pink
+USER_NAME := 
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
@@ -176,6 +177,13 @@ argocd_app: argocd
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
+# TODO(@metacoma) refact
+.ONESHELL: mindwm_resources_delete
+mindwm_resources_delete:
+	export CONTEXT_NAME=$(CONTEXT_NAME)
+	export HOST=`hostname -s`
+	cat resources/*.yaml | docker run -e CONTEXT_NAME -e USER -e HOST --rm -i bhgedigital/envsubst envsubst | $(KUBECTL_RUN) 'kubectl delete -f -'
+
 .ONESHELL: mindwm_resources
 mindwm_resources:
 	export CONTEXT_NAME=$(CONTEXT_NAME)
@@ -202,6 +210,7 @@ service_dashboard:
 	http://argocd.$(DOMAIN):$$INGRESS_PORT
 	http://grafana.$(DOMAIN):$$INGRESS_PORT
 	http://vm.$(DOMAIN):$$INGRESS_PORT
+	http://tempo.$(DOMAIN):$$INGRESS_PORT
 	http://neo4j.$(CONTEXT_NAME).$(DOMAIN):$$INGRESS_PORT
 	nats://root:r00tpass@nats.$(DOMAIN):4222
 	EOF
