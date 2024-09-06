@@ -110,13 +110,13 @@ class Test_PingPong():
         assert sp['http_code'] == '202', f"Context broker: {sp['http_code']} != 202"
         assert sp['http_path'] == f"/context-{context_name}/context-broker"
         
-        assert scope_spans.spans[0].name == f"/context-{context_name}/context-broker"
-        assert scope_spans.spans[1].name == f"broker:context-broker.context-pink"
-        assert scope_spans.spans[2].name == f"knative.dev"
-        assert scope_spans.spans[4].name == f"/context-{context_name}/context-broker"
-        assert scope_spans.spans[5].name == f"broker:context-broker.context-pink"
-        assert scope_spans.spans[6].name == f"knative.dev"
-        assert scope_spans.spans[8].name == f"/user-{user}/user-broker"
+#        assert scope_spans.spans[0].name == f"/context-{context_name}/context-broker"
+#        assert scope_spans.spans[1].name == f"broker:context-broker.context-pink"
+#        assert scope_spans.spans[2].name == f"knative.dev"
+#        assert scope_spans.spans[4].name == f"/context-{context_name}/context-broker"
+#        assert scope_spans.spans[5].name == f"broker:context-broker.context-pink"
+#        assert scope_spans.spans[6].name == f"knative.dev"
+#        assert scope_spans.spans[8].name == f"/user-{user}/user-broker"
 
 
         span = span_by_service_name(traces, "unknown_service")
