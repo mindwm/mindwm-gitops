@@ -317,6 +317,32 @@ kind: InMemoryChannel
       }]
     } 
   } 
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.broker.virtual_service.name)
+    spec.forProvider.manifest = istio_virtual_service.VirtualService {
+      metadata.name = getData(ctx.broker.virtual_service.name)
+      metadata.namespace = getData(ctx.namespace)
+      spec = {
+        # TODO @(metacoma) hardcode
+        hosts = [
+          "broker-ingress.knative-eventing.svc.cluster.local"
+        ]
+        # TODO @(metacoma) hardcode
+        gateways = [
+          "knative-serving/knative-ingress-gateway",
+          "knative-serving/knative-local-gateway"
+        ]
+        http = [{
+          match = [{ uri.regex = ".*"}]
+          route = [{
+            # TODO (@metacoma) hardcode
+            destination.host = "broker-ingress.knative-eventing.svc.cluster.local"
+            destination.port.number = 80 # TODO(@metacoma) hardcode
+          }]
+        }]
+      }
+    }
+  } 
   # io_context
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.io_context.name)

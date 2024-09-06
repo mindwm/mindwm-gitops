@@ -18,6 +18,7 @@ verify_docker_api_server_version:
 	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';
 
 CONTEXT_NAME := pink
+USER_NAME := 
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
@@ -176,6 +177,13 @@ argocd_app: argocd
 argocd_sync: argocd_app argocd_login
 	argocd app sync mindwm-gitops
 
+# TODO(@metacoma) refact
+.ONESHELL: mindwm_resources_delete
+mindwm_resources_delete:
+	export CONTEXT_NAME=$(CONTEXT_NAME)
+	export HOST=`hostname -s`
+	cat resources/*.yaml | docker run -e CONTEXT_NAME -e USER -e HOST --rm -i bhgedigital/envsubst envsubst | $(KUBECTL_RUN) 'kubectl delete -f -'
+
 .ONESHELL: mindwm_resources
 mindwm_resources:
 	export CONTEXT_NAME=$(CONTEXT_NAME)
@@ -198,24 +206,38 @@ service_dashboard:
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	export INGRESS_PORT=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
 	cat<<EOF
-	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.purple.$(DOMAIN) | sudo tee -a /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
 	http://argocd.$(DOMAIN):$$INGRESS_PORT
 	http://grafana.$(DOMAIN):$$INGRESS_PORT
 	http://vm.$(DOMAIN):$$INGRESS_PORT
-	http://neo4j.purple.$(DOMAIN):$$INGRESS_PORT
+	http://tempo.$(DOMAIN):$$INGRESS_PORT
+	http://neo4j.$(CONTEXT_NAME).$(DOMAIN):$$INGRESS_PORT
 	nats://root:r00tpass@nats.$(DOMAIN):4222
 	EOF
 
-.ONESHELL: mindwm_test
+.ONESHELL: edit_hosts
+edit_hosts:	
+	export INGRESS_NAME=istio-ingressgateway
+	export INGRESS_NS=istio-system
+	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+	sudo sed -i -e '/$(DOMAIN)/d' /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
+
 .PHONY: mindwm_test
 mindwm_test:
-	cd tests/mindwm_tests
-	python3 -m venv .venv
-	source .venv/bin/activate
-	pip3 install -r ./requirements.txt
+	$(eval ingress_host := $(shell docker run $(KUBECTL_RUN_OPTS) "kubectl -n istio-system get service "istio-ingressgateway" -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"))
+	cd tests/mindwm_tests && \
+	python3 -m venv .venv && \
+	source .venv/bin/activate && \
+	pip3 install -r ./requirements.txt && \
+	export INGRESS_HOST=$(ingress_host) && \
+	echo ingress_host = $$INGRESS_HOST && \
 	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=/tmp/report.md .
 	
-mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure mindwm_resources service_dashboard
+sleep-%:
+	sleep $(@:sleep-%=%)
+
+mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts mindwm_resources service_dashboard
 
 
 
