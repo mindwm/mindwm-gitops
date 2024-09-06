@@ -153,4 +153,4 @@ schema IstioVirtualService:
 schema KnativeFunction:
     name: ResourceNameStr 
     image: str
-ctx = MindwmContext { name.data = "pinkj" }
+#ctx = MindwmContext { name.data = "pink" }
