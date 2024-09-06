@@ -7,4 +7,5 @@ asyncio
 opentelemetry-proto
 opentelemetry-api
 opentelemetry-sdk
+allure-pytest
 git+https://github.com/elapfra/kubetest/

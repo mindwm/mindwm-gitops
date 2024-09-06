@@ -5,7 +5,7 @@ ARGOCD_HOST_PORT := 38080
 TARGET_REVISION := master
 TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(.+)/https:\/\/\1\/\2/')
 
-ARTIFACT_DIR := "/tmp/artifacts"
+ARTIFACT_DIR := /tmp/artifacts
 
 KUBECTL_RUN_OPTS := -i --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
 KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
@@ -233,7 +233,7 @@ mindwm_test:
 	pip3 install -r ./requirements.txt && \
 	export INGRESS_HOST=$(ingress_host) && \
 	echo ingress_host = $$INGRESS_HOST && \
-	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md .
+	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --alluredir $(ARTIFACT_DIR)/allure-results .
 	
 sleep-%:
 	sleep $(@:sleep-%=%)
