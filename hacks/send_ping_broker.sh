@@ -1,5 +1,5 @@
 HOST=`hostname -s`
-CONTEXT_NAME="cyan"
+CONTEXT_NAME="pink"
 
 export INGRESS_NAME=istio-ingressgateway
 export INGRESS_NS=istio-system
@@ -29,7 +29,7 @@ EOF
 payload | jq | curl \
     -vvvv \
     -XPOST  \
-    'http://176.124.198.10/context-cyan/context-broker'  \
+    "http://${INGRESS_HOST}/context-${context_name}/context-broker"  \
     -H "Host: broker-ingress.knative-eventing.svc.cluster.local" \
     -H "Content-Type: application/json" \
     -H "traceparent: $TRACEPARENT" \
@@ -42,5 +42,6 @@ payload | jq | curl \
 
 echo "try to curl $TRACE_ID"
 sleep 5
-curl -vvv -H 'Host: tempo.stg1.mindwm.local' http://${INGRESS_HOST}/api/traces/${TRACE_ID} | jq #| tee /tmp/answer.json
+#curl -vvv -H 'Host: tempo.mindwm.local' http://${INGRESS_HOST}/api/traces/${TRACE_ID} | jq #| tee /tmp/answer.json
+curl -vvv http://tempo.mindwm.local/api/traces/${TRACE_ID} | jq #| tee /tmp/answer.json
 #curl -vvv tempo.stg1.mindwm.local/api/traces/${TRACE_ID} #| jq #| tee /tmp/answer.json
