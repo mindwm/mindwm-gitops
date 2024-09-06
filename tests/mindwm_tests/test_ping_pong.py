@@ -82,11 +82,15 @@ class Test_PingPong():
     @pytest.mark.depends(on=['test_send_ping_context_broker'])
     def test_tracesql(self):
         # TODO(@metacoma) wait for resource
-        url = f"http://tempo.mindwm.local/api/traces/{trace_id}"
+        #url = f"http://tempo.mindwm.local/api/traces/{trace_id}"
+        url = f"http://{ingress_host}/api/traces/{trace_id}"
+        headers = {
+            "Host": "tempo.mindwm.local"
+        }
         print(f"request url {url}")
         time.sleep(5)
         # Perform the GET request
-        response = requests.get(url)
+        response = requests.get(url, headers = headers)
         print(f"Status Code: {response.status_code}")
         print(f"Headers: {response.headers}")
         #print(f"Response Text: {response.text}")
