@@ -226,12 +226,18 @@ edit_hosts:
 .ONESHELL: mindwm_test
 .PHONY: mindwm_test
 mindwm_test:
+	export INGRESS_NAME=istio-ingressgateway
+	export INGRESS_NS=istio-system
+	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	cd tests/mindwm_tests
 	python3 -m venv .venv
 	source .venv/bin/activate
 	pip3 install -r ./requirements.txt
 	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=/tmp/report.md .
 	
+sleep-%:
+	sleep $(@:sleep-%=%)
+
 mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts mindwm_resources service_dashboard
 
 
