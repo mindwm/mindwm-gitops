@@ -87,6 +87,10 @@ jobs:
         ref: master
         path: gh-pages
 
+    - name: List 1
+      run: |
+        find .
+
     - name: Build test report
       uses: simple-elf/allure-report-action@v1.7
       if: always()
@@ -94,14 +98,24 @@ jobs:
         gh_pages: gh-pages
         allure_history: allure-history
         allure_results: artifacts/allure-results
-      
-    - name: Publish test report
-      uses: peaceiris/actions-gh-pages@v3
-      if: always()
+
+    - name: List 2
+      run: |
+        find .
+
+    - name: Update mindwm.github.io
+      id: update_mindwm_github_io
+      uses: cpina/github-action-push-to-another-repository@target-branch
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.MINDWM_TOKEN }}
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_branch: master
-        publish_dir: allure-history
+        source-directory: gh-pages/allure-history 
+        destination-github-username: 'mindwm'
+        destination-repository-name: 'mindwm.github.io'
+        user-email: github-actions@github.com
+        commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+        target-branch: main
+        target-directory: allure-history
 
     - name: prepare env variable for report.md
       run: | 
