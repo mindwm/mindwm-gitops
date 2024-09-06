@@ -66,7 +66,7 @@ resource "linode_instance" "ci" {
         "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
         "echo dir: `basename ${var.git_repository}` checkout ${var.git_commit_sha} TARGET_REVISION=${var.git_ref_name}",
         "echo 0 > /tmp/exit_code",
-        "cd `basename ${var.git_repository}` && make mindwm_lifecycle sleep-180 mindwm_test TARGET_REVISION=${var.git_ref_name} || echo $? > /tmp/exit_code" ,
+        "cd `basename ${var.git_repository}` && make mindwm_lifecycle sleep-300 mindwm_test TARGET_REVISION=${var.git_ref_name} || echo $? > /tmp/exit_code" ,
     ]
   }
   metadata {
