@@ -4,4 +4,7 @@ pytest
 pytest-asyncio
 nats-py
 asyncio
+opentelemetry-proto
+opentelemetry-api
+opentelemetry-sdk
 git+https://github.com/elapfra/kubetest/
