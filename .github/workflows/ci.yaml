@@ -135,9 +135,27 @@ jobs:
         target-branch: main
         target-directory: /mindwm-gitops
 
+    - name: prepare env variable for report.md
+      run: | 
+        echo "REPORT_MD<<EOF" >> $GITHUB_ENV
+        cat artifacts/report.md >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - uses: actions/github-script@v7
+      env:
+        COMMENT_BODY: ${{env.REPORT_MD}}
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: process.env.COMMENT_BODY
+          })
+
     - name: return exit code
       run: | 
-        exit `cat exit_code`
+        exit `cat artifacts/exit_code`
 
     - name: terraform destroy
       if: always()
