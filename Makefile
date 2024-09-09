@@ -5,6 +5,7 @@ ARGOCD_HOST_PORT := 38080
 TARGET_REVISION := master
 TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(.+)/https:\/\/\1\/\2/')
 
+ARTIFACT_DIR := /tmp/artifacts
 
 KUBECTL_RUN_OPTS := -i --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
 KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
@@ -18,7 +19,6 @@ verify_docker_api_server_version:
 	docker version -f json | jq -e '.Server.ApiVersion | select(tonumber >= $(MIN_DOCKER_SERVER_VERSION))';
 
 CONTEXT_NAME := pink
-USER_NAME := 
 
 #helm upgrade --install --namespace argocd --create-namespace argocd argocd/argo-cd --set global.image.tag=v2.9.12 --set repoServer.extraArguments[0]="--repo-cache-expiration=1m",repoServer.extraArguments[1]="--default-cache-expiration=1m",repoServer.extraArguments[2]="--repo-server-timeout-seconds=240s"  --wait --timeout 5m && \
 
@@ -232,7 +232,7 @@ mindwm_test:
 	pip3 install -r ./requirements.txt && \
 	export INGRESS_HOST=$(ingress_host) && \
 	echo ingress_host = $$INGRESS_HOST && \
-	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=/tmp/report.md .
+	pytest -s --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --alluredir $(ARTIFACT_DIR)/allure-results .
 	
 sleep-%:
 	sleep $(@:sleep-%=%)

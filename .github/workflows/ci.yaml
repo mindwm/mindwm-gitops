@@ -19,11 +19,18 @@ env:
   TF_VAR_git_repository: "${{ github.event.pull_request.head.repo.full_name }}"
   TF_VAR_git_commit_sha: "${{ github.sha }}"
   TF_VAR_git_ref_name: "${{ github.event.pull_request.head.ref }}"
+  TV_VAR_artifact_dir: "/tmp/artifacts"
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: zulu
+        java-version: 17
+
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -51,22 +58,22 @@ jobs:
       run: |
         echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
+
     - name: show CI_INSTANCE_IP
       run: | 
         echo $CI_INSTANCE_IP
 
-    - name: Download /tmp/report.md
-      uses: nicklasfrahm/scp-action@main
-      with:
-        direction: download
-        host: ${{ env.CI_INSTANCE_IP }}
-        insecure_ignore_fingerprint: true
-        username: ci
-        key: ${{ secrets.CI_SSH_KEY }}
-        source: /tmp/report.md
-        target: report.md
+#    - name: executing remote ssh commands using ssh key
+#      uses: appleboy/ssh-action@v1.0.3
+#      with:
+#        host: ${{ env.CI_INSTANCE_IP }}
+#        username: ci
+#        key: ${{ secrets.CI_SSH_KEY }}
+#        script: |
+#          ls && cd mindwm-gitops && make mindwm_test
 
-    - name: Download /tmp/exit_code
+
+    - name: Download artifacts
       uses: nicklasfrahm/scp-action@main
       with:
         direction: download
@@ -74,13 +81,64 @@ jobs:
         insecure_ignore_fingerprint: true
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
-        source: /tmp/exit_code
-        target: exit_code
+        source: /tmp/artifacts.tar
+        target: artifacts.tar
+
+
+    - name: Unpack artifacts
+      run: |
+        mkdir artifacts
+        tar xvf artifacts.tar -C artifacts
+
+    - name: Load test report history
+      uses: actions/checkout@v4
+      if: always()
+      continue-on-error: true
+      with:
+        token: ${{ secrets.MINDWM_TOKEN }}
+        repository: 'mindwm/mindwm.github.io'
+        ref: main
+        path: gh-pages
+
+#    - name: List 1
+#      run: |
+#        find .
+
+    - name: Build test report
+      uses: simple-elf/allure-report-action@v1.7
+      if: always()
+      with:
+        gh_pages: gh-pages/mindwm-gitops
+        allure_history: allure-history
+        allure_report: allure-report
+        allure_results: artifacts/allure-results
+
+#    - name: List 2
+#      run: |
+#        find .
+
+    - name: git commit workaround
+      run: |
+        sudo rm -rf mindwm-gitops/allure-history/.git
+
+    - name: Update mindwm.github.io
+      id: update_mindwm_github_io
+      uses: cpina/github-action-push-to-another-repository@target-branch
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.MINDWM_TOKEN }}
+      with:
+        source-directory: allure-history
+        destination-github-username: 'mindwm'
+        destination-repository-name: 'mindwm.github.io'
+        user-email: github-actions@github.com
+        commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+        target-branch: main
+        target-directory: /mindwm-gitops
 
     - name: prepare env variable for report.md
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
-        cat report.md >> $GITHUB_ENV
+        cat artifacts/report.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - uses: actions/github-script@v7
@@ -97,7 +155,7 @@ jobs:
 
     - name: return exit code
       run: | 
-        exit `cat exit_code`
+        exit `cat artifacts/exit_code`
 
     - name: terraform destroy
       if: always()
