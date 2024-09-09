@@ -135,4 +135,3 @@ jobs:
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
         target-directory: /mindwm-gitops
-
