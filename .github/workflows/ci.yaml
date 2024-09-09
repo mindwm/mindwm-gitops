@@ -41,37 +41,36 @@ jobs:
       with:
         terraform_version: "1.1.7"
 
-#    - name: terraform init
-#      working-directory: "${{ env.TF_DIR }}"
-#      run: terraform init
-#
-#    - name: terraform plan
-#      working-directory: "${{ env.TF_DIR }}"
-#      run: terraform plan
-#
-#    - name: terraform apply
-#      working-directory: "${{ env.TF_DIR }}"
-#      run: terraform apply -auto-approve
+    - name: terraform init
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform init
+
+    - name: terraform plan
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform plan
+
+    - name: terraform apply
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform apply -auto-approve
 
     - name: set CI_INSTANCE_IP variable
       working-directory: "${{ env.TF_DIR }}"
       run: |
-        echo "CI_INSTANCE_IP=172.233.38.217" >> $GITHUB_ENV
+        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
-#        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
     - name: show CI_INSTANCE_IP
       run: | 
         echo $CI_INSTANCE_IP
 
-    - name: executing remote ssh commands using ssh key
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ env.CI_INSTANCE_IP }}
-        username: ci
-        key: ${{ secrets.CI_SSH_KEY }}
-        script: |
-          ls && cd mindwm-gitops && make mindwm_test
+#    - name: executing remote ssh commands using ssh key
+#      uses: appleboy/ssh-action@v1.0.3
+#      with:
+#        host: ${{ env.CI_INSTANCE_IP }}
+#        username: ci
+#        key: ${{ secrets.CI_SSH_KEY }}
+#        script: |
+#          ls && cd mindwm-gitops && make mindwm_test
 
 
     - name: Download artifacts
@@ -101,9 +100,9 @@ jobs:
         ref: main
         path: gh-pages
 
-    - name: List 1
-      run: |
-        find .
+#    - name: List 1
+#      run: |
+#        find .
 
     - name: Build test report
       uses: simple-elf/allure-report-action@v1.7
@@ -114,9 +113,9 @@ jobs:
         allure_report: allure-report
         allure_results: artifacts/allure-results
 
-    - name: List 2
-      run: |
-        find .
+#    - name: List 2
+#      run: |
+#        find .
 
     - name: git commit workaround
       run: |
@@ -135,3 +134,12 @@ jobs:
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
         target-directory: /mindwm-gitops
+
+    - name: return exit code
+      run: | 
+        exit `cat exit_code`
+
+    - name: terraform destroy
+      if: always()
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform destroy -auto-approve
