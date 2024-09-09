@@ -73,6 +73,7 @@ jobs:
         script: |
           ls && cd mindwm-gitops && make mindwm_test
 
+
     - name: Download artifacts
       uses: nicklasfrahm/scp-action@main
       with:
