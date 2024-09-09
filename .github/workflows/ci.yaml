@@ -134,7 +134,7 @@ jobs:
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: /
+        target-directory: allure-history
 
     - name: prepare env variable for report.md
       run: | 
