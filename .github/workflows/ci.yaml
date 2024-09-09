@@ -136,6 +136,7 @@ jobs:
         target-branch: main
         target-directory: mindwm-gitops
 
+
     - name: prepare env variable for report.md
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
