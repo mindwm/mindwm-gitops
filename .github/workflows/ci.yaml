@@ -133,7 +133,7 @@ jobs:
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: allure-history
+        target-directory: mindwm-gitops
 
     - name: prepare env variable for report.md
       run: | 
