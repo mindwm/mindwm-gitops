@@ -97,7 +97,7 @@ jobs:
       with:
         token: ${{ secrets.MINDWM_TOKEN }}
         repository: 'mindwm/mindwm.github.io'
-        ref: master
+        ref: main
         path: gh-pages
 
     - name: List 1
