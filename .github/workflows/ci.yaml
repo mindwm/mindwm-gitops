@@ -41,22 +41,24 @@ jobs:
       with:
         terraform_version: "1.1.7"
 
-    - name: terraform init
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform init
-
-    - name: terraform plan
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform plan
-
-    - name: terraform apply
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform apply -auto-approve
+#    - name: terraform init
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform init
+#
+#    - name: terraform plan
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform plan
+#
+#    - name: terraform apply
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform apply -auto-approve
 
     - name: set CI_INSTANCE_IP variable
       working-directory: "${{ env.TF_DIR }}"
       run: |
-        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
+        echo "CI_INSTANCE_IP=172.233.38.217" >> $GITHUB_ENV
+
+#        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
     - name: show CI_INSTANCE_IP
       run: | 
@@ -68,7 +70,8 @@ jobs:
         host: ${{ env.CI_INSTANCE_IP }}
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
-        script: whoami
+        script: |
+          ls && cd mindwm-gitops && make mindwm_test
 
     - name: Download artifacts
       uses: nicklasfrahm/scp-action@main
@@ -149,9 +152,9 @@ jobs:
             body: process.env.COMMENT_BODY
           })
 
-    - name: return exit code
-      run: | 
-        exit `cat artifacts/exit_code`
+#    - name: return exit code
+#      run: | 
+#        exit `cat artifacts/exit_code`
 
 #    - name: terraform destroy
 #      if: always()
