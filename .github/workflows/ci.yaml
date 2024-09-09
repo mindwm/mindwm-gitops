@@ -113,6 +113,10 @@ jobs:
       run: |
         find .
 
+    - name: git commit workaround
+      run: |
+        rm -rf allure-history/.git
+
     - name: Update mindwm.github.io
       id: update_mindwm_github_io
       uses: cpina/github-action-push-to-another-repository@target-branch
