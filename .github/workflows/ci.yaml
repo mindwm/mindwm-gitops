@@ -110,7 +110,7 @@ jobs:
       if: always()
       with:
         gh_pages: gh-pages
-        allure_history: mindwm-gitops
+        allure_history: mindwm-gitops/allure-history
         allure_report: allure-report
         allure_results: artifacts/allure-results
 
@@ -134,5 +134,5 @@ jobs:
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: /
+        target-directory: /mindwm-gitops
 
