@@ -110,7 +110,7 @@ jobs:
       if: always()
       with:
         gh_pages: gh-pages
-        allure_history: allure-history
+        allure_history: mindwm-gitops/allure-history
         allure_results: artifacts/allure-results
 
     - name: List 2
@@ -119,7 +119,7 @@ jobs:
 
     - name: git commit workaround
       run: |
-        sudo rm -rf allure-history/.git
+        sudo rm -rf mindwm-gitops/allure-history/.git
 
     - name: Update mindwm.github.io
       id: update_mindwm_github_io
@@ -127,7 +127,7 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.MINDWM_TOKEN }}
       with:
-        source-directory: allure-history 
+        source-directory: mindwm-gitops/allure-history 
         destination-github-username: 'mindwm'
         destination-repository-name: 'mindwm.github.io'
         user-email: github-actions@github.com
