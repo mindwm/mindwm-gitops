@@ -104,7 +104,6 @@ jobs:
       run: |
         find .
 
-
     - name: Build test report
       uses: simple-elf/allure-report-action@v1.7
       if: always()
