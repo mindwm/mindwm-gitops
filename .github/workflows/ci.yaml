@@ -157,7 +157,7 @@ jobs:
       run: | 
         exit `cat artifacts/exit_code`
 
-    - name: terraform destroy
-      if: always()
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform destroy -auto-approve
+#    - name: terraform destroy
+#      if: always()
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform destroy -auto-approve
