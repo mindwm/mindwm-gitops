@@ -38,27 +38,26 @@ jobs:
         ref: ${{github.event.pull_request.head.ref}}
         repository: ${{github.event.pull_request.head.repo.full_name}}
 
-#    - uses: hashicorp/setup-terraform@v3
-#      with:
-#        terraform_version: "1.1.7"
-#
-#    - name: terraform init
-#      working-directory: "${{ env.TF_DIR }}"
-#      run: terraform init
-#
-#    - name: terraform plan
-#      working-directory: "${{ env.TF_DIR }}"
-#      run: terraform plan
-#
-#    - name: terraform apply
-#      working-directory: "${{ env.TF_DIR }}"
-#      run: terraform apply -auto-approve
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.1.7"
+
+    - name: terraform init
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform init
+
+    - name: terraform plan
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform plan
+
+    - name: terraform apply
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform apply -auto-approve
 
     - name: set CI_INSTANCE_IP variable
       working-directory: "${{ env.TF_DIR }}"
       run: |
-        echo "CI_INSTANCE_IP=172.233.58.196" >> $GITHUB_ENV
-#        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
+        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
 
     - name: show CI_INSTANCE_IP
@@ -175,7 +174,7 @@ jobs:
       run: | 
         exit `cat artifacts/exit_code`
 
-#    - name: terraform destroy
-#      if: always()
-#      working-directory: "${{ env.TF_DIR }}"
-#      run: terraform destroy -auto-approve
+    - name: terraform destroy
+      if: always()
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform destroy -auto-approve
