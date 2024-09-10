@@ -12,11 +12,11 @@ import uuid
 import random
 from opentelemetry.proto.trace.v1 import trace_pb2
 from google.protobuf.json_format import ParseDict
+import pprint
 
 nats_namespace = "nats"
 nats_statefulset = "nats"
 nats_deployment = "nats-box"
-
 
 
 payload = {
@@ -32,7 +32,7 @@ user = os.getenv("USER")
 host = os.getenv("HOST")
 context_name = "pink"
 
-ingress_host = os.getenv("INGRESS_HOST", "10.24.142.129")
+#ingress_host = os.getenv("INGRESS_HOST", "10.24.142.129")
 
 def get_service_name(span):
     return next(attr.value.string_value for attr in span.resource.attributes if attr.key == "service.name")
@@ -59,7 +59,19 @@ def generate_traceparent(_trace_id):
     return traceparent
 
 class Test_PingPong():
-    def test_send_ping_context_broker(self):
+    def get_lb(self, kube):
+        services = kube.get_services("istio-system")
+        lb_service = services.get("istio-ingressgateway")
+        #pprint.pprint(lb_service.status.load_balancer)
+        assert lb_service is not None
+        lb_ip = lb_service.status().load_balancer.ingress[0].ip
+        assert lb_ip is not None
+        return lb_ip
+
+        pprint.pprint(service)
+        assert False
+    def test_send_ping_context_broker(self, kube):
+        ingress_host = self.get_lb(kube)
         trace_parent = generate_traceparent(trace_id) 
         url = f"http://{ingress_host}/context-{context_name}/context-broker"
         print(f"Send ping through the context-{context_name} broker {url} traceid: {trace_id}, traceparent: {trace_parent}")
@@ -80,9 +92,10 @@ class Test_PingPong():
         assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
 
     @pytest.mark.depends(on=['test_send_ping_context_broker'])
-    def test_tracesql(self):
+    def test_tracesql(self,kube):
         # TODO(@metacoma) wait for resource
         #url = f"http://tempo.mindwm.local/api/traces/{trace_id}"
+        ingress_host = self.get_lb(kube)
         url = f"http://{ingress_host}/api/traces/{trace_id}"
         headers = {
             "Host": "tempo.mindwm.local"
