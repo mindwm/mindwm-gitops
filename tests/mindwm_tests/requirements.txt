@@ -7,4 +7,5 @@ opentelemetry-proto
 opentelemetry-api
 opentelemetry-sdk
 allure-pytest
+pytest-order
 git+https://github.com/elapfra/kubetest/
