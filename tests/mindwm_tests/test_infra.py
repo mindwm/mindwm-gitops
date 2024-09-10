@@ -1,5 +1,6 @@
 import pytest
 import subprocess
+import allure
 
 
 @pytest.mark.e2e
