@@ -232,7 +232,7 @@ mindwm_test:
 	pip3 install -r ./requirements.txt && \
 	export INGRESS_HOST=$(ingress_host) && \
 	echo ingress_host = $$INGRESS_HOST && \
-	pytest -s -m mindwm-gitops --md-report --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --alluredir $(ARTIFACT_DIR)/allure-results test_infra.py
+	pytest -s --md-report --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --alluredir $(ARTIFACT_DIR)/allure-results .
 	
 sleep-%:
 	sleep $(@:sleep-%=%)
