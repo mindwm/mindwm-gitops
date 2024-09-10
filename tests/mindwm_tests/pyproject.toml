@@ -1,5 +1,4 @@
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
 addopts = [
     "--kube-config=~/.kube/config",
 ]
