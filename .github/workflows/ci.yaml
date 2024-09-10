@@ -63,7 +63,7 @@ jobs:
       run: | 
         echo $CI_INSTANCE_IP
 
-    - name: executing remote ssh commands using ssh key
+    - name: run pytests
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ env.CI_INSTANCE_IP }}
