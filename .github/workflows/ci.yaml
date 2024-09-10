@@ -72,11 +72,13 @@ jobs:
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
         script: |
+          echo 0 > ${{ env.TV_VAR_artifact_dir }}/exit_code
           test -d ~/.kube || mkdir ~/.kube
           test -d mindwm-gitops && rm -rf mindwm-gitops
           git clone -b "${{ github.event.pull_request.head.ref }}" https://github.com/${{ github.event.pull_request.head.repo.full_name }}
           cd mindwm-gitops 
           make mindwm_test 
+          echo $? > ${{ env.TV_VAR_artifact_dir }}/exit_code
           cd ${{ env.TV_VAR_artifact_dir }}
           tar cvf /tmp/artifacts.tar . 
 

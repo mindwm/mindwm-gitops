@@ -3,7 +3,7 @@ import subprocess
 
 
 @pytest.mark.e2e
-class TestClass:
+class TestCInfra:
     def run_cmd(self, cmd):
         try:
             result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd="../../")
@@ -39,3 +39,7 @@ class TestClass:
     @pytest.mark.depends(on=['test_crossplane_rolebinding_workaround'])
     def test_argocd_apps_ensure(self):
         self.run_cmd("make argocd_apps_ensure")
+
+    @pytest.mark.depends(on=['test_argocd_apps_ensure'])
+    def test_mindwm_resoures(self):
+        self.run_cmd("make mindwm_resources")
