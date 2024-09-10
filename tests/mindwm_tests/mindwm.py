@@ -1,13 +1,16 @@
 import pytest
 import pprint
 
+#@pytest.mark.dependency(depends=['argocd_apps_ensure'])
 class test_namespace(): 
+    @pytest.mark.dependency(name = "ns", depends=['argocd_apps_ensure'], scope = 'session')
+    #@pytest.mark.dependency(name = "ns", scope = 'session')
     def test_ns(self, kube):
         namespaces = kube.get_namespaces()
         ns = namespaces.get(self.namespace)
         assert ns is not None, f"Namespace '{namespace}' was not found in namespaces"
 
-    @pytest.mark.depends(on=['test_ns'])
+    @pytest.mark.dependency(name = "deployment", depends=['ns'], scope = 'session')
     def test_deployment(self, kube):
         if hasattr(self, 'deployment'):
             deployments = kube.get_deployments(self.namespace)
@@ -19,7 +22,7 @@ class test_namespace():
                 ready_replicas = status.ready_replicas
                 assert replicas == ready_replicas,  f"Deployment '{deployment_name}' status is not True in '{self.namespace}', {replicas} != {ready_replicas}"
 
-    @pytest.mark.depends(on=['test_ns'])
+    @pytest.mark.dependency(name = "statefulset", depends=['ns'], scope = 'session')
     def test_statefulset(self, kube):
         if hasattr(self, 'statefulset'):
             statefulsets = kube.get_statefulsets(self.namespace)
@@ -27,7 +30,8 @@ class test_namespace():
                 statefulset = statefulsets.get(statefulset_name)
                 assert statefulset is not None, f"Statefulset '{statefulset_name}' was not found in namespace '{self.namespace}'"
                 assert statefulset.is_ready() is not False,  f"Statefulset '{statefulset_name}' is not ready in '{self.namespace}'"
-    @pytest.mark.depends(on=['test_ns', 'test_statefulset', 'test_deployment'])
+    @pytest.mark.dependency(depends=['test_ns', 'test_statefulset', 'test_deployment'])
+    @pytest.mark.dependency(name = "service", depends=['ns'], scope = 'session')
     def test_service(self, kube):
         if hasattr(self, 'service'):
             services = kube.get_services(self.namespace)

@@ -1,5 +1,6 @@
 name: ci
 
+
 permissions:
   contents: write
   issues: write
@@ -37,44 +38,59 @@ jobs:
         ref: ${{github.event.pull_request.head.ref}}
         repository: ${{github.event.pull_request.head.repo.full_name}}
 
-    - uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.1.7"
-
-    - name: terraform init
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform init
-
-    - name: terraform plan
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform plan
-
-    - name: terraform apply
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform apply -auto-approve
+#    - uses: hashicorp/setup-terraform@v3
+#      with:
+#        terraform_version: "1.1.7"
+#
+#    - name: terraform init
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform init
+#
+#    - name: terraform plan
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform plan
+#
+#    - name: terraform apply
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform apply -auto-approve
 
     - name: set CI_INSTANCE_IP variable
       working-directory: "${{ env.TF_DIR }}"
       run: |
-        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
+        echo "CI_INSTANCE_IP=172.233.58.196" >> $GITHUB_ENV
+#        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
 
 
     - name: show CI_INSTANCE_IP
       run: | 
         echo $CI_INSTANCE_IP
 
-#    - name: executing remote ssh commands using ssh key
-#      uses: appleboy/ssh-action@v1.0.3
-#      with:
-#        host: ${{ env.CI_INSTANCE_IP }}
-#        username: ci
-#        key: ${{ secrets.CI_SSH_KEY }}
-#        script: |
-#          ls && cd mindwm-gitops && make mindwm_test
+    - name: run pytests
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.CI_INSTANCE_IP }}
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        command_timeout: 60m
+        script: |
+          test -d ${{ env.TV_VAR_artifact_dir }} &&  rm -rfv ${{ env.TV_VAR_artifact_dir }}
+          mkdir -p ${{ env.TV_VAR_artifact_dir }}
+          echo 0 > ${{ env.TV_VAR_artifact_dir }}/exit_code
+          test -d ~/.kube || mkdir ~/.kube
+          test -d mindwm-gitops && rm -rf mindwm-gitops
+          git clone -b "${{ github.event.pull_request.head.ref }}" https://github.com/${{ github.event.pull_request.head.repo.full_name }}
+          cd mindwm-gitops 
+          export KUBECONFIG=${HOME}/.kube/config
+          make mindwm_test 
+          echo $? > ${{ env.TV_VAR_artifact_dir }}/exit_code
+          cd ${{ env.TV_VAR_artifact_dir }}
+          tar cvf /tmp/artifacts.tar . 
 
 
     - name: Download artifacts
       uses: nicklasfrahm/scp-action@main
+      if: always()
+      continue-on-error: true
       with:
         direction: download
         host: ${{ env.CI_INSTANCE_IP }}
@@ -86,6 +102,8 @@ jobs:
 
 
     - name: Unpack artifacts
+      if: always()
+      continue-on-error: true
       run: |
         mkdir artifacts
         tar xvf artifacts.tar -C artifacts
@@ -157,7 +175,7 @@ jobs:
       run: | 
         exit `cat artifacts/exit_code`
 
-    - name: terraform destroy
-      if: always()
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform destroy -auto-approve
+#    - name: terraform destroy
+#      if: always()
+#      working-directory: "${{ env.TF_DIR }}"
+#      run: terraform destroy -auto-approve
