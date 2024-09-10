@@ -74,7 +74,7 @@ jobs:
         script: |
           test -d ~/.kube || mkdir ~/.kube
           test -d mindwm-gitops && rm -rf mindwm-gitops
-         git clone -b "${{ github.event.pull_request.head.ref }}" https://github.com/${{ github.event.pull_request.head.repo.full_name }}
+          git clone -b "${{ github.event.pull_request.head.ref }}" https://github.com/${{ github.event.pull_request.head.repo.full_name }}
           cd mindwm-gitops 
           make mindwm_test 
           cd ${{ env.TV_VAR_artifact_dir }}
