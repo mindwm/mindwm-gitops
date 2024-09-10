@@ -74,6 +74,7 @@ jobs:
         command_timeout: 60m
         script: |
           test -d ${{ env.TV_VAR_artifact_dir }} &&  rm -rfv ${{ env.TV_VAR_artifact_dir }}
+          mkdir -p ${{ env.TV_VAR_artifact_dir }}
           echo 0 > ${{ env.TV_VAR_artifact_dir }}/exit_code
           test -d ~/.kube || mkdir ~/.kube
           test -d mindwm-gitops && rm -rf mindwm-gitops
