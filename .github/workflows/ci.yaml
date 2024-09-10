@@ -63,14 +63,17 @@ jobs:
       run: | 
         echo $CI_INSTANCE_IP
 
-#    - name: executing remote ssh commands using ssh key
-#      uses: appleboy/ssh-action@v1.0.3
-#      with:
-#        host: ${{ env.CI_INSTANCE_IP }}
-#        username: ci
-#        key: ${{ secrets.CI_SSH_KEY }}
-#        script: |
-#          ls && cd mindwm-gitops && make mindwm_test
+    - name: executing remote ssh commands using ssh key
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.CI_INSTANCE_IP }}
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        script: |
+          cd mindwm-gitops 
+          make mindwm_test 
+          cd ${{ env.TV_VAR_artifact_dir }}
+          tar cvf /tmp/artifacts.tar . 
 
 
     - name: Download artifacts
