@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 ARGOCD_HOST_PORT := 38080
 
-TARGET_REVISION := master
+TARGET_REVISION := $(shell git branch ls --show-current)
 TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(.+)/https:\/\/\1\/\2/')
 
 ARTIFACT_DIR := /tmp/artifacts
