@@ -1,19 +1,27 @@
 import pytest
-from mindwm import test_namespace
+from object_mindwm_context import MindwmContext
+from kubetest.condition import Condition
+from kubetest.utils import wait_for_condition
+from kubetest.objects import Namespace
+import kubernetes_utils
 
-#context_name = "cyan"
-#
-#class Test_MindwmContext(test_namespace):
-#    namespace = f"context-{context_name}"
-#    deployment = [
-#        "dead-letter-00001-deployment",
-#        "io-context-00001-deployment",
-#        "kafka-cdc-00001-deployment",
-#        "pong-00001-deployment",
-#    ]
-#    services = [
-#        "io-context",
-#        "dead-letter",
-#        "pong",
-#        "kafka-cdc",
-#    ] 
+test_context_name = "pink"
+
+class Test_MindwContext():
+    @pytest.mark.dependency(name = "test_crd_status")
+    def test_crd_status(self, kube):
+        self.ctx = MindwmContext(test_context_name)
+        self.ctx.create()
+        wait_for_condition(Condition("wait for context is ready", self.ctx.status), 60)
+    @pytest.mark.dependency(name = "context_namespace", on=["crd_status"])
+    def test_context_namespace(self, kube):
+        wait_for_condition(Condition("wait for namespace", kubernetes_utils.wait_for_namespace, kube, "context-pink"), 5)
+        wait_for_condition(Condition("wait for namespace is ready", kubernetes_utils.wait_for_namespace_is_ready, kube, "context-pink"), 5)
+
+    @pytest.mark.dependency(name = "context_broker", on=["context_namespace"])
+    def test_context_broker(self, kube):
+        wait_for_condition(Condition("wait for context broker", kubernetes_utils.wait_for_broker, kube, "context-broker", "context-pink"), 5)
+        #wait_for_condition(Condition("wait for context broker is ready", kubernetes_utils.wait_for_broker_is_ready, kube, "context-broker", "context-pink"), 5)
+        
+
+

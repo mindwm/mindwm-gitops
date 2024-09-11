@@ -43,14 +43,3 @@ class TestInfra(object):
     @pytest.mark.dependency( name = 'crossplane_rolebinding_workaround', depends=['argocd_app_async_wait'], scope = "session")
     def test_crossplane_rolebinding_workaround(self):
         self.run_cmd("make crossplane_rolebinding_workaround")
-
-    @allure.story('Verify that everthing is green in argocd')
-    @pytest.mark.dependency( name = 'argocd_apps_ensure', depends=['crossplane_rolebinding_workaround'], scope = "session")
-    def test_argocd_apps_ensure(self):
-        self.run_cmd("make argocd_apps_ensure")
-
-    @allure.story('Create mindwm resources, context, user, host')
-    @pytest.mark.dependency( name = 'mindwm_resoures', depends=['argocd_apps_ensure'], scope = "session")
-    def test_mindwm_resoures(self):
-        self.run_cmd("make mindwm_resources")
-
