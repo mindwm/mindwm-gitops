@@ -12,10 +12,6 @@ from kubetest.condition import Condition
 from kubetest.utils import wait_for_condition
 
 #log = logging.getLogger("kubetest")
-kubernetes.config.load_kube_config()
-DYNAMIC_CLIENT = kubernetes.dynamic.DynamicClient(
-    kubernetes.client.api_client.ApiClient()
-)
 
 class MindwmContext():
     manifest = kubernetes_utils.load_file("context.yaml")
@@ -26,18 +22,21 @@ class MindwmContext():
         self.namespace = namespace
         self.name = context_name
     def create(self):
-        print("Create")
         pprint.pprint(self.manifest)
-        kubernetes_utils.apply_simple_item(DYNAMIC_CLIENT, self.manifest)
+        kubernetes_utils.apply_simple_item(self.manifest)
     def delete(self):
         print("Delete")
-        kubernetes_utils.delete_simple_item(DYNAMIC_CLIENT, self.manifest)
+        kubernetes_utils.delete_simple_item(self.manifest)
 
     def status(self):
         api_version = self.manifest.get("apiVersion")
         kind = self.manifest.get("kind")
         resource_name = self.manifest.get("metadata").get("name")
-        crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
+        kubernetes.config.load_kube_config()
+        dynamic_client = kubernetes.dynamic.DynamicClient(
+            kubernetes.client.api_client.ApiClient()
+        )
+        crd_api = dynamic_client.resources.get(api_version=api_version, kind=kind)
         try:
             crd_api.get(namespace=self.namespace, name=resource_name)
             crd_resource = crd_api.get(namespace=self.namespace, name=resource_name)

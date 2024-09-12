@@ -6,12 +6,12 @@ import yaml
 import pprint
 import json
 
-kubernetes.config.load_kube_config()
-DYNAMIC_CLIENT = kubernetes.dynamic.DynamicClient(
-    kubernetes.client.api_client.ApiClient()
-)
+def apply_simple_item(manifest: dict, verbose: bool=False):
+    kubernetes.config.load_kube_config()
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
 
-def apply_simple_item(dynamic_client: kubernetes.dynamic.DynamicClient, manifest: dict, verbose: bool=False):
     api_version = manifest.get("apiVersion")
     kind = manifest.get("kind")
     resource_name = manifest.get("metadata").get("name")
@@ -30,7 +30,11 @@ def apply_simple_item(dynamic_client: kubernetes.dynamic.DynamicClient, manifest
             print(f"{namespace}/{resource_name} created")
         return crd_api
 
-def delete_simple_item(dynamic_client: kubernetes.dynamic.DynamicClient, manifest: dict, verbose: bool=False):
+def delete_simple_item(manifest: dict, verbose: bool=False):
+    kubernetes.config.load_kube_config()
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
     api_version = manifest.get("apiVersion")
     kind = manifest.get("kind")
     resource_name = manifest.get("metadata").get("name")
@@ -44,11 +48,6 @@ def delete_simple_item(dynamic_client: kubernetes.dynamic.DynamicClient, manifes
         print("Error")
 
         
-
-def apply_simple_item_from_yaml(dynamic_client: kubernetes.dynamic.DynamicClient, filepath: pathlib.Path, verbose: bool=False):
-    with open(filepath, 'r') as f:
-        manifest = yaml.safe_load(f)
-        apply_simple_item(dynamic_client=dynamic_client, manifest=manifest, verbose=verbose)
 
 def load_file(filepath: str):
     with open(filepath, "r") as f:
@@ -73,7 +72,11 @@ def wait_for_broker(kube, broker_name, namespace):
     kind = "Broker"
     resource_name = broker_name
     namespace = namespace
-    crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
+    kubernetes.config.load_kube_config()
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
+    dynamic_client.resources.get(api_version=api_version, kind=kind)
     try:
         crd_api.get(namespace=namespace, name=resource_name)
         return True
@@ -85,7 +88,11 @@ def wait_for_broker_is_ready(kube, broker_name, namespace):
     kind = "Broker"
     resource_name = broker_name
     namespace = namespace
-    crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
+    kubernetes.config.load_kube_config()
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
+    crd_api = dynamic_client.resources.get(api_version=api_version, kind=kind)
     broker = crd_api.get(namespace=namespace, name=resource_name)
     pprint.pprint(broker.status)
 
@@ -103,7 +110,10 @@ def wait_for_kafka_source(kube, kafka_source_name, namespace):
     kind = "KafkaSource"
     resource_name = kafka_source_name 
     namespace = namespace
-    crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
+    crd_api = dynamic_client.resources.get(api_version=api_version, kind=kind)
     try:
         crd_api.get(namespace=namespace, name=resource_name)
         return True
@@ -117,7 +127,10 @@ def wait_for_kafka_source_is_ready(kube, kafka_source_name, namespace):
     kind = "KafkaSource"
     resource_name = kafka_source_name 
     namespace = namespace
-    crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
+    crd_api = dynamic_client.resources.get(api_version=api_version, kind=kind)
     resource = crd_api.get(namespace=namespace, name=resource_name)
     pprint.pprint(resource.status)
 
@@ -130,7 +143,11 @@ def wait_for_kafka_source_is_ready(kube, kafka_source_name, namespace):
     return True
 
 def wait_for_resource(kube, resourceSpec, namespace):
-    crd_api = DYNAMIC_CLIENT.resources.get(api_version=resourceSpec['apiVersion'], kind=resourceSpec['kind'])
+    namespace = namespace
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
+    crd_api = dynamic_client.resources.get(api_version=resourceSpec['apiVersion'], kind=resourceSpec['kind'])
     try:
         crd_api.get(namespace=namespace, name=resourceSpec['name'])
         return True
@@ -138,7 +155,11 @@ def wait_for_resource(kube, resourceSpec, namespace):
         return False
 
 def wait_for_resource_is_ready(kube, resourceSpec, namespace):
-    crd_api = DYNAMIC_CLIENT.resources.get(api_version=resourceSpec['apiVersion'], kind=resourceSpec['kind'])
+    namespace = namespace
+    dynamic_client = kubernetes.dynamic.DynamicClient(
+        kubernetes.client.api_client.ApiClient()
+    )
+    crd_api = dynamic_client.resources.get(api_version=resourceSpec['apiVersion'], kind=resourceSpec['kind'])
     resource = crd_api.get(namespace=namespace, name=resourceSpec['name'])
     for status_type in resourceSpec['status_types']:
         status = [item for item in resource.status.conditions if item['type'] == status_type]
