@@ -1,6 +1,7 @@
 import pytest
 from mindwm import test_namespace
 
+@pytest.mark.dependency(name = 'knative_eventing', scope = 'session')
 class Test_KnativeEventing(test_namespace):
     namespace = "knative-eventing"
     deployment = [

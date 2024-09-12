@@ -1,6 +1,7 @@
 import pytest
 from mindwm import test_namespace
 
+@pytest.mark.dependency(name = "redpanda", scope = 'session')
 class Test_Redpanda(test_namespace):
     namespace = "redpanda"
     deployment = [

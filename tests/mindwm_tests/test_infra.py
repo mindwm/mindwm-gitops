@@ -3,7 +3,6 @@ import subprocess
 import allure
 
 
-@pytest.mark.gitops
 @allure.title("Test mindwm infra")
 class TestInfra(object):
     def run_cmd(self, cmd):
@@ -18,7 +17,7 @@ class TestInfra(object):
             pytest.fail(f"Make cluster command failed with return code {e.returncode}")
 
     @allure.story('Deploy k8s cluster')
-    @pytest.mark.dependency(name = "cluster")
+    @pytest.mark.dependency(name = "cluster", scope = 'session')
     def test_cluster(self):
         self.run_cmd("make cluster")
        
@@ -39,7 +38,12 @@ class TestInfra(object):
     def test_argocd_app_async_wait(self):
         self.run_cmd("make argocd_app_async_wait")
 
+    @allure.story('Waiting for argocd apps is ready')
+    @pytest.mark.dependency( name = 'argocd_apps_ensure', depends=['argocd_app_async_wait'], scope = "session")
+    def test_argocd_apps_ensure(self):
+        self.run_cmd("make argocd_apps_ensure")
+
     @allure.story('Crossplane rolebinding workaround')
-    @pytest.mark.dependency( name = 'crossplane_rolebinding_workaround', depends=['argocd_app_async_wait'], scope = "session")
+    @pytest.mark.dependency( name = 'crossplane_rolebinding_workaround', depends=['argocd_apps_ensure'], scope = "session")
     def test_crossplane_rolebinding_workaround(self):
         self.run_cmd("make crossplane_rolebinding_workaround")

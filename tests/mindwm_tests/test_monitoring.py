@@ -1,6 +1,6 @@
 import pytest
 from mindwm import test_namespace
-
+@pytest.mark.dependency(name = "monitoring", scope = 'session')
 class Test_Monitoring(test_namespace):
     namespace = "monitoring"
     deployment = [

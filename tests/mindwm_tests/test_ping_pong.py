@@ -58,6 +58,7 @@ def generate_traceparent(_trace_id):
     traceparent = f"00-{_trace_id}-{span_id}-01"
     return traceparent
 
+@pytest.mark.dependency(name = "ping_pong", depends = ['mindwm_context'], scope = 'session')
 class Test_PingPong():
     def get_lb(self, kube):
         services = kube.get_services("istio-system")
