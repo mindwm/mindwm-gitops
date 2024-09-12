@@ -22,7 +22,6 @@ class Test_KnativeEventing(test_namespace):
         "eventing-webhook",
         "imc-dispatcher",
         "inmemorychannel-webhook",
-        "jetstream-ch-dispatcher",
         "job-sink",
         "kafka-broker-ingress",
         "kafka-channel-ingress",
