@@ -142,7 +142,7 @@ jobs:
       id: update_mindwm_github_io
       uses: cpina/github-action-push-to-another-repository@target-branch
       env:
-        API_TOKEN_GITHUB: ${{ secrets.MINDWM_TOKEN }}
+        SSH_DEPLOY_KEY: ${{ secrets.MINDWM_SSH_DEPLOY_KEY }}
       with:
         source-directory: allure-history
         destination-github-username: 'mindwm'
