@@ -4,6 +4,7 @@ import kubernetes
 import time
 import yaml
 import pprint
+import json
 
 kubernetes.config.load_kube_config()
 DYNAMIC_CLIENT = kubernetes.dynamic.DynamicClient(
@@ -85,18 +86,68 @@ def wait_for_broker_is_ready(kube, broker_name, namespace):
     resource_name = broker_name
     namespace = namespace
     crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
-    context_broker = crd_api.get(namespace=namespace, name=resource_name)
-    pprint.pprint(context_broker.status)
-    status = [item for item in context_broker.status.conditions if item['reason'] == 'ReconcileSuccess']
-    
+    broker = crd_api.get(namespace=namespace, name=resource_name)
+    pprint.pprint(broker.status)
+
+    for status_type in ['Addressable','EventPoliciesReady', 'TriggerChannelReady', 'FilterReady', 'Ready']:
+
+        status = [item for item in broker.status.conditions if item['type'] == status_type]
+        assert len(status) == 1 
+        if not json.loads(status[0].status.lower()):
+            return False
+
+    return True
+
+def wait_for_kafka_source(kube, kafka_source_name, namespace):
+    api_version = "sources.knative.dev/v1beta1"
+    kind = "KafkaSource"
+    resource_name = kafka_source_name 
+    namespace = namespace
+    crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
+    try:
+        crd_api.get(namespace=namespace, name=resource_name)
+        return True
+    except kubernetes.dynamic.exceptions.NotFoundError:
+        return False
 
 
-# Usage
 
-# kubernetes.config.load_kube_config()
-# DYNAMIC_CLIENT = kubernetes.dynamic.DynamicClient(
-#     kubernetes.client.api_client.ApiClient()
-# )
-# apply_simple_item(DYNAMIC_CLIENT, load_yaml("user.yaml"), verbose=True)
-# time.sleep(5)
-# delete_simple_item(DYNAMIC_CLIENT, load_yaml("user.yaml"), verbose=True)
+def wait_for_kafka_source_is_ready(kube, kafka_source_name, namespace):
+    api_version = "sources.knative.dev/v1beta1"
+    kind = "KafkaSource"
+    resource_name = kafka_source_name 
+    namespace = namespace
+    crd_api = DYNAMIC_CLIENT.resources.get(api_version=api_version, kind=kind)
+    resource = crd_api.get(namespace=namespace, name=resource_name)
+    pprint.pprint(resource.status)
+
+    for status_type in ['ConsumerGroup', 'SinkProvided', 'Ready']:
+        status = [item for item in resource.status.conditions if item['type'] == status_type]
+        assert len(status) == 1, status_type
+        if not json.loads(status[0].status.lower()):
+            return False
+
+    return True
+
+def wait_for_resource(kube, resourceSpec, namespace):
+    crd_api = DYNAMIC_CLIENT.resources.get(api_version=resourceSpec['apiVersion'], kind=resourceSpec['kind'])
+    try:
+        crd_api.get(namespace=namespace, name=resourceSpec['name'])
+        return True
+    except kubernetes.dynamic.exceptions.NotFoundError:
+        return False
+
+def wait_for_resource_is_ready(kube, resourceSpec, namespace):
+    crd_api = DYNAMIC_CLIENT.resources.get(api_version=resourceSpec['apiVersion'], kind=resourceSpec['kind'])
+    resource = crd_api.get(namespace=namespace, name=resourceSpec['name'])
+    for status_type in resourceSpec['status_types']:
+        status = [item for item in resource.status.conditions if item['type'] == status_type]
+        assert len(status) == 1, status_type
+        if not json.loads(status[0].status.lower()):
+            return False
+
+    return True
+
+def wait_for_function_deployment(kube, name, namespace):
+    deployments = kube.get_deployments(namespace, labels = {'serving.knative.dev/service': name})
+    return bool(len(deployments))

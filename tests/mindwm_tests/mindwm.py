@@ -38,3 +38,4 @@ class test_namespace():
             for service_name in self.service:
                 service = services.get(service_name)
                 assert service is not None, f"Service '{service_name}' was not found in namespace '{self.namespace}'"
+

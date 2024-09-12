@@ -24,6 +24,7 @@ class MindwmContext():
         self.manifest['spec']['name'] = context_name
         self.context_namespace = f"context-{context_name}"
         self.namespace = namespace
+        self.name = context_name
     def create(self):
         print("Create")
         pprint.pprint(self.manifest)
