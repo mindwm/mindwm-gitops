@@ -92,7 +92,7 @@ class Test_PingPong():
 
         assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
 
-    @pytest.mark.denepdency(depends=['test_send_ping_context_broker'])
+    @pytest.mark.dependency(depends=['test_send_ping_context_broker'])
     def test_tracesql(self,kube):
         # TODO(@metacoma) wait for resource
         #url = f"http://tempo.mindwm.local/api/traces/{trace_id}"

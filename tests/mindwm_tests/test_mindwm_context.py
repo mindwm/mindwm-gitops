@@ -9,11 +9,9 @@ test_context_name = "pink"
 DEFAULT_TIMEOUT = 60
 
 
-#@pytest.mark.dependency(name = "mindwm_context", depends = ['crossplane', 'istio', 'knative_eventing', 'knative_serving', 'monitoring', 'redpanda', 'nats'], scope = 'session')
-@pytest.mark.dependency(name = "mindwm_context")
+@pytest.mark.dependency(name = "mindwm_context", depends = ['crossplane', 'istio', 'knative_eventing', 'knative_serving', 'monitoring', 'redpanda', 'nats'], scope = 'session')
 class Test_MindwContext():
     ctx = MindwmContext(test_context_name)
-    #@pytest.mark.dependency(name = "crd_status", depends = ['crossplane_rolebinding_workaround'], scope = 'session')
     @pytest.mark.dependency(name = "crd_status")
     def test_crd_status(self, kube):
         self.ctx.create()
