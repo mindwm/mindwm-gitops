@@ -58,7 +58,7 @@ def generate_traceparent(_trace_id):
     traceparent = f"00-{_trace_id}-{span_id}-01"
     return traceparent
 
-@pytest.mark.dependency(name = "ping_pong", depends = ['mindwm_context'], scope = 'session')
+@pytest.mark.dependency(name = "ping_pong", depends = ['pong_function'], scope = 'session')
 class Test_PingPong():
     def get_lb(self, kube):
         services = kube.get_services("istio-system")
@@ -71,6 +71,7 @@ class Test_PingPong():
 
         pprint.pprint(service)
         assert False
+    @pytest.mark.dependency(name = 'send_ping_context_broker', depends=['pong_function'])
     def test_send_ping_context_broker(self, kube):
         ingress_host = self.get_lb(kube)
         trace_parent = generate_traceparent(trace_id) 
@@ -92,7 +93,7 @@ class Test_PingPong():
 
         assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
 
-    @pytest.mark.dependency(depends=['test_send_ping_context_broker'])
+    @pytest.mark.dependency(depends=['send_ping_context_broker'])
     def test_tracesql(self,kube):
         # TODO(@metacoma) wait for resource
         #url = f"http://tempo.mindwm.local/api/traces/{trace_id}"

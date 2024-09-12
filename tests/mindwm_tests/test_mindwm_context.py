@@ -9,10 +9,10 @@ test_context_name = "pink"
 DEFAULT_TIMEOUT = 60
 
 
-@pytest.mark.dependency(name = "mindwm_context", depends = ['crossplane', 'istio', 'knative_eventing', 'knative_serving', 'monitoring', 'redpanda', 'nats'], scope = 'session')
-class Test_MindwContext():
+#@pytest.mark.dependency(depends=["redpanda", 'crossplane', 'istio', 'knative_eventing', 'knative_serving', 'monitoring', 'nats2'], scope = 'session')
+class Test_MindwmContext():
     ctx = MindwmContext(test_context_name)
-    @pytest.mark.dependency(name = "crd_status")
+    @pytest.mark.dependency(name = "test_crd_status", depends = ['ns', 'deployment', 'statefulset', 'service'], scope = "session")
     def test_crd_status(self, kube):
         self.ctx.create()
         wait_for_condition(Condition("wait for context is ready", self.ctx.status), 60)
