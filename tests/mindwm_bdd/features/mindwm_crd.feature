@@ -1,5 +1,5 @@
 @crd
 Feature: Minwdm custom resource definition
   Scenario: 
-    Given a kubernetes cluster
-    Then all nodes in the kubernetes are ready
+    Given Mindwm environment
+    Then create mindwm context with name pink

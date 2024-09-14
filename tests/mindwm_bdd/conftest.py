@@ -4,11 +4,10 @@ import pprint
 import kubetest
 from kubetest.client import TestClient
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
-#from pytest import hookspec
 import re
 from typing import List
 
-@scenario('mindwm_lifecycle.feature','Validate Mindwm custom resource definitions')
+@scenario('kubernetes.feature','Validate Mindwm custom resource definitions')
 def test_scenario():
     assert False
 
@@ -24,6 +23,19 @@ def kubernetes_cluster(kube, clusterinfo):
 def kubernetes_nodes(kube):
     for node in kube.get_nodes().values():
         assert(node.is_ready()), f"{node.name} is not ready"
+
+
+@scenario('kubernetes.feature','Validate Mindwm custom resource definitions')
+@given('Mindwm environment')
+def mindwm_environment(kube):
+    for plural in ["xcontexts", "xhosts", "xusers"]:
+        kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
+    pass
+
+@then("create mindwm context with name {context_name}")
+def mindwm_context(kube, context_name):
+    pass
+
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
