@@ -6,6 +6,16 @@ import yaml
 import pprint
 import json
 
+from kubetest.utils import Condition
+from kubetest.utils import wait_for_condition
+
+def namespace_exists2(kube, name):
+    namespaces = kube.get_namespaces({"metadata.name": name})
+    return bool(len(namespaces))
+
+def wait_for_namespace2(kube, name):
+    wait_for_condition(Condition(f"wait for namespace {name}", namespace_exists2, kube, name), 60)
+
 def apply_simple_item(manifest: dict, verbose: bool=False):
     kubernetes.config.load_kube_config()
     dynamic_client = kubernetes.dynamic.DynamicClient(

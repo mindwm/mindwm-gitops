@@ -1,3 +1,4 @@
+@crd
 Feature: Minwdm custom resource definition
   Scenario: 
     Given a kubernetes cluster

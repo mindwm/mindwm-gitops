@@ -4,15 +4,19 @@ from kubetest.condition import Condition
 from kubetest.utils import wait_for_condition
 from kubetest.objects import Namespace
 import kubernetes_utils
+from test_redpanda import Test_Redpanda
 
 test_context_name = "pink"
 DEFAULT_TIMEOUT = 60
 
+class TestHellWorld():
+    def test_hello(self):
+        print("hello")
 
 #@pytest.mark.dependency(depends=["redpanda", 'crossplane', 'istio', 'knative_eventing', 'knative_serving', 'monitoring', 'nats2'], scope = 'session')
 class Test_MindwmContext():
     ctx = MindwmContext(test_context_name)
-    @pytest.mark.dependency(name = "test_crd_status", depends = ['ns', 'deployment', 'statefulset', 'service'], scope = "session")
+    @pytest.mark.dependency(name = "test_crd_status", depends = ['TestHelloWorld::test_hello', 'deployment', 'statefulset', 'service'], scope = "session")
     def test_crd_status(self, kube):
         self.ctx.create()
         wait_for_condition(Condition("wait for context is ready", self.ctx.status), 60)

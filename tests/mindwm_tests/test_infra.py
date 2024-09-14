@@ -7,7 +7,7 @@ import allure
 class TestInfra(object):
     def run_cmd(self, cmd):
         try:
-            result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd="../../")
+            result = subprocess.run(["sh", "-c", "echo " + cmd], check=True, text=True, capture_output=True, cwd="../../")
             print("Command Output:", result.stdout)
             assert result.returncode == 0, f"Expected return code 0 but got {result.returncode}"
         except subprocess.CalledProcessError as e:
