@@ -226,7 +226,7 @@ edit_hosts:
 .PHONY: mindwm_test
 mindwm_test:
 	$(eval ingress_host := $(shell docker run $(KUBECTL_RUN_OPTS) "kubectl -n istio-system get service "istio-ingressgateway" -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"))
-	cd tests/mindwm_tests && \
+	cd tests/mindwm_bdd && \
 	python3 -m venv .venv && \
 	source .venv/bin/activate && \
 	pip3 install -r ./requirements.txt && \
