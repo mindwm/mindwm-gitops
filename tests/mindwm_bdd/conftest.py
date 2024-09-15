@@ -4,16 +4,18 @@ import pprint
 import kubetest
 from kubetest.client import TestClient
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
+import mindwm_crd
 import re
 from typing import List
+
+@pytest.fixture 
+def ctx():
+    return {}
 
 @scenario('kubernetes.feature','Validate Mindwm custom resource definitions')
 def test_scenario():
     assert False
 
-@pytest.fixture 
-def test_env():
-    return {}
 
 @given(".*kubernetes cluster$")
 def kubernetes_cluster(kube, clusterinfo):
@@ -33,7 +35,9 @@ def mindwm_environment(kube):
     pass
 
 @then("create mindwm context with name {context_name}")
-def mindwm_context(kube, context_name):
+def mindwm_context(ctx, kube, context_name):
+    ctx['context_name'] = context_name
+    mindwm_crd.context_create(kube, context_name)
     pass
 
 
