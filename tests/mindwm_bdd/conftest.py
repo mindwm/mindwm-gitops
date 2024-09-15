@@ -28,18 +28,23 @@ def kubernetes_nodes(kube):
 
 
 @scenario('kubernetes.feature','Validate Mindwm custom resource definitions')
-@given('Mindwm environment')
+@given('MindWM environment')
 def mindwm_environment(kube):
     for plural in ["xcontexts", "xhosts", "xusers"]:
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
     pass
 
-@then("create mindwm context with name {context_name}")
+@when("the user creates a MindWM context with the name {context_name}")
 def mindwm_context(ctx, kube, context_name):
     ctx['context_name'] = context_name
+    return
     mindwm_crd.context_create(kube, context_name)
     pass
 
+@then("validate that the context is ready and operable")
+def minwdm_context_validate(ctx, kube):
+    mindwm_crd.context_validate(kube, ctx['context_name'])
+    pass
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):

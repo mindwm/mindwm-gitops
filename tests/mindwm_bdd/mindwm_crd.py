@@ -36,5 +36,18 @@ def context_create(kube, context_name):
         body=new_context
     )
 
+def context_validate(kube, context_name):
+    api_instance = client.CustomObjectsApi(kube.api_client)
+
+    resources = api_instance.list_namespaced_custom_object(
+        group='mindwm.io',
+        version='v1beta1',
+        plural='contexts',
+        namespace = "default",
+    )
+    assert any(item['metadata']['name'] == context_name for item in resources.get('items', [])), f"Context {context_name} doesn't exists"
+
+
+
 def context_delete(kube, context_name):
     pass
