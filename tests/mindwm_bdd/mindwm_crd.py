@@ -1,6 +1,9 @@
 import pprint
 from kubernetes import client, config
 import kubernetes.client.exceptions as kube_exceptions
+from kubetest.objects.customresourcedefinition import CustomResourceDefinition
+from kubetest.utils import wait_for_condition, Condition
+from context import MindwmContext
 
 
 api_group = "mindwm.io"
@@ -27,14 +30,16 @@ def context_get(kube, context_name):
         namespace = "default",
         name = context_name 
     )
-    return resource
+    #resourceObject = CustomResourceDefinition(resource)
+    #pprint.pprint(resourceObject)
+    #CustomResourceDefinition(resource)
+    return MindwmContext(resource, group = 'mindwm.io', crd=None, version = 'v1beta', plural = 'contexts')
 
 
 
 def context_create(kube, context_name):
     new_context = context_crd
     new_context['metadata']['name'] = new_context["spec"]["name"] = context_name
-
     try:
         context = context_get(kube, context_name)
         assert context is None, f"Context {context_name} is already exists"
@@ -50,14 +55,20 @@ def context_create(kube, context_name):
         plural="contexts",
         body=new_context
     )
+    return MindwmContext(api_response, group = 'mindwm.io', crd=None, version = 'v1beta', plural = 'contexts')
+
 
 def context_validate(kube, context_name):
     try:
         context = context_get(kube, context_name)
     except kube_exceptions.ApiException:
         assert False, f"Context {context_name} not found in cluster"
-    pprint.pprint(context)
-    for condition in context['status']['conditions']:
+    context.wait_for_status()
+
+    status = context.status()
+    pprint.pprint(f"context_validate == {status}")
+
+    for condition in status.get('conditions'):
         if condition.get('type') == 'Ready':
             ready_condition = condition
         if condition.get('type') == 'Synced':
