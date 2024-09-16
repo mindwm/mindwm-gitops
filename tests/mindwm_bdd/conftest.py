@@ -27,7 +27,10 @@ def kubernetes_nodes(kube):
         assert(node.is_ready()), f"{node.name} is not ready"
 
 
-@scenario('kubernetes.feature','Validate Mindwm custom resource definitions')
+@scenario('mindwm_crd.feature','Validate Mindwm custom resource definitions')
+def test_mindwm():
+    return True
+
 @given('MindWM environment')
 def mindwm_environment(kube):
     for plural in ["xcontexts", "xhosts", "xusers"]:
