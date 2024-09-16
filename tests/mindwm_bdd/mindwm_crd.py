@@ -56,6 +56,7 @@ def context_validate(kube, context_name):
         context = context_get(kube, context_name)
     except kube_exceptions.ApiException:
         assert False, f"Context {context_name} not found in cluster"
+    pprint.pprint(context)
     for condition in context['status']['conditions']:
         if condition.get('type') == 'Ready':
             ready_condition = condition
