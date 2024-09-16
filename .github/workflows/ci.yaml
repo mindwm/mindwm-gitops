@@ -155,8 +155,10 @@ jobs:
     - name: prepare env variable for report.md
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
+        echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})" >> $GITHUB_ENV
         cat artifacts/report.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
+
 
     - uses: actions/github-script@v7
       env:
