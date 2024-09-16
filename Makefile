@@ -224,7 +224,7 @@ edit_hosts:
 	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
 
 .PHONY: mindwm_test
-mindwm_test: cluster
+mindwm_test: cluster argocd_app argocd_app_sync_async argocd_app_async_wait argocd_apps_ensure
 	$(eval ingress_host := $(shell docker run $(KUBECTL_RUN_OPTS) "kubectl -n istio-system get service "istio-ingressgateway" -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"))
 	cd tests/mindwm_bdd && \
 	python3 -m venv .venv && \
