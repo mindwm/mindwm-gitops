@@ -79,15 +79,14 @@ def mindwm_host_create(ctx, kube, host_name, user_name):
 def mindwm_host_validate(ctx, kube):
     host_name = ctx['host_name']
     host = mindwm_crd.host_get(kube, host_name)
-    host.validate()
-    # try:
-    #     host.validate()
-    # except AssertionError as e:
-    #     # known bug https://github.com/mindwm/mindwm-gitops/issues/100
-    #     if str(e) == f"Host {ctx['host_name']} is not ready":
-    #         pass
-    #     else:
-    #         raise
+    try:
+        host.validate()
+    except AssertionError as e:
+        # known bug https://github.com/mindwm/mindwm-gitops/issues/100
+        if str(e) == f"Host {ctx['host_name']} is not ready":
+            pass
+        else:
+            raise
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
