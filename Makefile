@@ -232,7 +232,7 @@ mindwm_test: cluster argocd_app argocd_app_sync_async argocd_app_async_wait argo
 	pip3 install -r ./requirements.txt && \
 	export INGRESS_HOST=$(ingress_host) && \
 	echo ingress_host = $$INGRESS_HOST && \
-	pytest -s --no-header --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . | tee $(ARTIFACT_DIR)/report.md
+	pytest -s --no-header --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . > $(ARTIFACT_DIR)/report.md
 
 
 #pytest -s --md-report --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --kube-config=$${HOME}/.kube/config --alluredir $(ARTIFACT_DIR)/allure-results . --order-dependencies
