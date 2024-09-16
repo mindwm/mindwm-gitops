@@ -11,6 +11,8 @@ api_version = "v1beta1"
 class MindwmContext(CustomObject):
     namespace = "default"
 
+    #def create(name):
+
     def status(self):
         r = self.api_client.get_namespaced_custom_object_status(group = api_group, version = api_version, namespace = self.namespace, plural = "contexts", name = self.name)
         return r.get('status')
