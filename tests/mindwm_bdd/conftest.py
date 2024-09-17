@@ -123,7 +123,6 @@ def mindwm_context_deleted(kube, context_name):
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
 def environment(ctx, kube, ubuntu_version, cpu, mem):
-    print("XXX")
     ctx['cpu'] = cpu
     ctx['mem'] = mem
     ctx['ubuntu_version'] = ubuntu_version
@@ -148,6 +147,10 @@ def helm_release_deploeyd(kube, helm_release, namespace):
     info = utils.helm_release_info(kube, helm_release, namespace)
     assert(info['status'] == "deployed")
     pass
+
+@then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
+def argocd_application(kube, application_name, namespace):
+    utils.argocd_application_exists(kube, application_name, namespace)
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):

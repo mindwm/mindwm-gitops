@@ -3,6 +3,7 @@ import base64
 import gzip
 import json
 from io import BytesIO
+from kubernetes import client, config
 
 def double_base64_decode(encoded_str):
     try:
@@ -30,3 +31,14 @@ def helm_release_info(kube, release_name, namespace):
     data_str = gunzip_data(double_base64_decode(data_base64))
     data = json.loads(data_str)
     return data['info']
+
+def argocd_application_exists(kube, application_name, namespace):
+    api_instance = client.CustomObjectsApi(kube.api_client)
+    resource = api_instance.get_namespaced_custom_object(
+        group='argoproj.io',
+        version='v1alpha1',
+        plural='applications',
+        namespace = namespace,
+        name = application_name
+    )
+    return resource
