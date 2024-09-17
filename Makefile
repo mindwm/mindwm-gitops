@@ -224,14 +224,12 @@ edit_hosts:
 	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
 
 .PHONY: mindwm_test
-mindwm_test: cluster argocd_app argocd_app_sync_async argocd_app_async_wait argocd_apps_ensure
+mindwm_test: 
 	$(eval ingress_host := $(shell docker run $(KUBECTL_RUN_OPTS) "kubectl -n istio-system get service "istio-ingressgateway" -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"))
 	cd tests/mindwm_bdd && \
 	python3 -m venv .venv && \
 	source .venv/bin/activate && \
 	pip3 install -r ./requirements.txt && \
-	export INGRESS_HOST=$(ingress_host) && \
-	echo ingress_host = $$INGRESS_HOST && \
 	pytest -s --no-header --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . > $(ARTIFACT_DIR)/report.md
 
 

@@ -17,7 +17,7 @@ from messages import DataTable
 def ctx():
     return {}
 
-@scenario('kubernetes.feature','Validate Mindwm custom resource definitions')
+@scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
 def test_scenario():
     assert False
 
@@ -183,7 +183,6 @@ def argocd_applications_check(kube, step):
 def role_exists(kube, step):
     title_row, *rows = step.data_table.rows
     cluster_roles = kube.get_clusterroles()
-    pprint.pprint(cluster_roles.get('crossplane-admin'))
     for row in rows:
         role_name = row.cells[0].value 
         role = cluster_roles.get(role_name)
