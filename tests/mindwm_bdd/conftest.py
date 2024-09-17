@@ -109,6 +109,15 @@ def mindwm_user_deleted(kube, user_name):
     user = mindwm_crd.user_get(kube,user_name)
     user.wait_until_deleted()
 
+@when("God deletes the MindWM context resource \"{context_name}\"")
+def mindwm_context_delete(kube, context_name):
+    ctx = mindwm_crd.context_get(kube, context_name)
+    ctx.delete(None)
+@then("the context \"{context_name}\" should be deleted")
+def mindwm_context_deleted(kube, context_name):
+    ctx = mindwm_crd.context_get(kube, context_name)
+    ctx.wait_until_deleted(30)
+
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
     for item in items:
