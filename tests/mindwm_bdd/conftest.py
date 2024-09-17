@@ -11,6 +11,7 @@ import os
 import utils
 from typing import List
 from make import run_make_cmd
+from messages import DataTable
 
 @pytest.fixture 
 def ctx():
@@ -158,6 +159,15 @@ def argocd_application_in_progress(kube, application_name, namespace):
     health_status = argocd_app['status']['health']['status']
     # @metacoma(TODO) Progressing only
     assert(health_status == 'Progressing' or health_status == "Healthy")
+@then(parsers.parse("all argocd applications in healthy state"))
+def argocd_applications_check(kube, step):
+    # @metacoma(REFACT)
+    for item in step.data_table:
+        last_item = item[1]
+    for value in last_item:
+        application_name = value.cells[0].value
+        argocd_application_in_progress(kube, application_name, "argocd")
+    pass
 
 
 
