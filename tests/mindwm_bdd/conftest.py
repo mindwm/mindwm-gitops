@@ -150,7 +150,15 @@ def helm_release_deploeyd(kube, helm_release, namespace):
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
-    utils.argocd_application_exists(kube, application_name, namespace)
+   utils.argocd_application(kube, application_name, namespace)
+
+@then("the argocd \"{application_name}\" application is {namespace} namespace in a progressing status")
+def argocd_application_in_progress(kube, application_name, namespace):
+    argocd_app = utils.argocd_application(kube, application_name, namespace)
+    health_status = argocd_app['status']['health']['status']
+    # @metacoma(TODO) Progressing only
+    assert(health_status == 'Progressing' or health_status == "Healthy")
+
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):

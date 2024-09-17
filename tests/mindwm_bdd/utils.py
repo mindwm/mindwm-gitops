@@ -32,7 +32,7 @@ def helm_release_info(kube, release_name, namespace):
     data = json.loads(data_str)
     return data['info']
 
-def argocd_application_exists(kube, application_name, namespace):
+def argocd_application(kube, application_name, namespace):
     api_instance = client.CustomObjectsApi(kube.api_client)
     resource = api_instance.get_namespaced_custom_object(
         group='argoproj.io',
