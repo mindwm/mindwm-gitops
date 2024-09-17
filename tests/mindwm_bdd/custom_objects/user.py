@@ -5,12 +5,18 @@ from kubetest import utils, condition
 import time
 
 
+from kubernetes.client.rest import ApiException
+from kubernetes import client
+from typing import Optional, Union
+
 api_group = "mindwm.io"
 api_version = "v1beta1"
 
 class MindwmUser(CustomObject):
     namespace = "default"
 
+    def delete(self, options: client.V1DeleteOptions) -> client.V1Status:
+        return self.api_client.delete_namespaced_custom_object(api_group, api_version, self.namespace, "users", self.name)
 
     def is_ready(self): 
         for condition in self.status().get('conditions'):
@@ -77,3 +83,25 @@ class MindwmUser(CustomObject):
         is_synced = synced_condition and synced_condition.get('status') == 'True'
         assert(is_synced), f"User {self.name} is not synced"
         assert(is_ready), f"User {self.name} is not ready"
+
+    def wait_until_deleted(
+            self, timeout: int = None, interval: Union[int, float] = 1
+        ) -> None:
+            def deleted_fn():
+                try:
+                    self.status()
+                except ApiException as e:
+                    if e.status == 404 and e.reason == "Not Found":
+                        return True
+                    else:
+                        raise e
+                else:
+                    return False
+
+            delete_condition = condition.Condition("api object deleted", deleted_fn)
+
+            utils.wait_for_condition(
+                condition=delete_condition,
+                timeout=timeout,
+                interval=interval,
+            )

@@ -100,6 +100,15 @@ def mindwm_host_deleted(kube, host_name):
     return host.wait_until_deleted(timeout=30)
 
 
+@when("God deletes the MindWM user resource \"{user_name}\"")
+def mindwm_user_delete(kube, user_name):
+    user = mindwm_crd.user_get(kube,user_name)
+    user.delete(None)
+@then("the user \"{user_name}\" should be deleted")
+def mindwm_user_deleted(kube, user_name):
+    user = mindwm_crd.user_get(kube,user_name)
+    user.wait_until_deleted()
+
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
     for item in items:
