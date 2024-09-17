@@ -3,6 +3,7 @@ import re
 import pprint
 import kubetest
 from kubetest.client import TestClient
+from kubernetes import client
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
 import mindwm_crd
 import re
@@ -87,6 +88,16 @@ def mindwm_host_validate(ctx, kube):
             pass
         else:
             raise
+
+@when("God deletes the MindWM host resource \"{host_name}\"")
+def mindwm_host_delete(kube, host_name):
+    host = mindwm_crd.host_get(kube, host_name)
+    return host.delete(None)
+
+@then("the host \"{host_name}\" should be deleted")
+def mindwm_host_deleted(kube, host_name):
+    host = mindwm_crd.host_get(kube, host_name)
+    return host.wait_until_deleted(timeout=30)
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):

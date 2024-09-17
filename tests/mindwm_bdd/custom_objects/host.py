@@ -1,8 +1,14 @@
 from kubetest.objects.custom_objects import CustomObject
 from kubernetes import client, config
+from typing import Optional, Union
 import pprint
+from kubernetes.client.rest import ApiException
+from kubernetes import client
 from kubetest import utils, condition
 import time
+import logging
+
+log = logging.getLogger("kubetest")
 
 
 api_group = "mindwm.io"
@@ -11,6 +17,8 @@ api_version = "v1beta1"
 class MindwmHost(CustomObject):
     namespace = "default"
 
+    def delete(self, options: client.V1DeleteOptions) -> client.V1Status:
+        return self.api_client.delete_namespaced_custom_object(api_group, api_version, self.namespace, "hosts", self.name)
 
     def is_ready(self): 
         for condition in self.status().get('conditions'):
@@ -77,3 +85,44 @@ class MindwmHost(CustomObject):
         is_synced = synced_condition and synced_condition.get('status') == 'True'
         assert(is_synced), f"Host {self.name} is not synced"
         assert(is_ready), f"Host {self.name} is not ready"
+
+    def wait_until_deleted(
+            self, timeout: int = None, interval: Union[int, float] = 1
+        ) -> None:
+            """Wait until the resource is deleted from the cluster.
+
+            Args:
+                timeout: The maximum time to wait, in seconds, for the resource to
+                    be deleted from the cluster. If unspecified, this will wait
+                    indefinitely. If specified and the timeout is met or exceeded,
+                    a TimeoutError will be raised.
+                interval: The time, in seconds, to wait before re-checking if the
+                    object has been deleted.
+
+            Raises:
+                TimeoutError: The specified timeout was exceeded.
+            """
+             
+            def deleted_fn():
+                try:
+                    self.status()
+                except ApiException as e:
+                    # If we can no longer find the deployment, it is deleted.
+                    # If we get any other exception, raise it.
+                    if e.status == 404 and e.reason == "Not Found":
+                        return True
+                    else:
+                        print("error refreshing object state")
+                        raise e
+                else:
+                    # The object was still found, so it has not been deleted
+                    print("error refreshing object state")
+                    return False
+
+            delete_condition = condition.Condition("api object deleted", deleted_fn)
+
+            utils.wait_for_condition(
+                condition=delete_condition,
+                timeout=timeout,
+                interval=interval,
+            )
