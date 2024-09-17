@@ -110,7 +110,6 @@ def context_validate(kube, context_name):
     context.wait_for_status()
 
     status = context.status()
-    pprint.pprint(f"context_validate == {status}")
 
     for condition in status.get('conditions'):
         if condition.get('type') == 'Ready':

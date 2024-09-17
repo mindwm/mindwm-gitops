@@ -15,3 +15,12 @@ Feature: MindWM Custom Resource Definition
   Scenario: Create Host
     When God creates a MindWM host resource with the name "laptop" and connects it to the user "alice"
     Then the host resource should be ready and operable
+
+  Scenario: Delete Resources and Verify Cleanup
+    When God deletes the MindWM host resource "laptop"
+    Then the host "laptop" should be deleted
+    When God deletes the MindWM user resource "alice"
+    Then the user "alice" should be deleted
+    When God deletes the MindWM context resource "xxx3"
+    Then the context "xxx3" should be deleted
+   	 
