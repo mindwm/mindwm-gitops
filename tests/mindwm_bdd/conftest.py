@@ -7,7 +7,10 @@ from kubernetes import client
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
 import mindwm_crd
 import re
+import os
+import utils
 from typing import List
+from make import run_make_cmd
 
 @pytest.fixture 
 def ctx():
@@ -22,7 +25,7 @@ def test_scenario():
 def kubernetes_cluster(kube, clusterinfo):
     assert(clusterinfo.cluster), f"{clusterinfo} "
 
-@then("all nodes in the kubernetes are ready")
+@then("all nodes in kubernetes are ready")
 def kubernetes_nodes(kube):
     for node in kube.get_nodes().values():
         assert(node.is_ready()), f"{node.name} is not ready"
@@ -111,12 +114,41 @@ def mindwm_user_deleted(kube, user_name):
 
 @when("God deletes the MindWM context resource \"{context_name}\"")
 def mindwm_context_delete(kube, context_name):
-    ctx = mindwm_crd.context_get(kube, context_name)
-    ctx.delete(None)
+    context = mindwm_crd.context_get(kube, context_name)
+    context.delete(None)
 @then("the context \"{context_name}\" should be deleted")
 def mindwm_context_deleted(kube, context_name):
-    ctx = mindwm_crd.context_get(kube, context_name)
-    ctx.wait_until_deleted(30)
+    context= mindwm_crd.context_get(kube, context_name)
+    context.wait_until_deleted(30)
+
+@given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
+def environment(ctx, kube, ubuntu_version, cpu, mem):
+    print("XXX")
+    ctx['cpu'] = cpu
+    ctx['mem'] = mem
+    ctx['ubuntu_version'] = ubuntu_version
+    assert(cpu >= 6), f"Cpu < 6"
+    assert(mem >= 16), f"Mem < 16"
+    assert(ubuntu_version == "22.04" or ubuntu_version == "24.04")
+    pass
+
+@given("the mindwm-gitops repository is cloned into the \"{repo_dir}\" directory")
+def mindwm_repo(ctx, kube, repo_dir):
+    ctx['repo_dir'] =  os.path.expanduser(repo_dir)
+    assert(os.path.isdir(ctx['repo_dir'])), f"No such directory {ctx['repo_dir']}"
+    pass
+
+@when("God executes \"make {target_name}\"")
+def run_make(ctx, kube, target_name):
+    run_make_cmd(f"make {target_name}", ctx['repo_dir'])
+    #run_make_cmd(f"make {target_name}", "xx")
+
+@then("helm release {helm_release} is deployed in {namespace} namespace" )
+def helm_release_deploeyd(kube, helm_release, namespace):
+    info = utils.helm_release_info(kube, helm_release, namespace)
+    assert(info['status'] == "deployed")
+    pass
+
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
