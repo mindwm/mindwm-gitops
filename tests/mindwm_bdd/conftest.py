@@ -157,18 +157,37 @@ def argocd_application(kube, application_name, namespace):
 def argocd_application_in_progress(kube, application_name, namespace):
     argocd_app = utils.argocd_application(kube, application_name, namespace)
     health_status = argocd_app['status']['health']['status']
+    #print(f"{application_name} {health_status}")
     # @metacoma(TODO) Progressing only
     assert(health_status == 'Progressing' or health_status == "Healthy")
+
 @then(parsers.parse("all argocd applications in healthy state"))
 def argocd_applications_check(kube, step):
     # @metacoma(REFACT)
-    for item in step.data_table:
-        last_item = item[1]
-    for value in last_item:
-        application_name = value.cells[0].value
+    title_row, *rows = step.data_table.rows
+
+    for row in rows:
+        application_name = row.cells[0].value
         argocd_application_in_progress(kube, application_name, "argocd")
     pass
 
+@then("all argocd applications are in a healthy state")
+def argocd_applications_check(kube, step):
+    title_row, *rows = step.data_table.rows
+
+    for row in rows:
+        application_name = row.cells[0].value
+        argocd_application_in_progress(kube, application_name, "argocd")
+
+@then("the following roles should exist:")
+def role_exists(kube, step):
+    title_row, *rows = step.data_table.rows
+    cluster_roles = kube.get_clusterroles()
+    pprint.pprint(cluster_roles.get('crossplane-admin'))
+    for row in rows:
+        role_name = row.cells[0].value 
+        role = cluster_roles.get(role_name)
+        assert role is not None, f"Role {role_name} not found"
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
