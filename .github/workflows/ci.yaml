@@ -142,7 +142,7 @@ jobs:
       id: update_mindwm_github_io
       uses: cpina/github-action-push-to-another-repository@target-branch
       env:
-        API_TOKEN_GITHUB: ${{ secrets.MINDWM_TOKEN }}
+        SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
       with:
         source-directory: allure-history
         destination-github-username: 'mindwm'
@@ -155,8 +155,12 @@ jobs:
     - name: prepare env variable for report.md
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
-        cat artifacts/report.md >> $GITHUB_ENV
+        echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})" >> $GITHUB_ENV
+        echo '```'
+        grep -vE '^features' artifacts/report.md >> $GITHUB_ENV
+        echo '```'
         echo "EOF" >> $GITHUB_ENV
+
 
     - uses: actions/github-script@v7
       env:

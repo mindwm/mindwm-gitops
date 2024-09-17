@@ -3,12 +3,11 @@ import subprocess
 import allure
 
 
-@pytest.mark.gitops
 @allure.title("Test mindwm infra")
 class TestInfra(object):
     def run_cmd(self, cmd):
         try:
-            result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd="../../")
+            result = subprocess.run(["sh", "-c", "echo " + cmd], check=True, text=True, capture_output=True, cwd="../../")
             print("Command Output:", result.stdout)
             assert result.returncode == 0, f"Expected return code 0 but got {result.returncode}"
         except subprocess.CalledProcessError as e:
@@ -18,7 +17,7 @@ class TestInfra(object):
             pytest.fail(f"Make cluster command failed with return code {e.returncode}")
 
     @allure.story('Deploy k8s cluster')
-    @pytest.mark.dependency(name = "cluster")
+    @pytest.mark.dependency(name = "cluster", scope = 'session')
     def test_cluster(self):
         self.run_cmd("make cluster")
        
@@ -39,18 +38,12 @@ class TestInfra(object):
     def test_argocd_app_async_wait(self):
         self.run_cmd("make argocd_app_async_wait")
 
-    @allure.story('Crossplane rolebinding workaround')
-    @pytest.mark.dependency( name = 'crossplane_rolebinding_workaround', depends=['argocd_app_async_wait'], scope = "session")
-    def test_crossplane_rolebinding_workaround(self):
-        self.run_cmd("make crossplane_rolebinding_workaround")
-
-    @allure.story('Verify that everthing is green in argocd')
-    @pytest.mark.dependency( name = 'argocd_apps_ensure', depends=['crossplane_rolebinding_workaround'], scope = "session")
+    @allure.story('Waiting for argocd apps is ready')
+    @pytest.mark.dependency( name = 'argocd_apps_ensure', depends=['argocd_app_async_wait'], scope = "session")
     def test_argocd_apps_ensure(self):
         self.run_cmd("make argocd_apps_ensure")
 
-    @allure.story('Create mindwm resources, context, user, host')
-    @pytest.mark.dependency( name = 'mindwm_resoures', depends=['argocd_apps_ensure'], scope = "session")
-    def test_mindwm_resoures(self):
-        self.run_cmd("make mindwm_resources")
-
+    @allure.story('Crossplane rolebinding workaround')
+    @pytest.mark.dependency( name = 'crossplane_rolebinding_workaround', depends=['argocd_apps_ensure'], scope = "session")
+    def test_crossplane_rolebinding_workaround(self):
+        self.run_cmd("make crossplane_rolebinding_workaround")

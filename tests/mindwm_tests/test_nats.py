@@ -10,6 +10,7 @@ nats_statefulset = "nats"
 nats_deployment = "nats-box"
 
 #@pytest.mark.asyncio(loop_scope="class")
+@pytest.mark.dependency(name = "nats", scope = 'session')
 class Test_Nats(test_namespace):
 #    loop: asyncio.AbstractEventLoop
     namespace = "nats"
