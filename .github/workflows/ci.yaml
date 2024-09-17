@@ -156,7 +156,9 @@ jobs:
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
         echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})" >> $GITHUB_ENV
-        cat artifacts/report.md >> $GITHUB_ENV
+        echo '```'
+        grep -vE '^features' artifacts/report.md >> $GITHUB_ENV
+        echo '```'
         echo "EOF" >> $GITHUB_ENV
 
 
