@@ -225,12 +225,15 @@ edit_hosts:
 
 .PHONY: mindwm_test
 mindwm_test: 
-	$(eval ingress_host := $(shell docker run $(KUBECTL_RUN_OPTS) "kubectl -n istio-system get service "istio-ingressgateway" -o jsonpath='{.status.loadBalancer.ingress[0].ip}'"))
+	test -d $(ARTIFACT_DIR) || mkdir -p $(ARTIFACT_DIR)
 	cd tests/mindwm_bdd && \
 	python3 -m venv .venv && \
 	source .venv/bin/activate && \
 	pip3 install -r ./requirements.txt && \
-	pytest -s --no-header --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . > $(ARTIFACT_DIR)/report.md
+	pytest -s --no-header --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . | tee $(ARTIFACT_DIR)/report.md
+	exit_code=${PIPESTATUS[0]}
+	exit ${exit_code}
+
 
 
 #pytest -s --md-report --md-report-tee --md-report-verbose=7  --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --kube-config=$${HOME}/.kube/config --alluredir $(ARTIFACT_DIR)/allure-results . --order-dependencies
