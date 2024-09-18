@@ -24,10 +24,11 @@ Feature: MindWM Custom kubernetes resources
     And following knative brokers is in ready state in "context-pink" namespace
       | Knative broker name |
       | context-broker      |
+    And kafka topic "context-pink-cdc" is in ready state in "redpanda" namespace
 
 
 
-  # Scenario: Delete Resources and Verify Cleanup
-  #   When God deletes the MindWM context resource "pink"
-  #   Then the context "pink" should be deleted
-  #   And namespace "context-pink" should not exists
+  Scenario: Delete Resources and Verify Cleanup
+    When God deletes the MindWM context resource "pink"
+    Then the context "pink" should be deleted
+    And namespace "context-pink" should not exists

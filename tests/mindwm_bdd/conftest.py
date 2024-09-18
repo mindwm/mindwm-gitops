@@ -279,6 +279,16 @@ def knative_broker_exists(kube, step, namespace):
             pass
         assert(is_ready == 'True')
 
+@then("kafka topic \"{kafka_topic_name}\" is in ready state in \"{namespace}\" namespace")
+def kafka_topic_exists(kube, kafka_topic_name, namespace):
+    kafka_topic = utils.kafka_topic_wait_for(kube, kafka_topic_name, namespace)
+    is_ready = utils.resource_get_condition(kafka_topic['status'], 'Ready')
+    with allure.step(f"Kafka topic '{kafka_topic_name}' ready state is {is_ready}"):
+        pass
+    assert(is_ready == 'True')
+    
+
+
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround

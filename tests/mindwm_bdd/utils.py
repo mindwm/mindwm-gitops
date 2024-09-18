@@ -163,6 +163,16 @@ def knative_broker_wait_for(kube, knative_broker_name, namespace):
             knative_broker_name
             )
 
+def kafka_topic_wait_for(kube, kafka_topic_name, namespace):
+    return customt_object_wait_for(
+            kube,  
+            namespace,
+            'cluster.redpanda.com',
+            "v1alpha2",
+            "topics",
+            kafka_topic_name
+            )
+
 def resource_get_condition(status, condition_type):
     for condition in status['conditions']:
         if condition.get('type') == condition_type:
