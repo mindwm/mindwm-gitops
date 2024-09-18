@@ -52,7 +52,10 @@ def test_mindwm():
 @allure.step("Mindwm environment")
 @given('a MindWM environment')
 def mindwm_environment(kube):
+
+    
     for plural in ["xcontexts", "xhosts", "xusers"]:
+        utils.custom_object_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
         with allure.step(f"Mindwm crd '{plural}' is exists"):
             pass
@@ -249,12 +252,7 @@ def knative_service_exists(kube, step, namespace):
     for row in rows:
         service_name = row.cells[0].value 
         service = utils.knative_service_wait_for(kube, service_name, namespace)
-        for condition in service['status']['conditions']:
-            if condition.get('type') == 'Ready':
-                ready_condition = condition
-        is_ready = ready_condition and ready_condition.get('status') == 'True'
-        with allure.step(f"Knative service '{service_name}' ready state is {is_ready}"):
-            pass
+        is_ready = utils.resource_get_condition(service['status'], 'Ready')
         assert(is_ready), f"Knative service {service_name} is not ready"
 
 @then("following knative triggers is in ready state in \"{namespace}\" namespace")

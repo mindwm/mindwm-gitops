@@ -132,7 +132,7 @@ def customt_object_wait_for(kube, namespace, group, version, plural, name):
 
     kubetest_utils.wait_for_condition(
         condition=exists_condition,
-        timeout=5,
+        timeout=60,
         interval=5
     )
     return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
@@ -192,6 +192,26 @@ def nats_stream_wait_for(kube, nats_stream_name, namespace):
             "natsjetstreamchannels",
             nats_stream_name
             )
+
+def custom_object_wait_for(kube, group, version, plural):
+    def exists():
+        try:
+            kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
+            return True
+        except Exception as e:
+            return False
+
+    exists_condition = condition.Condition(f"Wait for custom object {group}/{version} {plural} exists", exists)
+
+    kubetest_utils.wait_for_condition(
+        condition=exists_condition,
+        timeout=60,
+        interval=5
+    )
+    return kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
+
+
+
 
 def resource_get_condition(status, condition_type):
     for condition in status['conditions']:
