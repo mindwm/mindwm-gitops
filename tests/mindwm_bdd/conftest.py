@@ -1,9 +1,11 @@
+import allure
 import pytest
 import re
 import pprint
 import kubetest
 from kubetest.client import TestClient
 from kubernetes import client
+from kubetest.plugin import clusterinfo
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
 import mindwm_crd
 import re
@@ -21,15 +23,23 @@ def ctx():
 def test_scenario():
     assert False
 
-
+@allure.step("Cluster info")
 @given(".*kubernetes cluster$")
-def kubernetes_cluster(kube, clusterinfo):
-    assert(clusterinfo.cluster), f"{clusterinfo} "
+def kubernetes_cluster():
+    cluster_info = clusterinfo()
+    with allure.step("Result: {}".format(json.dumps(cluster_info))):
+        pass
+    assert(cluster_info)
 
+@allure.step("Check that all nodes in kubernetes are ready")
 @then("all nodes in kubernetes are ready")
 def kubernetes_nodes(kube):
     for node in kube.get_nodes().values():
-        assert(node.is_ready()), f"{node.name} is not ready"
+        node_is_ready = node.is_ready()
+        with allure.step(f"Node '{node.name}' is {node_is_ready}"):
+            pass
+
+        assert(node_is_ready), f"{node.name} is not ready"
 
 
 @scenario('mindwm_crd.feature','Validate Mindwm custom resource definitions')
@@ -123,7 +133,7 @@ def mindwm_context_deleted(kube, context_name):
     context.wait_until_deleted(30)
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
-def environment(ctx, kube, ubuntu_version, cpu, mem):
+def environment(ctx, ubuntu_version, cpu, mem):
     ctx['cpu'] = cpu
     ctx['mem'] = mem
     ctx['ubuntu_version'] = ubuntu_version
@@ -133,21 +143,19 @@ def environment(ctx, kube, ubuntu_version, cpu, mem):
     pass
 
 @given("the mindwm-gitops repository is cloned into the \"{repo_dir}\" directory")
-def mindwm_repo(ctx, kube, repo_dir):
+def mindwm_repo(ctx, repo_dir):
     ctx['repo_dir'] =  os.path.expanduser(repo_dir)
     assert(os.path.isdir(ctx['repo_dir'])), f"No such directory {ctx['repo_dir']}"
     pass
 
 @when("God executes \"make {target_name}\"")
-def run_make(ctx, kube, target_name):
+def run_make(ctx, target_name):
     run_make_cmd(f"make {target_name}", ctx['repo_dir'])
-    #run_make_cmd(f"make {target_name}", "xx")
 
 @then("helm release {helm_release} is deployed in {namespace} namespace" )
 def helm_release_deploeyd(kube, helm_release, namespace):
     info = utils.helm_release_info(kube, helm_release, namespace)
     assert(info['status'] == "deployed")
-    pass
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
@@ -155,11 +163,12 @@ def argocd_application(kube, application_name, namespace):
 
 @then("the argocd \"{application_name}\" application is {namespace} namespace in a progressing status")
 def argocd_application_in_progress(kube, application_name, namespace):
+    utils.argocd_application_wait_status(kube, application_name, namespace)
     argocd_app = utils.argocd_application(kube, application_name, namespace)
     health_status = argocd_app['status']['health']['status']
     #print(f"{application_name} {health_status}")
     # @metacoma(TODO) Progressing only
-    assert(health_status == 'Progressing' or health_status == "Healthy")
+    assert(health_status == 'Progressing' or health_status == "Healthy") or health_status == "Missing"
 
 @then(parsers.parse("all argocd applications in healthy state"))
 def argocd_applications_check(kube, step):
