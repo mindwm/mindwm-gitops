@@ -26,9 +26,34 @@ Feature: MindWM Custom kubernetes resources
       | context-broker      |
     And kafka topic "context-pink-cdc" is in ready state in "redpanda" namespace
 
+  Scenario: Create User and check k8s resources
+    When God creates a MindWM user resource with the name "alice" and connects it to the context "pink"
+    Then the user resource should be ready and operable
+    And namespace "user-alice" should exists 
+    And following knative brokers is in ready state in "user-alice" namespace
+      | Knative broker name |
+      | user-broker         |
+    And following knative triggers is in ready state in "context-pink" namespace
+      | Knative trigger name          |
+      | context-pink-to-user-alice    |
+    And following knative triggers is in ready state in "user-alice" namespace
+      | Knative trigger name          |
+      | user-alice-to-context-pink    |
+
+  Scenario: Create Host and check k8s resources
+    When God creates a MindWM host resource with the name "laptop" and connects it to the user "alice"
+    Then the host resource should be ready and operable
 
 
   Scenario: Delete Resources and Verify Cleanup
     When God deletes the MindWM context resource "pink"
     Then the context "pink" should be deleted
     And namespace "context-pink" should not exists
+
+    When God deletes the MindWM host resource "laptop"
+    Then the host "laptop" should be deleted
+ 
+    When God deletes the MindWM user resource "alice"
+    Then the user "alice" should be deleted
+    And namespace "user-alice" should not exists
+
