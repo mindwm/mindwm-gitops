@@ -36,7 +36,7 @@ def kubernetes_cluster():
 def kubernetes_nodes(kube):
     for node in kube.get_nodes().values():
         node_is_ready = node.is_ready()
-        with allure.step(f"Node '{node.name}' is {node_is_ready}"):
+        with allure.step(f"Kubernetes node '{node.name}' is {node_is_ready}"):
             pass
 
         assert(node_is_ready), f"{node.name} is not ready"
@@ -46,21 +46,29 @@ def kubernetes_nodes(kube):
 def test_mindwm():
     return True
 
+@allure.step("Mindwm environment")
 @given('a MindWM environment')
 def mindwm_environment(kube):
     for plural in ["xcontexts", "xhosts", "xusers"]:
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
+        with allure.step(f"Mindwm crd '{plural}' is exists"):
+            pass
+
     pass
 
 @when("God creates a MindWM context with the name \"{context_name}\"")
 def mindwm_context(ctx, kube, context_name):
     ctx['context_name'] = context_name
     mindwm_crd.context_create(kube, context_name)
+    with allure.step(f"Create context '{context_name}'"):
+        pass
 
 @then("the context should be ready and operable")
 def minwdm_context_validate(ctx, kube):
     try:
         mindwm_crd.context_validate(kube, ctx['context_name'])
+        with allure.step(f"Context '{ctx['context_name']}' is ready"):
+            pass
     except AssertionError as e:
         # known bug https://github.com/mindwm/mindwm-gitops/issues/100
         if str(e) == f"Context {ctx['context_name']} is not ready":
@@ -68,16 +76,21 @@ def minwdm_context_validate(ctx, kube):
         else:
             raise
 
+
 @when("God creates a MindWM user resource with the name \"{user_name}\" and connects it to the context \"{context_name}\"")
 def mindwm_user_create(ctx, kube, user_name, context_name):
     ctx['user_name'] = user_name
     mindwm_crd.user_create(kube, user_name, context_name)
+    with allure.step(f"Create user '{user_name}' with context {context_name}"):
+        pass
 
 @then("the user resource should be ready and operable")
 def mindwm_user_validate(ctx, kube):
     user = mindwm_crd.user_get(kube, ctx['user_name'])
     try:
         user.validate()
+        with allure.step(f"User '{ctx['user_name']}' is ready"):
+            pass
     except AssertionError as e:
         # known bug https://github.com/mindwm/mindwm-gitops/issues/100
         if str(e) == f"User {ctx['user_name']} is not ready":
