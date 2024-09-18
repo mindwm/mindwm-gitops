@@ -172,6 +172,8 @@ def helm_release_deploeyd(kube, helm_release, namespace):
     #info = utils.helm_release_info(kube, helm_release, namespace)
     info = utils.helm_release_is_ready(kube, helm_release, namespace)
     assert(info['status'] == "deployed")
+    with allure.step(f"Helm release '{helm_release}' deployed in {namespace}"):
+        pass
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
@@ -229,7 +231,11 @@ def namespace_exists(kube, namespace):
     with allure.step(f"Namespace '{namespace}' deleted"):
         pass
 
-statefulset "pink-neo4j" is in ready state
+
+@then("statefulset \"{statefulset_name}\" in namespace \"{namespace}\" is in ready state")
+def statefulset_is_ready(kube, statefulset_name, namespace):
+    statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
+    statefulset.wait_until_ready(180)
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround

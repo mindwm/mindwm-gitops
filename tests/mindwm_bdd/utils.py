@@ -88,4 +88,20 @@ def argocd_application_wait_status(kube, application_name, namespace):
         interval=5
     )
 
+def statefulset_wait_for(kube, statefulset_name, namespace):
+    def exists():
+        try:
+            statefulset = kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
+            return True
+        except Exception as e:
+            pprint.pprint(e)
+            return False
 
+    exists_condition = condition.Condition("statefulset exists", exists)
+
+    kubetest_utils.wait_for_condition(
+        condition=exists_condition,
+        timeout=60,
+        interval=5
+    )
+    return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
