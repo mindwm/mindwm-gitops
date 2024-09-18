@@ -1,52 +1,74 @@
+import allure
 import pytest
 import re
 import pprint
 import kubetest
 from kubetest.client import TestClient
 from kubernetes import client
+from kubetest.plugin import clusterinfo
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
 import mindwm_crd
 import re
+import os
+import utils
 from typing import List
+from make import run_make_cmd
+from messages import DataTable
 
 @pytest.fixture 
 def ctx():
     return {}
 
-@scenario('kubernetes.feature','Validate Mindwm custom resource definitions')
+@scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
 def test_scenario():
     assert False
 
-
+@allure.step("Cluster info")
 @given(".*kubernetes cluster$")
-def kubernetes_cluster(kube, clusterinfo):
-    assert(clusterinfo.cluster), f"{clusterinfo} "
+def kubernetes_cluster():
+    cluster_info = clusterinfo()
+    with allure.step("Result: {}".format(json.dumps(cluster_info))):
+        pass
+    assert(cluster_info)
 
-@then("all nodes in the kubernetes are ready")
+@allure.step("Check that all nodes in kubernetes are ready")
+@then("all nodes in kubernetes are ready")
 def kubernetes_nodes(kube):
     for node in kube.get_nodes().values():
-        assert(node.is_ready()), f"{node.name} is not ready"
+        node_is_ready = node.is_ready()
+        with allure.step(f"Kubernetes node '{node.name}' is {node_is_ready}"):
+            pass
+
+        assert(node_is_ready), f"{node.name} is not ready"
 
 
 @scenario('mindwm_crd.feature','Validate Mindwm custom resource definitions')
 def test_mindwm():
     return True
 
+@allure.step("Mindwm environment")
 @given('a MindWM environment')
 def mindwm_environment(kube):
     for plural in ["xcontexts", "xhosts", "xusers"]:
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
+        with allure.step(f"Mindwm crd '{plural}' is exists"):
+            pass
+
     pass
 
 @when("God creates a MindWM context with the name \"{context_name}\"")
 def mindwm_context(ctx, kube, context_name):
     ctx['context_name'] = context_name
     mindwm_crd.context_create(kube, context_name)
+    with allure.step(f"Create context '{context_name}'"):
+        pass
 
 @then("the context should be ready and operable")
 def minwdm_context_validate(ctx, kube):
     try:
         mindwm_crd.context_validate(kube, ctx['context_name'])
+        with allure.step(f"Context '{ctx['context_name']}' is ready"):
+            pass
     except AssertionError as e:
         # known bug https://github.com/mindwm/mindwm-gitops/issues/100
         if str(e) == f"Context {ctx['context_name']} is not ready":
@@ -54,16 +76,21 @@ def minwdm_context_validate(ctx, kube):
         else:
             raise
 
+
 @when("God creates a MindWM user resource with the name \"{user_name}\" and connects it to the context \"{context_name}\"")
 def mindwm_user_create(ctx, kube, user_name, context_name):
     ctx['user_name'] = user_name
     mindwm_crd.user_create(kube, user_name, context_name)
+    with allure.step(f"Create user '{user_name}' with context {context_name}"):
+        pass
 
 @then("the user resource should be ready and operable")
 def mindwm_user_validate(ctx, kube):
     user = mindwm_crd.user_get(kube, ctx['user_name'])
     try:
         user.validate()
+        with allure.step(f"User '{ctx['user_name']}' is ready"):
+            pass
     except AssertionError as e:
         # known bug https://github.com/mindwm/mindwm-gitops/issues/100
         if str(e) == f"User {ctx['user_name']} is not ready":
@@ -111,12 +138,78 @@ def mindwm_user_deleted(kube, user_name):
 
 @when("God deletes the MindWM context resource \"{context_name}\"")
 def mindwm_context_delete(kube, context_name):
-    ctx = mindwm_crd.context_get(kube, context_name)
-    ctx.delete(None)
+    context = mindwm_crd.context_get(kube, context_name)
+    context.delete(None)
 @then("the context \"{context_name}\" should be deleted")
 def mindwm_context_deleted(kube, context_name):
-    ctx = mindwm_crd.context_get(kube, context_name)
-    ctx.wait_until_deleted(30)
+    context= mindwm_crd.context_get(kube, context_name)
+    context.wait_until_deleted(30)
+
+@given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
+def environment(ctx, ubuntu_version, cpu, mem):
+    ctx['cpu'] = cpu
+    ctx['mem'] = mem
+    ctx['ubuntu_version'] = ubuntu_version
+    assert(cpu >= 6), f"Cpu < 6"
+    assert(mem >= 16), f"Mem < 16"
+    assert(ubuntu_version == "22.04" or ubuntu_version == "24.04")
+    pass
+
+@given("the mindwm-gitops repository is cloned into the \"{repo_dir}\" directory")
+def mindwm_repo(ctx, repo_dir):
+    ctx['repo_dir'] =  os.path.expanduser(repo_dir)
+    assert(os.path.isdir(ctx['repo_dir'])), f"No such directory {ctx['repo_dir']}"
+    pass
+
+@when("God executes \"make {target_name}\"")
+def run_make(ctx, target_name):
+    run_make_cmd(f"make {target_name}", ctx['repo_dir'])
+
+@then("helm release {helm_release} is deployed in {namespace} namespace" )
+def helm_release_deploeyd(kube, helm_release, namespace):
+    info = utils.helm_release_info(kube, helm_release, namespace)
+    assert(info['status'] == "deployed")
+
+@then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
+def argocd_application(kube, application_name, namespace):
+   utils.argocd_application(kube, application_name, namespace)
+
+@then("the argocd \"{application_name}\" application is {namespace} namespace in a progressing status")
+def argocd_application_in_progress(kube, application_name, namespace):
+    utils.argocd_application_wait_status(kube, application_name, namespace)
+    argocd_app = utils.argocd_application(kube, application_name, namespace)
+    health_status = argocd_app['status']['health']['status']
+    #print(f"{application_name} {health_status}")
+    # @metacoma(TODO) Progressing only
+    assert(health_status == 'Progressing' or health_status == "Healthy") or health_status == "Missing"
+
+@then(parsers.parse("all argocd applications in healthy state"))
+def argocd_applications_check(kube, step):
+    # @metacoma(REFACT)
+    title_row, *rows = step.data_table.rows
+
+    for row in rows:
+        application_name = row.cells[0].value
+        argocd_application_in_progress(kube, application_name, "argocd")
+    pass
+
+@then("all argocd applications are in a healthy state")
+def argocd_applications_check(kube, step):
+    title_row, *rows = step.data_table.rows
+
+    for row in rows:
+        application_name = row.cells[0].value
+        argocd_application_in_progress(kube, application_name, "argocd")
+
+@then("the following roles should exist:")
+def role_exists(kube, step):
+    title_row, *rows = step.data_table.rows
+    cluster_roles = kube.get_clusterroles()
+    for row in rows:
+        role_name = row.cells[0].value 
+        role = cluster_roles.get(role_name)
+        assert role is not None, f"Role {role_name} not found"
+
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
