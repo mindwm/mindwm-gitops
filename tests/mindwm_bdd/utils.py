@@ -4,6 +4,8 @@ import gzip
 import json
 from io import BytesIO
 from kubernetes import client, config
+from kubetest import condition
+from kubetest import utils as kubetest_utils
 
 def double_base64_decode(encoded_str):
     try:
@@ -40,5 +42,29 @@ def argocd_application(kube, application_name, namespace):
         plural='applications',
         namespace = namespace,
         name = application_name
-    )
+        )
     return resource
+
+def argocd_application_wait_status(kube, application_name, namespace):
+    def has_status(): 
+        print(".")
+        try:
+            resource = argocd_application(kube, application_name, namespace),
+            sync_status = resource[0]['status']['sync']
+            health_status = resource[0]['status']['health']['status']
+            pprint.pprint(health_status)
+            return True
+        except Exception as e: 
+            pprint.pprint(e)
+            return False
+            
+    status_condition = condition.Condition("api object deleted", has_status)
+
+    # 07:h8
+    kubetest_utils.wait_for_condition(
+        condition=status_condition,
+        timeout=180,
+        interval=5
+    )
+
+
