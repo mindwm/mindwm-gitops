@@ -66,6 +66,7 @@ def mindwm_context(ctx, kube, context_name):
     with allure.step(f"Create context '{context_name}'"):
         pass
 
+
 @then("the context should be ready and operable")
 def minwdm_context_validate(ctx, kube):
     try:
@@ -100,10 +101,13 @@ def mindwm_user_validate(ctx, kube):
         else:
             raise
 
+
 @when("God creates a MindWM host resource with the name \"{host_name}\" and connects it to the user \"{user_name}\"")
 def mindwm_host_create(ctx, kube, host_name, user_name):
     ctx['host_name'] = host_name
     mindwm_crd.host_create(kube, host_name, user_name)
+    with allure.step(f"Host '{ctx['host_name']}' has created"):
+        pass
 
 @then("the host resource should be ready and operable")
 def mindwm_host_validate(ctx, kube):
