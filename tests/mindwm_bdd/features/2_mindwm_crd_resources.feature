@@ -3,6 +3,7 @@ Feature: MindWM Custom kubernetes resources
 
   Background:
     Given a MindWM environment
+    Then all nodes in Kubernetes are ready
     
   Scenario: Create Context and check k8s resources
     When God creates a MindWM context with the name "cyan"
