@@ -6,6 +6,7 @@ import kubetest
 from kubetest.client import TestClient
 from kubernetes import client
 from kubetest.plugin import clusterinfo
+from kubetest.objects.namespace import Namespace
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
 import mindwm_crd
 import re
@@ -14,6 +15,8 @@ import utils
 from typing import List
 from make import run_make_cmd
 from messages import DataTable
+from kubetest import utils as kubetest_utils
+from kubetest import condition
 
 @pytest.fixture 
 def ctx():
@@ -75,7 +78,6 @@ def minwdm_context_validate(ctx, kube):
             pass
         else:
             raise
-
 
 @when("God creates a MindWM user resource with the name \"{user_name}\" and connects it to the context \"{context_name}\"")
 def mindwm_user_create(ctx, kube, user_name, context_name):
@@ -209,6 +211,28 @@ def role_exists(kube, step):
         role_name = row.cells[0].value 
         role = cluster_roles.get(role_name)
         assert role is not None, f"Role {role_name} not found"
+
+
+@then("namespace \"{namespace}\" should exists")
+def namespace_exists(kube, namespace):
+    ns = Namespace.new(namespace)
+    ns.wait_until_ready(timeout=60)
+    # ready_condition = condition.Condition(f"namespace {namespace} is ready", ns.is_ready)
+    #
+    # kubetest_utils.wait_for_condition(
+    #     condition=ready_condition,
+    #     timeout=180,
+    #     interval=5
+    # )
+    #
+    with allure.step(f"Namespace '{namespace}' is ready"):
+        pass
+
+@then("namespace \"{namespace}\" should not exists")
+def namespace_exists(kube, namespace):
+    ns = Namespace.new(namespace)
+    ns.wait_until_deleted(timeout=180)
+
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
