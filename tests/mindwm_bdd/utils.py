@@ -52,10 +52,10 @@ def argocd_application_wait_status(kube, application_name, namespace):
             resource = argocd_application(kube, application_name, namespace),
             sync_status = resource[0]['status']['sync']
             health_status = resource[0]['status']['health']['status']
-            pprint.pprint(health_status)
+            #pprint.pprint(health_status)
             return True
         except Exception as e: 
-            pprint.pprint(e)
+            #pprint.pprint(e)
             return False
             
     status_condition = condition.Condition("api object deleted", has_status)
