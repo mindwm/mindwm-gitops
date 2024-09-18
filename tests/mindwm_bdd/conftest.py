@@ -167,9 +167,10 @@ def mindwm_repo(ctx, repo_dir):
 def run_make(ctx, target_name):
     run_make_cmd(f"make {target_name}", ctx['repo_dir'])
 
-@then("helm release {helm_release} is deployed in {namespace} namespace" )
+@then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
 def helm_release_deploeyd(kube, helm_release, namespace):
-    info = utils.helm_release_info(kube, helm_release, namespace)
+    #info = utils.helm_release_info(kube, helm_release, namespace)
+    info = utils.helm_release_is_ready(kube, helm_release, namespace)
     assert(info['status'] == "deployed")
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
@@ -217,23 +218,18 @@ def role_exists(kube, step):
 def namespace_exists(kube, namespace):
     ns = Namespace.new(namespace)
     ns.wait_until_ready(timeout=60)
-    # ready_condition = condition.Condition(f"namespace {namespace} is ready", ns.is_ready)
-    #
-    # kubetest_utils.wait_for_condition(
-    #     condition=ready_condition,
-    #     timeout=180,
-    #     interval=5
-    # )
-    #
     with allure.step(f"Namespace '{namespace}' is ready"):
         pass
 
 @then("namespace \"{namespace}\" should not exists")
 def namespace_exists(kube, namespace):
+    ctx['namespace'] = namespace
     ns = Namespace.new(namespace)
     ns.wait_until_deleted(timeout=180)
+    with allure.step(f"Namespace '{namespace}' deleted"):
+        pass
 
-
+statefulset "pink-neo4j" is in ready state
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround

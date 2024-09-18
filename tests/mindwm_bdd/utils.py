@@ -27,13 +27,35 @@ def gunzip_data(compressed_data):
 
 
 def helm_release_info(kube, release_name, namespace):
-    helm_secret = kube.get_secrets(namespace, labels = {"name": release_name})['sh.helm.release.v1.argocd.v1']
+    helm_secret = kube.get_secrets(namespace, labels = {"name": release_name})[f'sh.helm.release.v1.{release_name}.v1']
     #release_str = json.loads(helm_secret.obj.data)
     data_base64 = helm_secret.obj.data['release']
     data_str = gunzip_data(double_base64_decode(data_base64))
     data = json.loads(data_str)
     return data['info']
 
+def helm_release_is_ready(kube, release_name, namespace):
+    def is_ready():
+        try:
+            info = helm_release_info(kube, release_name, namespace)
+            return info['status'] == "deployed"
+        except Exception as e:
+            pprint.pprint(e)
+            return False
+
+    ready_condition = condition.Condition("helm release has status and info", is_ready)
+
+    kubetest_utils.wait_for_condition(
+        condition=ready_condition,
+        timeout=180,
+        interval=5
+    )
+
+
+    return helm_release_info(kube, release_name, namespace)
+
+
+    
 def argocd_application(kube, application_name, namespace):
     api_instance = client.CustomObjectsApi(kube.api_client)
     resource = api_instance.get_namespaced_custom_object(
