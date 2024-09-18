@@ -3,7 +3,7 @@ Feature: Mindwm Lifecycle Management
 
   Background:
     Given an Ubuntu 24.04 system with 6 CPUs and 16 GB of RAM
-    And the mindwm-gitops repository is cloned into the "~/git/mindwm-gitops" directory
+    And the mindwm-gitops repository is cloned into the "~/mindwm-gitops" directory
 
   Scenario: Deploy Mindwm Cluster and Applications
      When God executes "make cluster"
