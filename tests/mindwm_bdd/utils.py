@@ -40,7 +40,6 @@ def helm_release_is_ready(kube, release_name, namespace):
             info = helm_release_info(kube, release_name, namespace)
             return info['status'] == "deployed"
         except Exception as e:
-            pprint.pprint(e)
             return False
 
     ready_condition = condition.Condition("helm release has status and info", is_ready)
@@ -73,10 +72,8 @@ def argocd_application_wait_status(kube, application_name, namespace):
             resource = argocd_application(kube, application_name, namespace),
             sync_status = resource[0]['status']['sync']
             health_status = resource[0]['status']['health']['status']
-            #pprint.pprint(health_status)
             return True
         except Exception as e: 
-            #pprint.pprint(e)
             return False
             
     status_condition = condition.Condition("api object deleted", has_status)
@@ -105,3 +102,34 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
         interval=5
     )
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
+
+def knative_service_wait_for(kube, knative_service_name, namespace):
+    def exists():
+        try:
+            api_instance = client.CustomObjectsApi(kube.api_client)
+            resource = api_instance.get_namespaced_custom_object(
+                group='serving.knative.dev',
+                version='v1',
+                plural='services',
+                namespace = namespace,
+                name = knative_service_name 
+            )
+            return True
+        except Exception as e:
+            pprint.pprint(e)
+            return False
+
+    exists_condition = condition.Condition("knative service {knative_service_name} exists", exists)
+
+    kubetest_utils.wait_for_condition(
+        condition=exists_condition,
+        timeout=60,
+        interval=5
+    )
+    return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                group='serving.knative.dev',
+                version='v1',
+                plural='services',
+                namespace = namespace,
+                name = knative_service_name 
+            )

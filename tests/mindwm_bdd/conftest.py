@@ -221,15 +221,15 @@ def role_exists(kube, step):
 
 
 @then("namespace \"{namespace}\" should exists")
-def namespace_exists(kube, namespace):
+def namespace_exists(ctx, kube, namespace):
     ns = Namespace.new(namespace)
     ns.wait_until_ready(timeout=60)
     with allure.step(f"Namespace '{namespace}' is ready"):
         pass
-
-@then("namespace \"{namespace}\" should not exists")
-def namespace_exists(kube, namespace):
     ctx['namespace'] = namespace
+
+@then("namespace \"{namespace_name}\" should not exists")
+def namespace_not_exists(kube, namespace):
     ns = Namespace.new(namespace)
     ns.wait_until_deleted(timeout=180)
     with allure.step(f"Namespace '{namespace}' deleted"):
@@ -240,6 +240,24 @@ def namespace_exists(kube, namespace):
 def statefulset_is_ready(kube, statefulset_name, namespace):
     statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
     statefulset.wait_until_ready(180)
+    with allure.step(f"Statefulset '{statefulset_name}' is ready"):
+        pass
+
+@then("following knative service is in ready state in \"{context_name}\" namespace")
+def knative_service_exists(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        service_name = row.cells[0].value 
+        service = utils.knative_service_wait_for(kube, service_name, namespace)
+        pprint.pprint(service)
+        for condition in service['status']['conditions']:
+            if condition.get('type') == 'Ready':
+                ready_condition = condition
+        is_ready = ready_condition and ready_condition.get('status') == 'True'
+        with allure.step(f"Knative service '{service_name}' ready state is {is_ready}"):
+            pass
+        assert(is_ready), f"Knative service {service_name} is not ready"
+
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
