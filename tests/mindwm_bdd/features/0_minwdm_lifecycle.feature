@@ -10,7 +10,7 @@ Feature: Mindwm Lifecycle Management
      Then all nodes in Kubernetes are ready
 
      When God executes "make argocd"
-     Then helm release argocd is deployed in argocd namespace
+     Then helm release "argocd" is deployed in "argocd" namespace
 
      When God executes "make argocd_app"
      Then the argocd "mindwm-gitops" application appears in "argocd" namespace

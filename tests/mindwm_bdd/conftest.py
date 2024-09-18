@@ -6,6 +6,7 @@ import kubetest
 from kubetest.client import TestClient
 from kubernetes import client
 from kubetest.plugin import clusterinfo
+from kubetest.objects.namespace import Namespace
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
 import mindwm_crd
 import re
@@ -14,6 +15,8 @@ import utils
 from typing import List
 from make import run_make_cmd
 from messages import DataTable
+from kubetest import utils as kubetest_utils
+from kubetest import condition
 
 @pytest.fixture 
 def ctx():
@@ -49,7 +52,10 @@ def test_mindwm():
 @allure.step("Mindwm environment")
 @given('a MindWM environment')
 def mindwm_environment(kube):
+
+    
     for plural in ["xcontexts", "xhosts", "xusers"]:
+        utils.custom_object_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
         with allure.step(f"Mindwm crd '{plural}' is exists"):
             pass
@@ -63,6 +69,7 @@ def mindwm_context(ctx, kube, context_name):
     with allure.step(f"Create context '{context_name}'"):
         pass
 
+
 @then("the context should be ready and operable")
 def minwdm_context_validate(ctx, kube):
     try:
@@ -75,7 +82,6 @@ def minwdm_context_validate(ctx, kube):
             pass
         else:
             raise
-
 
 @when("God creates a MindWM user resource with the name \"{user_name}\" and connects it to the context \"{context_name}\"")
 def mindwm_user_create(ctx, kube, user_name, context_name):
@@ -98,10 +104,13 @@ def mindwm_user_validate(ctx, kube):
         else:
             raise
 
+
 @when("God creates a MindWM host resource with the name \"{host_name}\" and connects it to the user \"{user_name}\"")
 def mindwm_host_create(ctx, kube, host_name, user_name):
     ctx['host_name'] = host_name
     mindwm_crd.host_create(kube, host_name, user_name)
+    with allure.step(f"Host '{ctx['host_name']}' has created"):
+        pass
 
 @then("the host resource should be ready and operable")
 def mindwm_host_validate(ctx, kube):
@@ -165,10 +174,13 @@ def mindwm_repo(ctx, repo_dir):
 def run_make(ctx, target_name):
     run_make_cmd(f"make {target_name}", ctx['repo_dir'])
 
-@then("helm release {helm_release} is deployed in {namespace} namespace" )
+@then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
 def helm_release_deploeyd(kube, helm_release, namespace):
-    info = utils.helm_release_info(kube, helm_release, namespace)
+    #info = utils.helm_release_info(kube, helm_release, namespace)
+    info = utils.helm_release_is_ready(kube, helm_release, namespace)
     assert(info['status'] == "deployed")
+    with allure.step(f"Helm release '{helm_release}' deployed in {namespace}"):
+        pass
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
@@ -211,8 +223,88 @@ def role_exists(kube, step):
         assert role is not None, f"Role {role_name} not found"
 
 
+@then("namespace \"{namespace}\" should exists")
+def namespace_exists(ctx, kube, namespace):
+    ns = Namespace.new(namespace)
+    ns.wait_until_ready(timeout=60)
+    with allure.step(f"Namespace '{namespace}' is ready"):
+        pass
+    ctx['namespace'] = namespace
+
+@then("namespace \"{namespace}\" should not exists")
+def namespace_not_exists(kube, namespace):
+    ns = Namespace.new(namespace)
+    ns.wait_until_deleted(timeout=180)
+    with allure.step(f"Namespace '{namespace}' deleted"):
+        pass
+
+
+@then("statefulset \"{statefulset_name}\" in namespace \"{namespace}\" is in ready state")
+def statefulset_is_ready(kube, statefulset_name, namespace):
+    statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
+    statefulset.wait_until_ready(180)
+    with allure.step(f"Statefulset '{statefulset_name}' is ready"):
+        pass
+
+@then("following knative service is in ready state in \"{namespace}\" namespace")
+def knative_service_exists(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        service_name = row.cells[0].value 
+        service = utils.knative_service_wait_for(kube, service_name, namespace)
+        is_ready = utils.resource_get_condition(service['status'], 'Ready')
+        assert(is_ready), f"Knative service {service_name} is not ready"
+
+@then("following knative triggers is in ready state in \"{namespace}\" namespace")
+def knative_trigger_exists(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        trigger_name = row.cells[0].value 
+        trigger = utils.knative_trigger_wait_for(kube, trigger_name, namespace)
+        is_ready = utils.resource_get_condition(trigger['status'], 'Ready')
+        with allure.step(f"Knative trigger '{trigger_name}' ready state is {is_ready}"):
+            pass
+        assert(is_ready == 'True')
+
+@then("following knative brokers is in ready state in \"{namespace}\" namespace")
+def knative_broker_exists(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        broker_name = row.cells[0].value 
+        broker = utils.knative_broker_wait_for(kube, broker_name, namespace)
+        is_ready = utils.resource_get_condition(broker['status'], 'Ready')
+        with allure.step(f"Knative broker '{broker_name}' ready state is {is_ready}"):
+            pass
+        assert(is_ready == 'True')
+
+@then("kafka topic \"{kafka_topic_name}\" is in ready state in \"{namespace}\" namespace")
+def kafka_topic_exists(kube, kafka_topic_name, namespace):
+    kafka_topic = utils.kafka_topic_wait_for(kube, kafka_topic_name, namespace)
+    is_ready = utils.resource_get_condition(kafka_topic['status'], 'Ready')
+    with allure.step(f"Kafka topic '{kafka_topic_name}' ready state is {is_ready}"):
+        pass
+    assert(is_ready == 'True')
+
+@then("kafka source \"{kafka_source_name}\" is in ready state in \"{namespace}\" namespace")
+def kafka_source_exists(kube, kafka_source_name, namespace):
+    kafka_source = utils.kafka_source_wait_for(kube, kafka_source_name, namespace)
+    is_ready = utils.resource_get_condition(kafka_source['status'], 'Ready')
+    with allure.step(f"Kafka source '{kafka_source_name}' ready state is {is_ready}"):
+        pass
+    assert(is_ready == 'True')
+
+@then("NatsJetStreamChannel \"{nats_stream_name}\" is ready in \"{namespace}\" namespace")
+def nats_stream_exists(kube, nats_stream_name, namespace):
+    nats_stream = utils.nats_stream_wait_for(kube, nats_stream_name, namespace)
+    is_ready = utils.resource_get_condition(nats_stream['status'], 'Ready')
+    with allure.step(f"Nats stream '{nats_stream}' ready state is {is_ready}"):
+        pass
+    assert(is_ready == 'True')
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
     for item in items:
         item.add_marker(pytest.mark.namespace(create = False, name = "default"))
+
 
