@@ -173,6 +173,26 @@ def kafka_topic_wait_for(kube, kafka_topic_name, namespace):
             kafka_topic_name
             )
 
+def kafka_source_wait_for(kube, kafka_source_name, namespace):
+    return customt_object_wait_for(
+            kube,  
+            namespace,
+            'sources.knative.dev',
+            "v1beta1",
+            "kafkasources",
+            kafka_source_name
+            )
+
+def nats_stream_wait_for(kube, nats_stream_name, namespace):
+    return customt_object_wait_for(
+            kube,  
+            namespace,
+            'messaging.knative.dev',
+            "v1alpha1",
+            "natsjetstreamchannels",
+            nats_stream_name
+            )
+
 def resource_get_condition(status, condition_type):
     for condition in status['conditions']:
         if condition.get('type') == condition_type:

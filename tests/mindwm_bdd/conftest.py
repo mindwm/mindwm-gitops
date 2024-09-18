@@ -286,12 +286,27 @@ def kafka_topic_exists(kube, kafka_topic_name, namespace):
     with allure.step(f"Kafka topic '{kafka_topic_name}' ready state is {is_ready}"):
         pass
     assert(is_ready == 'True')
-    
 
+@then("kafka source \"{kafka_source_name}\" is in ready state in \"{namespace}\" namespace")
+def kafka_source_exists(kube, kafka_source_name, namespace):
+    kafka_source = utils.kafka_source_wait_for(kube, kafka_source_name, namespace)
+    is_ready = utils.resource_get_condition(kafka_source['status'], 'Ready')
+    with allure.step(f"Kafka source '{kafka_source_name}' ready state is {is_ready}"):
+        pass
+    assert(is_ready == 'True')
+
+@then("NatsJetStreamChannel \"{nats_stream_name}\" is ready in \"{namespace}\" namespace")
+def nats_stream_exists(kube, nats_stream_name, namespace):
+    nats_stream = utils.nats_stream_wait_for(kube, nats_stream_name, namespace)
+    is_ready = utils.resource_get_condition(nats_stream['status'], 'Ready')
+    with allure.step(f"Nats stream '{nats_stream}' ready state is {is_ready}"):
+        pass
+    assert(is_ready == 'True')
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
     for item in items:
         item.add_marker(pytest.mark.namespace(create = False, name = "default"))
+
 
