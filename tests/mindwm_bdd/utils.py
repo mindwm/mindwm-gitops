@@ -47,7 +47,6 @@ def argocd_application(kube, application_name, namespace):
 
 def argocd_application_wait_status(kube, application_name, namespace):
     def has_status(): 
-        print(".")
         try:
             resource = argocd_application(kube, application_name, namespace),
             sync_status = resource[0]['status']['sync']
