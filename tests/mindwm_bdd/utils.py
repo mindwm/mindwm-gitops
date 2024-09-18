@@ -104,32 +104,70 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
 
 def knative_service_wait_for(kube, knative_service_name, namespace):
+    return customt_object_wait_for(
+            kube,  
+            namespace,
+            'serving.knative.dev',
+            "v1",
+            "services",
+            knative_service_name
+            )
+
+def customt_object_wait_for(kube, namespace, group, version, plural, name):
     def exists():
         try:
             api_instance = client.CustomObjectsApi(kube.api_client)
             resource = api_instance.get_namespaced_custom_object(
-                group='serving.knative.dev',
-                version='v1',
-                plural='services',
+                group=group,
+                version=version,
+                plural=plural,
                 namespace = namespace,
-                name = knative_service_name 
+                name = name
             )
             return True
         except Exception as e:
-            pprint.pprint(e)
             return False
 
-    exists_condition = condition.Condition("knative service {knative_service_name} exists", exists)
+    exists_condition = condition.Condition(f"Wait for {group}/{version} {name} exists in namespace {namespace}", exists)
 
     kubetest_utils.wait_for_condition(
         condition=exists_condition,
-        timeout=60,
+        timeout=5,
         interval=5
     )
     return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
-                group='serving.knative.dev',
-                version='v1',
-                plural='services',
+                group=group,
+                version=version,
+                plural=plural,
                 namespace = namespace,
-                name = knative_service_name 
+                name = name
             )
+
+def knative_trigger_wait_for(kube, knative_trigger_name, namespace):
+    return customt_object_wait_for(
+            kube,  
+            namespace,
+            'eventing.knative.dev',
+            "v1",
+            "triggers",
+            knative_trigger_name
+            )
+
+def knative_broker_wait_for(kube, knative_broker_name, namespace):
+    return customt_object_wait_for(
+            kube,  
+            namespace,
+            'eventing.knative.dev',
+            "v1",
+            "brokers",
+            knative_broker_name
+            )
+
+def resource_get_condition(status, condition_type):
+    for condition in status['conditions']:
+        if condition.get('type') == condition_type:
+            match_condition = condition    
+
+    # XXX
+    return match_condition.get('status')
+    

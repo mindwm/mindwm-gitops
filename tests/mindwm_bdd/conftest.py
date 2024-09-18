@@ -228,7 +228,7 @@ def namespace_exists(ctx, kube, namespace):
         pass
     ctx['namespace'] = namespace
 
-@then("namespace \"{namespace_name}\" should not exists")
+@then("namespace \"{namespace}\" should not exists")
 def namespace_not_exists(kube, namespace):
     ns = Namespace.new(namespace)
     ns.wait_until_deleted(timeout=180)
@@ -243,13 +243,12 @@ def statefulset_is_ready(kube, statefulset_name, namespace):
     with allure.step(f"Statefulset '{statefulset_name}' is ready"):
         pass
 
-@then("following knative service is in ready state in \"{context_name}\" namespace")
+@then("following knative service is in ready state in \"{namespace}\" namespace")
 def knative_service_exists(kube, step, namespace):
     title_row, *rows = step.data_table.rows
     for row in rows:
         service_name = row.cells[0].value 
         service = utils.knative_service_wait_for(kube, service_name, namespace)
-        pprint.pprint(service)
         for condition in service['status']['conditions']:
             if condition.get('type') == 'Ready':
                 ready_condition = condition
@@ -257,6 +256,28 @@ def knative_service_exists(kube, step, namespace):
         with allure.step(f"Knative service '{service_name}' ready state is {is_ready}"):
             pass
         assert(is_ready), f"Knative service {service_name} is not ready"
+
+@then("following knative triggers is in ready state in \"{namespace}\" namespace")
+def knative_trigger_exists(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        trigger_name = row.cells[0].value 
+        trigger = utils.knative_trigger_wait_for(kube, trigger_name, namespace)
+        is_ready = utils.resource_get_condition(trigger['status'], 'Ready')
+        with allure.step(f"Knative trigger '{trigger_name}' ready state is {is_ready}"):
+            pass
+        assert(is_ready == 'True')
+
+@then("following knative brokers is in ready state in \"{namespace}\" namespace")
+def knative_broker_exists(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        broker_name = row.cells[0].value 
+        broker = utils.knative_broker_wait_for(kube, broker_name, namespace)
+        is_ready = utils.resource_get_condition(broker['status'], 'Ready')
+        with allure.step(f"Knative broker '{broker_name}' ready state is {is_ready}"):
+            pass
+        assert(is_ready == 'True')
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):

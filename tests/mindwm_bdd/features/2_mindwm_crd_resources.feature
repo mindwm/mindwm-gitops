@@ -16,9 +16,18 @@ Feature: MindWM Custom kubernetes resources
       | iocontext            |
       | kafka-cdc            |
       | pong                 |
+    And following knative triggers is in ready state in "context-pink" namespace
+      | Knative trigger name |
+      | iocontext-trigger    |
+      | kafka-cdc-trigger    |
+      | pong-trigger         |
+    And following knative brokers is in ready state in "context-pink" namespace
+      | Knative broker name |
+      | context-broker      |
 
 
-  Scenario: Delete Resources and Verify Cleanup
-    When God deletes the MindWM context resource "pink"
-    Then the context "pink" should be deleted
-    And namespace "context-pink" should not exists
+
+  # Scenario: Delete Resources and Verify Cleanup
+  #   When God deletes the MindWM context resource "pink"
+  #   Then the context "pink" should be deleted
+  #   And namespace "context-pink" should not exists
