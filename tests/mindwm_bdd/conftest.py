@@ -19,6 +19,7 @@ from kubetest import utils as kubetest_utils
 from kubetest import condition
 import json
 import requests
+import time
 
 @pytest.fixture 
 def ctx():
@@ -317,15 +318,8 @@ def cloudevent_header_set(cloudevent, key, value):
 
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
 def event_send_ping(kube, cloudevent, broker_name, namespace):
-    def get_lb():
-        services = kube.get_services("istio-system")
-        lb_service = services.get("istio-ingressgateway")
-        assert lb_service is not None
-        lb_ip = lb_service.status().load_balancer.ingress[0].ip
-        assert lb_ip is not None
-        return lb_ip
 
-    ingress_host = get_lb()
+    ingress_host = utils.get_lb(kube)
     url = f"http://{ingress_host}/{namespace}/{broker_name}"
 
     headers = {
@@ -349,8 +343,17 @@ def event_send_ping(kube, cloudevent, broker_name, namespace):
 
     pass
 
-@then("the trace with \"{cloudevent_id}\" should appear in TraceQL")
-def tracesql_get_trace(kube, cloudevent_id):
+@then("the trace with \"{traceparent}\" should appear in TraceQL")
+def tracesql_get_trace(kube, traceparent):
+    ingress_host = utils.get_lb(kube)
+    trace_id = utils.extract_trace_id(traceparent) 
+    url = f"http://{ingress_host}/api/traces/{trace_id}"
+    headers = {
+        "Host": "tempo.mindwm.local"
+    }
+    time.sleep(5)
+    response = requests.get(url, headers = headers)
+    assert response.status_code == 200, f"Response code {response.status_code} != 200"
     pass
 
 

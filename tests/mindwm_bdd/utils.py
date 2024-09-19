@@ -6,6 +6,7 @@ from io import BytesIO
 from kubernetes import client, config
 from kubetest import condition
 from kubetest import utils as kubetest_utils
+import re
 
 def double_base64_decode(encoded_str):
     try:
@@ -227,3 +228,46 @@ def resource_get_condition(status, condition_type):
     # XXX
     return match_condition.get('status')
     
+
+def get_lb(kube):
+    services = kube.get_services("istio-system")
+    lb_service = services.get("istio-ingressgateway")
+    assert lb_service is not None
+    lb_ip = lb_service.status().load_balancer.ingress[0].ip
+    assert lb_ip is not None
+    return lb_ip
+
+def extract_trace_id(traceparent: str) -> str:
+    """
+    Extracts the TraceID from a W3C Trace Context traceparent string.
+
+    The traceparent string should follow the format:
+    version-traceid-spanid-traceflags
+
+    Example:
+        Input: "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00"
+        Output: "4bf92f3577b34da6a3ce929d0e0e4736"
+
+    Args:
+        traceparent (str): The traceparent string from observability metrics.
+
+    Returns:
+        str: The extracted TraceID.
+
+    Raises:
+        ValueError: If the traceparent string is invalid or does not conform to the expected format.
+    """
+    # Define a regex pattern for the traceparent header
+    traceparent_pattern = re.compile(
+        r"^(?P<version>[0-9a-fA-F]{2})-"
+        r"(?P<trace_id>[0-9a-fA-F]{32})-"
+        r"(?P<span_id>[0-9a-fA-F]{16})-"
+        r"(?P<trace_flags>[0-9a-fA-F]{2})$"
+    )
+
+    match = traceparent_pattern.match(traceparent)
+    if not match:
+        raise ValueError(f"Invalid traceparent format: '{traceparent}'")
+
+    trace_id = match.group("trace_id")
+    return trace_id
