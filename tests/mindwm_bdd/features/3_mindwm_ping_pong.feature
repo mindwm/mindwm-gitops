@@ -19,12 +19,12 @@ Feature: MindWM Ping-pong EDA test
     Then the host resource should be ready and operable
    
     When God creates a new cloudevent 
-    And sets cloudevent "ce-id" to "<cloudevent_id>"
-    And sets cloudevent "traceparent" to "<traceparent>"
-    And sets cloudevent "ce-subject" to "#ping"
-    And sets cloudevent "ce-source" to "org.mindwmv1.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36"
-    And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
-    And sends cloudevent to "context-broker" in "context-<context>" namespace
+      And sets cloudevent "ce-id" to "<cloudevent_id>"
+      And sets cloudevent "traceparent" to "<traceparent>"
+      And sets cloudevent "ce-subject" to "#ping"
+      And sets cloudevent "ce-source" to "org.mindwm.v1.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36"
+      And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
+      And sends cloudevent to "context-broker" in "context-<context>" namespace
     Then the trace with "<traceparent>" should appear in TraceQL
 
     Examples:
@@ -44,4 +44,4 @@ Feature: MindWM Ping-pong EDA test
      Examples:
      | context | username | host        | 
      | green4   | amanda4   | pi6-host         |
-  
+  # 

@@ -60,7 +60,7 @@ def mindwm_environment(kube):
 
     
     for plural in ["xcontexts", "xhosts", "xusers"]:
-        utils.custom_object_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
+        utils.custom_object_plural_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
         with allure.step(f"Mindwm crd '{plural}' is exists"):
             pass
