@@ -17,9 +17,14 @@ from make import run_make_cmd
 from messages import DataTable
 from kubetest import utils as kubetest_utils
 from kubetest import condition
+import json
+import requests
 
 @pytest.fixture 
 def ctx():
+    return {}
+@pytest.fixture
+def cloudevent():
     return {}
 
 @scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
@@ -300,6 +305,54 @@ def nats_stream_exists(kube, nats_stream_name, namespace):
     with allure.step(f"Nats stream '{nats_stream}' ready state is {is_ready}"):
         pass
     assert(is_ready == 'True')
+
+@when("God creates a new cloudevent")
+def cloudevent_new(cloudevent):
+    cloudevent = {}
+
+@when("sets cloudevent \"{key}\" to \"{value}\"")
+def cloudevent_header_set(cloudevent, key, value):
+    cloudevent[key] = value
+
+
+@when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
+def event_send_ping(kube, cloudevent, broker_name, namespace):
+    def get_lb():
+        services = kube.get_services("istio-system")
+        lb_service = services.get("istio-ingressgateway")
+        assert lb_service is not None
+        lb_ip = lb_service.status().load_balancer.ingress[0].ip
+        assert lb_ip is not None
+        return lb_ip
+
+    ingress_host = get_lb()
+    url = f"http://{ingress_host}/{namespace}/{broker_name}"
+
+    headers = {
+        "Host": "broker-ingress.knative-eventing.svc.cluster.local",
+        "Content-Type": "application/json",
+        "traceparent": cloudevent['traceparent'],
+        "Ce-specversion": "1.0",
+        "Ce-id": cloudevent['ce-id'],
+        "ce-source": cloudevent['ce-source'],
+        "ce-subject": cloudevent['ce-subject'],
+        "ce-type": cloudevent['ce-type']
+    }
+    payload = {
+        "input": cloudevent["ce-source"],
+        "output": "",
+        "ps1": "❯",
+        "type": cloudevent['ce-type']
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
+
+    pass
+
+@then("the trace with \"{cloudevent_id}\" should appear in TraceQL")
+def tracesql_get_trace(kube, cloudevent_id):
+    pass
+
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
