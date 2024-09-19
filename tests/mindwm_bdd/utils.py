@@ -104,16 +104,17 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
 
 def knative_service_wait_for(kube, knative_service_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'serving.knative.dev',
             "v1",
             "services",
-            knative_service_name
+            knative_service_name,
+            60
             )
 
-def customt_object_wait_for(kube, namespace, group, version, plural, name):
+def custom_object_wait_for(kube, namespace, group, version, plural, name, timeout):
     def exists():
         try:
             api_instance = client.CustomObjectsApi(kube.api_client)
@@ -132,7 +133,7 @@ def customt_object_wait_for(kube, namespace, group, version, plural, name):
 
     kubetest_utils.wait_for_condition(
         condition=exists_condition,
-        timeout=60,
+        timeout=timeout,
         interval=5
     )
     return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
@@ -144,56 +145,61 @@ def customt_object_wait_for(kube, namespace, group, version, plural, name):
             )
 
 def knative_trigger_wait_for(kube, knative_trigger_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'eventing.knative.dev',
             "v1",
             "triggers",
-            knative_trigger_name
+            knative_trigger_name,
+            60
             )
 
 def knative_broker_wait_for(kube, knative_broker_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'eventing.knative.dev',
             "v1",
             "brokers",
-            knative_broker_name
+            knative_broker_name,
+            60
             )
 
 def kafka_topic_wait_for(kube, kafka_topic_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'cluster.redpanda.com',
             "v1alpha2",
             "topics",
-            kafka_topic_name
+            kafka_topic_name,
+            180
             )
 
 def kafka_source_wait_for(kube, kafka_source_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'sources.knative.dev',
             "v1beta1",
             "kafkasources",
-            kafka_source_name
+            kafka_source_name,
+            180
             )
 
 def nats_stream_wait_for(kube, nats_stream_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'messaging.knative.dev',
             "v1alpha1",
             "natsjetstreamchannels",
-            nats_stream_name
+            nats_stream_name,
+            120
             )
 
-def custom_object_wait_for(kube, group, version, plural):
+def custom_object_plural_wait_for(kube, group, version, plural):
     def exists():
         try:
             kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
