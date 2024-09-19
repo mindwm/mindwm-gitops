@@ -17,20 +17,24 @@ Feature: MindWM Ping-pong EDA test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
-   
+
     When God creates a new cloudevent 
       And sets cloudevent "ce-id" to "<cloudevent_id>"
       And sets cloudevent "traceparent" to "<traceparent>"
       And sets cloudevent "ce-subject" to "#ping"
-      And sets cloudevent "ce-source" to "org.mindwm.v1.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36"
+      And sets cloudevent "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
       And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
       And sends cloudevent to "context-broker" in "context-<context>" namespace
     Then the trace with "<traceparent>" should appear in TraceQL
+    And the trace should contains 
+      | service name                    | 
+      | broker-ingress.knative-eventing | 
+      | unknown_service                 | 
+      | jetstream-ch-dispatcher         |
 
     Examples:
-     | context | username   | host | cloudevent_id                        | traceparent 					    |
-     | green4   | amanda4   | pi6-host  | 442af213-c860-4535-b639-355f13b2d442 | 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00 |
-
+     | context | username   | host      | cloudevent_id                        | traceparent 					         |
+     | green4   | amanda4   | pi6-host  | 442af213-c860-4535-b639-355f13b2d443 | 00-5df92f3577b34da6a3ce929d0e0e4734-00f067aa0ba902b7-00 |
 
 
    Scenario: Cleanup <username>@<host> in <context>

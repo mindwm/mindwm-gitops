@@ -271,3 +271,20 @@ def extract_trace_id(traceparent: str) -> str:
 
     trace_id = match.group("trace_id")
     return trace_id
+
+def get_service_name(span):
+    return next(attr.value.string_value for attr in span.resource.attributes if attr.key == "service.name")
+
+def span_by_service_name(traces, service_name):
+    for span in traces.resource_spans:
+        if get_service_name(span) == service_name:
+            return span
+    return None
+
+def parse_resourceSpan(resourceSpan):
+    return {
+        "service_name": next(attr.value.string_value for attr in resourceSpan.resource.attributes if attr.key == "service.name"),
+#        "http_code": next(attr.value.string_value for attr in resourceSpan.scope_spans[0].spans[0].attributes if attr.key == "http.status_code"),
+#        "http_path": next(attr.value.string_value for attr in resourceSpan.scope_spans[0].spans[0].attributes if attr.key == "http.path")
+        # context broker
+    }

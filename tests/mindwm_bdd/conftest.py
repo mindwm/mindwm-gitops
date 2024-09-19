@@ -20,12 +20,17 @@ from kubetest import condition
 import json
 import requests
 import time
+from opentelemetry.proto.trace.v1 import trace_pb2
+from google.protobuf.json_format import ParseDict
 
 @pytest.fixture 
 def ctx():
     return {}
 @pytest.fixture
 def cloudevent():
+    return {}
+@pytest.fixture
+def trace_data():
     return {}
 
 @scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
@@ -344,7 +349,7 @@ def event_send_ping(kube, cloudevent, broker_name, namespace):
     pass
 
 @then("the trace with \"{traceparent}\" should appear in TraceQL")
-def tracesql_get_trace(kube, traceparent):
+def tracesql_get_trace(kube, traceparent, trace_data):
     ingress_host = utils.get_lb(kube)
     trace_id = utils.extract_trace_id(traceparent) 
     url = f"http://{ingress_host}/api/traces/{trace_id}"
@@ -354,9 +359,30 @@ def tracesql_get_trace(kube, traceparent):
     time.sleep(5)
     response = requests.get(url, headers = headers)
     assert response.status_code == 200, f"Response code {response.status_code} != 200"
+    tempo_reply = json.loads(response.text)
+    trace_resourceSpans = {
+                "resourceSpans": tempo_reply['batches']
+    }
+    trace_data['data'] = ParseDict(trace_resourceSpans, trace_pb2.TracesData())
+
+@then("the trace should contains")
+def trace_should_contains(step, trace_data):
+    #pprint.pprint(f"TRACE DATA = {trace_data['data']}")
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        service_name = row.cells[0].value 
+        #http_code = row.cells[1].value 
+        #http_path = row.cells[2].value 
+        #pprint.pprint(f"{service_name} {http_code} {http_path}")
+        scope_span = utils.span_by_service_name(trace_data['data'], service_name)
+        assert(scope_span is not None)
+        pprint.pprint(scope_span)
+        span = utils.parse_resourceSpan(scope_span)
+        assert(span is not None)
+        assert(span['service_name'] == service_name) 
+        # assert(span['http_code'] == http_code) 
+        # assert(span['http_path'] == http_path) 
     pass
-
-
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
