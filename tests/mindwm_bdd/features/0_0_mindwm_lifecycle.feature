@@ -35,6 +35,7 @@ Feature: Mindwm Lifecycle Management
       | redpanda-operator	     |
       | tempo			     |
       | vm-aio			     |
+      | redpanda-operator            |
 
    When God executes "make crossplane_rolebinding_workaround"
    Then the following roles should exist:
