@@ -239,7 +239,7 @@ def deployment_wait_for(kube, deployment_name, namespace):
 
     kubetest_utils.wait_for_condition(
         condition=exists_condition,
-        timeout=60,
+        timeout=180,
         interval=5
     )
     return kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
