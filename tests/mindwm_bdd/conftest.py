@@ -232,7 +232,7 @@ def role_exists(kube, step):
         role_name = row.cells[0].value 
         role = cluster_roles.get(role_name)
         assert role is not None, f"Role {role_name} not found"
-        with allure.step(f"Role '{rolename}' exists"):
+        with allure.step(f"Role '{role_name}' exists"):
             pass
 
 
@@ -256,7 +256,7 @@ def namespace_not_exists(kube, namespace):
 def statefulset_is_ready(kube, statefulset_name, namespace):
     statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
     statefulset.wait_until_ready(180)
-    with allure.step(f"Statefulset '{statefulset_name}' is ready"):
+    with allure.step(f"Statefulset '{statefulset_name}' in '{namespace}' is ready"):
         pass
 
 @then("following knative service is in ready state in \"{namespace}\" namespace")
@@ -266,9 +266,9 @@ def knative_service_exists(kube, step, namespace):
         service_name = row.cells[0].value 
         service = utils.knative_service_wait_for(kube, service_name, namespace)
         is_ready = utils.resource_get_condition(service['status'], 'Ready')
-        with allure.step(f"Knative service '{service_name}' ready state is {is_ready}"):
+        with allure.step(f"Knative service '{namespace}'/'{service_name}' ready state is {is_ready}"):
             pass
-        assert(is_ready), f"Knative service {service_name} is not ready"
+        assert(is_ready), f"Knative service '{namespace}'/{service_name} is not ready"
 
 @then("following knative triggers is in ready state in \"{namespace}\" namespace")
 def knative_trigger_exists(kube, step, namespace):
