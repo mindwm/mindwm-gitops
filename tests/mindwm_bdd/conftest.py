@@ -199,7 +199,7 @@ def helm_release_deploeyd(kube, helm_release, namespace):
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
     utils.argocd_application(kube, application_name, namespace)
-    with allure.step(f"Argocd application '{argocd_app}' exists"):
+    with allure.step(f"Argocd application '{application_name}' exists"):
         pass
 
 @then("the argocd \"{application_name}\" application is {namespace} namespace in a progressing status")
@@ -207,7 +207,7 @@ def argocd_application_in_progress(kube, application_name, namespace):
     utils.argocd_application_wait_status(kube, application_name, namespace)
     argocd_app = utils.argocd_application(kube, application_name, namespace)
     health_status = argocd_app['status']['health']['status']
-    with allure.step(f"Argocd application '{argocd_app}' is {health_status}"):
+    with allure.step(f"Argocd application '{application_name}' is {health_status}"):
         pass
     #print(f"{application_name} {health_status}")
     # @metacoma(TODO) Progressing only
