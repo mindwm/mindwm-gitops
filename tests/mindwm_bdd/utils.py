@@ -230,7 +230,6 @@ def resource_get_condition(status, condition_type):
     return match_condition.get('status')
     
 
-<<<<<<< HEAD
 def get_lb(kube):
     services = kube.get_services("istio-system")
     lb_service = services.get("istio-ingressgateway")
@@ -240,25 +239,6 @@ def get_lb(kube):
     return lb_ip
 
 def extract_trace_id(traceparent: str) -> str:
-    """
-    Extracts the TraceID from a W3C Trace Context traceparent string.
-
-    The traceparent string should follow the format:
-    version-traceid-spanid-traceflags
-
-    Example:
-        Input: "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-00"
-        Output: "4bf92f3577b34da6a3ce929d0e0e4736"
-
-    Args:
-        traceparent (str): The traceparent string from observability metrics.
-
-    Returns:
-        str: The extracted TraceID.
-
-    Raises:
-        ValueError: If the traceparent string is invalid or does not conform to the expected format.
-    """
     # Define a regex pattern for the traceparent header
     traceparent_pattern = re.compile(
         r"^(?P<version>[0-9a-fA-F]{2})-"
