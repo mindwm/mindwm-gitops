@@ -1,4 +1,4 @@
-@e2e
+@ping_pong
 Feature: MindWM Ping-pong EDA test
   Background:
     Given A MindWM environment
@@ -32,7 +32,7 @@ Feature: MindWM Ping-pong EDA test
       | broker-ingress.knative-eventing | 
       | unknown_service                 | 
       | jetstream-ch-dispatcher         |
-    And a message with type == org.mindwm.v1.pong should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic
 
     Examples:
      | context | username   | host      | cloudevent_id                        | traceparent 					         |
