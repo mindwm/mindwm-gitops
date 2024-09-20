@@ -89,6 +89,8 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
     def exists():
         try:
             statefulset = kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
+            if statefulset is None:
+                return False
             return True
         except Exception as e:
             pprint.pprint(e)
@@ -221,3 +223,23 @@ def resource_get_condition(status, condition_type):
     # XXX
     return match_condition.get('status')
     
+
+def deployment_wait_for(kube, deployment_name, namespace):
+    def exists():
+        try:
+            deployment = kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
+            if deployment is None:
+                return False
+            return True
+        except Exception as e:
+            pprint.pprint(e)
+            return False
+
+    exists_condition = condition.Condition(f"deployment {deployment_name} exists", exists)
+
+    kubetest_utils.wait_for_condition(
+        condition=exists_condition,
+        timeout=180,
+        interval=5
+    )
+    return kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
