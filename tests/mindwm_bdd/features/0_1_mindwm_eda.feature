@@ -50,6 +50,11 @@ Feature: Mindwm event driven architecture
 
   Scenario: Cert manager
     And namespace "cert-manager" should exists
+    And following deployments is in ready state in "cert-manager" namespace
+      | Deployment name          | 
+      | cert-manager             |
+      | cert-manager-cainjector |
+      | cert-manager-webhook     |
 
   Scenario: Nats
     And namespace "nats" should exists
