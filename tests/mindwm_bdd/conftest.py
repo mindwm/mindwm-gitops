@@ -343,7 +343,8 @@ def cloudevent_header_set(cloudevent, key, value):
 
 
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
-def event_send_ping(kube, cloudevent, broker_name, namespace):
+def event_send_ping(kube, step, cloudevent, broker_name, namespace):
+    payload = json.loads(step.doc_string.content)
 
     ingress_host = utils.get_lb(kube)
     url = f"http://{ingress_host}/{namespace}/{broker_name}"
@@ -358,12 +359,12 @@ def event_send_ping(kube, cloudevent, broker_name, namespace):
         "ce-subject": cloudevent['ce-subject'],
         "ce-type": cloudevent['ce-type']
     }
-    payload = {
-        "input": cloudevent["ce-source"],
-        "output": "",
-        "ps1": "❯",
-        "type": cloudevent['ce-type']
-    }
+    # payload = {
+    #     "input": cloudevent["ce-source"],
+    #     "output": "",
+    #     "ps1": "❯",
+    #     "type": cloudevent['ce-type']
+    # }
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
 
