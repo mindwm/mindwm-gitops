@@ -22,6 +22,44 @@ import requests
 import time
 from opentelemetry.proto.trace.v1 import trace_pb2
 from google.protobuf.json_format import ParseDict
+import nats
+from nats.errors import ConnectionClosedError, TimeoutError, NoServersError
+import pytest_asyncio
+import asyncio, functools
+from functools import wraps
+import inspect
+import nats_reader
+from queue import Empty
+
+messages = []
+
+async def connect_to_nats_and_collect_messages(topic):
+    print(f"COLLECT MESSAGES in {topic}")
+    async def message_handler(msg):
+        print("DATA")
+    nc = await nats.connect(" nats://root:r00tpass@nats.mindwm.local:4222")
+    #sub = await nc.subscribe(topic, cb=message_handler)
+    sub = await nc.subscribe(topic)
+    try:
+        async for msg in sub.messages:
+            print(f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
+    except Exception as e:
+        pass
+     
+
+
+def async_to_sync(fn):
+    """Convert async function to sync function."""
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(fn(*args, **kwargs))
+
+    return wrapper
+
+@pytest_asyncio.fixture(scope = "session")
+async def my_fixture():
+    return asyncio.get_running_loop()
 
 @pytest.fixture 
 def ctx():
@@ -33,6 +71,7 @@ def cloudevent():
 def trace_data():
     return {}
 
+@pytest.mark.asyncio
 @scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
 def test_scenario():
     assert False
@@ -376,7 +415,6 @@ def trace_should_contains(step, trace_data):
         #pprint.pprint(f"{service_name} {http_code} {http_path}")
         scope_span = utils.span_by_service_name(trace_data['data'], service_name)
         assert(scope_span is not None)
-        pprint.pprint(scope_span)
         span = utils.parse_resourceSpan(scope_span)
         assert(span is not None)
         assert(span['service_name'] == service_name) 
@@ -384,9 +422,31 @@ def trace_should_contains(step, trace_data):
         # assert(span['http_path'] == http_path) 
     pass
 
+@then("a message with type == org.mindwm.v1.pong should have been received from the NATS topic")
+def pong_test():
+    time.sleep(5)
+    message_queue = nats_reader.message_queue
+    while True:
+        try:
+            message = message_queue.get(timeout=1)
+            event = json.loads(message) 
+            if (event['type'] == "org.mindwm.v1.pong"):
+                return True
+            message_queue.task_done()
+        except Empty:
+            break
+
+    assert False, f"no pong in nats"
+
+from pytest_asyncio import is_async_test
+@pytest.mark.asyncio
+@when("God starts reading message from NATS topic \"{nats_topic_name}\"")
+def nats_message_receive(kube, nats_topic_name):
+    ingress_host = utils.get_lb(kube)
+    nats_reader.main(f"nats://root:r00tpass@{ingress_host}:4222", nats_topic_name)
+
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
     for item in items:
         item.add_marker(pytest.mark.namespace(create = False, name = "default"))
-
 

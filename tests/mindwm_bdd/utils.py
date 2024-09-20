@@ -92,7 +92,6 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
             statefulset = kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
             return True
         except Exception as e:
-            pprint.pprint(e)
             return False
 
     exists_condition = condition.Condition("statefulset exists", exists)

@@ -18,6 +18,7 @@ Feature: MindWM Ping-pong EDA test
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
 
+    When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
     When God creates a new cloudevent 
       And sets cloudevent "ce-id" to "<cloudevent_id>"
       And sets cloudevent "traceparent" to "<traceparent>"
@@ -31,6 +32,7 @@ Feature: MindWM Ping-pong EDA test
       | broker-ingress.knative-eventing | 
       | unknown_service                 | 
       | jetstream-ch-dispatcher         |
+    And a message with type == org.mindwm.v1.pong should have been received from the NATS topic
 
     Examples:
      | context | username   | host      | cloudevent_id                        | traceparent 					         |
@@ -48,4 +50,4 @@ Feature: MindWM Ping-pong EDA test
      Examples:
      | context | username | host        | 
      | green4   | amanda4   | pi6-host         |
-  # 
+
