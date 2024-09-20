@@ -90,6 +90,8 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
     def exists():
         try:
             statefulset = kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
+            if statefulset is None:
+                return False
             return True
         except Exception as e:
             return False
@@ -196,7 +198,7 @@ def nats_stream_wait_for(kube, nats_stream_name, namespace):
             "v1alpha1",
             "natsjetstreamchannels",
             nats_stream_name,
-            120
+            180
             )
 
 def custom_object_plural_wait_for(kube, group, version, plural):
@@ -228,6 +230,7 @@ def resource_get_condition(status, condition_type):
     return match_condition.get('status')
     
 
+<<<<<<< HEAD
 def get_lb(kube):
     services = kube.get_services("istio-system")
     lb_service = services.get("istio-ingressgateway")
@@ -287,3 +290,22 @@ def parse_resourceSpan(resourceSpan):
 #        "http_path": next(attr.value.string_value for attr in resourceSpan.scope_spans[0].spans[0].attributes if attr.key == "http.path")
         # context broker
     }
+def deployment_wait_for(kube, deployment_name, namespace):
+    def exists():
+        try:
+            deployment = kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
+            if deployment is None:
+                return False
+            return True
+        except Exception as e:
+            pprint.pprint(e)
+            return False
+
+    exists_condition = condition.Condition(f"deployment {deployment_name} exists", exists)
+
+    kubetest_utils.wait_for_condition(
+        condition=exists_condition,
+        timeout=180,
+        interval=5
+    )
+    return kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)

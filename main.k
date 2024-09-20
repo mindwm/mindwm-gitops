@@ -230,7 +230,7 @@ mindwm_app = ArgoCdOrder.make({
                 chart = charts.redpanda_operator
                 version = "0.4.27"
                 values = {
-                  image.tag = "v2.2.0-24.2.2"
+                  image.tag = "v2.2.2-24.2.4"
                 }
             })
 

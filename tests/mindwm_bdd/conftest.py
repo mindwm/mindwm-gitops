@@ -145,31 +145,43 @@ def mindwm_host_validate(ctx, kube):
 @when("God deletes the MindWM host resource \"{host_name}\"")
 def mindwm_host_delete(kube, host_name):
     host = mindwm_crd.host_get(kube, host_name)
-    return host.delete(None)
+    host.delete(None)
+    with allure.step(f"Mindwm host {host_name} delete"):
+        pass
 
 @then("the host \"{host_name}\" should be deleted")
 def mindwm_host_deleted(kube, host_name):
     host = mindwm_crd.host_get(kube, host_name)
-    return host.wait_until_deleted(timeout=30)
+    host.wait_until_deleted(timeout=30)
+    with allure.step(f"Mindwm host {host_name} has been deleted"):
+        pass
 
 
 @when("God deletes the MindWM user resource \"{user_name}\"")
 def mindwm_user_delete(kube, user_name):
     user = mindwm_crd.user_get(kube,user_name)
     user.delete(None)
+    with allure.step(f"Mindwm user {user_name} delete"):
+        pass
 @then("the user \"{user_name}\" should be deleted")
 def mindwm_user_deleted(kube, user_name):
     user = mindwm_crd.user_get(kube,user_name)
     user.wait_until_deleted()
+    with allure.step(f"Mindwm user {user_name} has been deleted"):
+        pass
 
 @when("God deletes the MindWM context resource \"{context_name}\"")
 def mindwm_context_delete(kube, context_name):
     context = mindwm_crd.context_get(kube, context_name)
     context.delete(None)
+    with allure.step(f"Mindwm context {context_name} delete"):
+        pass
 @then("the context \"{context_name}\" should be deleted")
 def mindwm_context_deleted(kube, context_name):
     context= mindwm_crd.context_get(kube, context_name)
     context.wait_until_deleted(30)
+    with allure.step(f"Mindwm context {context_name} has been deleted"):
+        pass
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
 def environment(ctx, ubuntu_version, cpu, mem):
@@ -189,6 +201,8 @@ def mindwm_repo(ctx, repo_dir):
 
 @when("God executes \"make {target_name}\"")
 def run_make(ctx, target_name):
+    with allure.step(f"make {target_name}"):
+        pass
     run_make_cmd(f"make {target_name}", ctx['repo_dir'])
 
 @then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
@@ -201,26 +215,21 @@ def helm_release_deploeyd(kube, helm_release, namespace):
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
-   utils.argocd_application(kube, application_name, namespace)
+    utils.argocd_application(kube, application_name, namespace)
+    with allure.step(f"Argocd application '{application_name}' exists"):
+        pass
 
 @then("the argocd \"{application_name}\" application is {namespace} namespace in a progressing status")
 def argocd_application_in_progress(kube, application_name, namespace):
     utils.argocd_application_wait_status(kube, application_name, namespace)
     argocd_app = utils.argocd_application(kube, application_name, namespace)
     health_status = argocd_app['status']['health']['status']
+    with allure.step(f"Argocd application '{application_name}' is {health_status}"):
+        pass
     #print(f"{application_name} {health_status}")
     # @metacoma(TODO) Progressing only
     assert(health_status == 'Progressing' or health_status == "Healthy") or health_status == "Missing"
 
-@then(parsers.parse("all argocd applications in healthy state"))
-def argocd_applications_check(kube, step):
-    # @metacoma(REFACT)
-    title_row, *rows = step.data_table.rows
-
-    for row in rows:
-        application_name = row.cells[0].value
-        argocd_application_in_progress(kube, application_name, "argocd")
-    pass
 
 @then("all argocd applications are in a healthy state")
 def argocd_applications_check(kube, step):
@@ -229,6 +238,8 @@ def argocd_applications_check(kube, step):
     for row in rows:
         application_name = row.cells[0].value
         argocd_application_in_progress(kube, application_name, "argocd")
+        with allure.step(f"Argocd application '{application_name}' is healty"):
+            pass
 
 @then("the following roles should exist:")
 def role_exists(kube, step):
@@ -238,6 +249,8 @@ def role_exists(kube, step):
         role_name = row.cells[0].value 
         role = cluster_roles.get(role_name)
         assert role is not None, f"Role {role_name} not found"
+        with allure.step(f"Role '{role_name}' exists"):
+            pass
 
 
 @then("namespace \"{namespace}\" should exists")
@@ -260,7 +273,7 @@ def namespace_not_exists(kube, namespace):
 def statefulset_is_ready(kube, statefulset_name, namespace):
     statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
     statefulset.wait_until_ready(180)
-    with allure.step(f"Statefulset '{statefulset_name}' is ready"):
+    with allure.step(f"Statefulset '{statefulset_name}' in '{namespace}' is ready"):
         pass
 
 @then("following knative service is in ready state in \"{namespace}\" namespace")
@@ -270,7 +283,9 @@ def knative_service_exists(kube, step, namespace):
         service_name = row.cells[0].value 
         service = utils.knative_service_wait_for(kube, service_name, namespace)
         is_ready = utils.resource_get_condition(service['status'], 'Ready')
-        assert(is_ready), f"Knative service {service_name} is not ready"
+        with allure.step(f"Knative service '{namespace}'/'{service_name}' ready state is {is_ready}"):
+            pass
+        assert(is_ready), f"Knative service '{namespace}'/{service_name} is not ready"
 
 @then("following knative triggers is in ready state in \"{namespace}\" namespace")
 def knative_trigger_exists(kube, step, namespace):
@@ -409,6 +424,16 @@ def pong_test():
 def nats_message_receive(kube, nats_topic_name):
     ingress_host = utils.get_lb(kube)
     nats_reader.main(f"nats://root:r00tpass@{ingress_host}:4222", nats_topic_name)
+
+@then("following deployments is in ready state in \"{namespace}\" namespace")
+def deployment_ready(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        deployment_name = row.cells[0].value 
+        with allure.step(f"Wait for deployment '{deployment_name}' ready state"):
+            pass
+        deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
+        deployment.wait_until_ready(180)
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
