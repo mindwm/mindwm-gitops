@@ -302,6 +302,14 @@ def nats_stream_exists(kube, nats_stream_name, namespace):
     assert(is_ready == 'True')
 
 
+@then("following deployments is in ready state in \"{namespace}\" namespace")
+def deployment_ready(kube, step, namespace):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        deployment_name = row.cells[0].value 
+        deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
+        deployment.wait_until_ready(180)
+
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
     for item in items:
