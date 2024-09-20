@@ -356,7 +356,7 @@ kind: InMemoryChannel
           env = [
             {
               name = "NEO4J_URL"
-              value = getData(ctx.namespace) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              value = getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
               name = "NEO4J_USERNAME"
@@ -487,7 +487,7 @@ kind: InMemoryChannel
           env = [
             {
               name = "NEO4J_URL"
-              value = getData(ctx.namespace) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              value = getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
               name = "NEO4J_USERNAME"
