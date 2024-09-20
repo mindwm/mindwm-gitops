@@ -24,42 +24,10 @@ from opentelemetry.proto.trace.v1 import trace_pb2
 from google.protobuf.json_format import ParseDict
 import nats
 from nats.errors import ConnectionClosedError, TimeoutError, NoServersError
-import pytest_asyncio
-import asyncio, functools
 from functools import wraps
 import inspect
 import nats_reader
 from queue import Empty
-
-messages = []
-
-async def connect_to_nats_and_collect_messages(topic):
-    print(f"COLLECT MESSAGES in {topic}")
-    async def message_handler(msg):
-        print("DATA")
-    nc = await nats.connect(" nats://root:r00tpass@nats.mindwm.local:4222")
-    #sub = await nc.subscribe(topic, cb=message_handler)
-    sub = await nc.subscribe(topic)
-    try:
-        async for msg in sub.messages:
-            print(f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
-    except Exception as e:
-        pass
-     
-
-
-def async_to_sync(fn):
-    """Convert async function to sync function."""
-
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        return asyncio.run(fn(*args, **kwargs))
-
-    return wrapper
-
-@pytest_asyncio.fixture(scope = "session")
-async def my_fixture():
-    return asyncio.get_running_loop()
 
 @pytest.fixture 
 def ctx():
@@ -71,7 +39,6 @@ def cloudevent():
 def trace_data():
     return {}
 
-@pytest.mark.asyncio
 @scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
 def test_scenario():
     assert False
@@ -438,8 +405,6 @@ def pong_test():
 
     assert False, f"no pong in nats"
 
-from pytest_asyncio import is_async_test
-@pytest.mark.asyncio
 @when("God starts reading message from NATS topic \"{nats_topic_name}\"")
 def nats_message_receive(kube, nats_topic_name):
     ingress_host = utils.get_lb(kube)
