@@ -17,9 +17,26 @@ from make import run_make_cmd
 from messages import DataTable
 from kubetest import utils as kubetest_utils
 from kubetest import condition
+import json
+import requests
+import time
+from opentelemetry.proto.trace.v1 import trace_pb2
+from google.protobuf.json_format import ParseDict
+import nats
+from nats.errors import ConnectionClosedError, TimeoutError, NoServersError
+from functools import wraps
+import inspect
+import nats_reader
+from queue import Empty
 
 @pytest.fixture 
 def ctx():
+    return {}
+@pytest.fixture
+def cloudevent():
+    return {}
+@pytest.fixture
+def trace_data():
     return {}
 
 @scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
@@ -55,7 +72,7 @@ def mindwm_environment(kube):
 
     
     for plural in ["xcontexts", "xhosts", "xusers"]:
-        utils.custom_object_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
+        utils.custom_object_plural_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
         with allure.step(f"Mindwm crd '{plural}' is exists"):
             pass
@@ -316,6 +333,97 @@ def nats_stream_exists(kube, nats_stream_name, namespace):
         pass
     assert(is_ready == 'True')
 
+@when("God creates a new cloudevent")
+def cloudevent_new(cloudevent):
+    cloudevent = {}
+
+@when("sets cloudevent \"{key}\" to \"{value}\"")
+def cloudevent_header_set(cloudevent, key, value):
+    cloudevent[key] = value
+
+
+@when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
+def event_send_ping(kube, cloudevent, broker_name, namespace):
+
+    ingress_host = utils.get_lb(kube)
+    url = f"http://{ingress_host}/{namespace}/{broker_name}"
+
+    headers = {
+        "Host": "broker-ingress.knative-eventing.svc.cluster.local",
+        "Content-Type": "application/json",
+        "traceparent": cloudevent['traceparent'],
+        "Ce-specversion": "1.0",
+        "Ce-id": cloudevent['ce-id'],
+        "ce-source": cloudevent['ce-source'],
+        "ce-subject": cloudevent['ce-subject'],
+        "ce-type": cloudevent['ce-type']
+    }
+    payload = {
+        "input": cloudevent["ce-source"],
+        "output": "",
+        "ps1": "❯",
+        "type": cloudevent['ce-type']
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
+
+    pass
+
+@then("the trace with \"{traceparent}\" should appear in TraceQL")
+def tracesql_get_trace(kube, traceparent, trace_data):
+    ingress_host = utils.get_lb(kube)
+    trace_id = utils.extract_trace_id(traceparent) 
+    url = f"http://{ingress_host}/api/traces/{trace_id}"
+    headers = {
+        "Host": "tempo.mindwm.local"
+    }
+    time.sleep(5)
+    response = requests.get(url, headers = headers)
+    assert response.status_code == 200, f"Response code {response.status_code} != 200"
+    tempo_reply = json.loads(response.text)
+    trace_resourceSpans = {
+                "resourceSpans": tempo_reply['batches']
+    }
+    trace_data['data'] = ParseDict(trace_resourceSpans, trace_pb2.TracesData())
+
+@then("the trace should contains")
+def trace_should_contains(step, trace_data):
+    #pprint.pprint(f"TRACE DATA = {trace_data['data']}")
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        service_name = row.cells[0].value 
+        #http_code = row.cells[1].value 
+        #http_path = row.cells[2].value 
+        #pprint.pprint(f"{service_name} {http_code} {http_path}")
+        scope_span = utils.span_by_service_name(trace_data['data'], service_name)
+        assert(scope_span is not None)
+        span = utils.parse_resourceSpan(scope_span)
+        assert(span is not None)
+        assert(span['service_name'] == service_name) 
+        # assert(span['http_code'] == http_code) 
+        # assert(span['http_path'] == http_path) 
+    pass
+
+@then("a cloudevent with type == \"{cloudevent_type}\" should have been received from the NATS topic")
+def cloudevent_check(cloudevent_type):
+    time.sleep(5)
+    message_queue = nats_reader.message_queue
+    while True:
+        try:
+            message = message_queue.get(timeout=1)
+            event = json.loads(message) 
+            if (event['type'] == cloudevent_type):
+                return True
+            message_queue.task_done()
+        except Empty:
+            break
+
+    assert False, f"no pong in nats"
+
+@when("God starts reading message from NATS topic \"{nats_topic_name}\"")
+def nats_message_receive(kube, nats_topic_name):
+    ingress_host = utils.get_lb(kube)
+    nats_reader.main(f"nats://root:r00tpass@{ingress_host}:4222", nats_topic_name)
 
 @then("following deployments is in ready state in \"{namespace}\" namespace")
 def deployment_ready(kube, step, namespace):
@@ -331,5 +439,4 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
     # XXX workaround
     for item in items:
         item.add_marker(pytest.mark.namespace(create = False, name = "default"))
-
 

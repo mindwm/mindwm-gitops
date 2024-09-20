@@ -6,6 +6,7 @@ from io import BytesIO
 from kubernetes import client, config
 from kubetest import condition
 from kubetest import utils as kubetest_utils
+import re
 
 def double_base64_decode(encoded_str):
     try:
@@ -93,7 +94,6 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
                 return False
             return True
         except Exception as e:
-            pprint.pprint(e)
             return False
 
     exists_condition = condition.Condition("statefulset exists", exists)
@@ -106,16 +106,17 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
 
 def knative_service_wait_for(kube, knative_service_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'serving.knative.dev',
             "v1",
             "services",
-            knative_service_name
+            knative_service_name,
+            60
             )
 
-def customt_object_wait_for(kube, namespace, group, version, plural, name):
+def custom_object_wait_for(kube, namespace, group, version, plural, name, timeout):
     def exists():
         try:
             api_instance = client.CustomObjectsApi(kube.api_client)
@@ -134,7 +135,7 @@ def customt_object_wait_for(kube, namespace, group, version, plural, name):
 
     kubetest_utils.wait_for_condition(
         condition=exists_condition,
-        timeout=60,
+        timeout=timeout,
         interval=5
     )
     return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
@@ -146,56 +147,61 @@ def customt_object_wait_for(kube, namespace, group, version, plural, name):
             )
 
 def knative_trigger_wait_for(kube, knative_trigger_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'eventing.knative.dev',
             "v1",
             "triggers",
-            knative_trigger_name
+            knative_trigger_name,
+            60
             )
 
 def knative_broker_wait_for(kube, knative_broker_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'eventing.knative.dev',
             "v1",
             "brokers",
-            knative_broker_name
+            knative_broker_name,
+            60
             )
 
 def kafka_topic_wait_for(kube, kafka_topic_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'cluster.redpanda.com',
             "v1alpha2",
             "topics",
-            kafka_topic_name
+            kafka_topic_name,
+            180
             )
 
 def kafka_source_wait_for(kube, kafka_source_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'sources.knative.dev',
             "v1beta1",
             "kafkasources",
-            kafka_source_name
+            kafka_source_name,
+            180
             )
 
 def nats_stream_wait_for(kube, nats_stream_name, namespace):
-    return customt_object_wait_for(
+    return custom_object_wait_for(
             kube,  
             namespace,
             'messaging.knative.dev',
             "v1alpha1",
             "natsjetstreamchannels",
-            nats_stream_name
+            nats_stream_name,
+            180
             )
 
-def custom_object_wait_for(kube, group, version, plural):
+def custom_object_plural_wait_for(kube, group, version, plural):
     def exists():
         try:
             kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
@@ -224,6 +230,46 @@ def resource_get_condition(status, condition_type):
     return match_condition.get('status')
     
 
+def get_lb(kube):
+    services = kube.get_services("istio-system")
+    lb_service = services.get("istio-ingressgateway")
+    assert lb_service is not None
+    lb_ip = lb_service.status().load_balancer.ingress[0].ip
+    assert lb_ip is not None
+    return lb_ip
+
+def extract_trace_id(traceparent: str) -> str:
+    # Define a regex pattern for the traceparent header
+    traceparent_pattern = re.compile(
+        r"^(?P<version>[0-9a-fA-F]{2})-"
+        r"(?P<trace_id>[0-9a-fA-F]{32})-"
+        r"(?P<span_id>[0-9a-fA-F]{16})-"
+        r"(?P<trace_flags>[0-9a-fA-F]{2})$"
+    )
+
+    match = traceparent_pattern.match(traceparent)
+    if not match:
+        raise ValueError(f"Invalid traceparent format: '{traceparent}'")
+
+    trace_id = match.group("trace_id")
+    return trace_id
+
+def get_service_name(span):
+    return next(attr.value.string_value for attr in span.resource.attributes if attr.key == "service.name")
+
+def span_by_service_name(traces, service_name):
+    for span in traces.resource_spans:
+        if get_service_name(span) == service_name:
+            return span
+    return None
+
+def parse_resourceSpan(resourceSpan):
+    return {
+        "service_name": next(attr.value.string_value for attr in resourceSpan.resource.attributes if attr.key == "service.name"),
+#        "http_code": next(attr.value.string_value for attr in resourceSpan.scope_spans[0].spans[0].attributes if attr.key == "http.status_code"),
+#        "http_path": next(attr.value.string_value for attr in resourceSpan.scope_spans[0].spans[0].attributes if attr.key == "http.path")
+        # context broker
+    }
 def deployment_wait_for(kube, deployment_name, namespace):
     def exists():
         try:
