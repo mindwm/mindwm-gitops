@@ -404,15 +404,15 @@ def trace_should_contains(step, trace_data):
         # assert(span['http_path'] == http_path) 
     pass
 
-@then("a message with type == org.mindwm.v1.pong should have been received from the NATS topic")
-def pong_test():
+@then("a cloudevent with type == \"{cloudevent_type}\" should have been received from the NATS topic")
+def cloudevent_check(cloudevent_type):
     time.sleep(5)
     message_queue = nats_reader.message_queue
     while True:
         try:
             message = message_queue.get(timeout=1)
             event = json.loads(message) 
-            if (event['type'] == "org.mindwm.v1.pong"):
+            if (event['type'] == cloudevent_type):
                 return True
             message_queue.task_done()
         except Empty:
