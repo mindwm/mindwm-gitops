@@ -47,7 +47,7 @@ def helm_release_is_ready(kube, release_name, namespace):
 
     kubetest_utils.wait_for_condition(
         condition=ready_condition,
-        timeout=180,
+        timeout=600, # More details in #118 github issue
         interval=5
     )
 
