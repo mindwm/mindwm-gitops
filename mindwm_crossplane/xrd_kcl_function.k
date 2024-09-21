@@ -366,6 +366,10 @@ kind: InMemoryChannel
               name = "NEO4J_PASSWORD"
               value = ctx.neo4j.password
             }
+	    {
+	      name = "CONTEXT_NAME",
+	      value = getData(ctx.name)
+	    }
             {
               name = "OTEL_EXPORTER_OTLP_ENDPOINT"
               value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
@@ -497,6 +501,10 @@ kind: InMemoryChannel
               name = "NEO4J_PASSWORD"
               value = ctx.neo4j.password
             }
+	    {
+	      name = "CONTEXT_NAME",
+	      value = getData(ctx.name)
+	    }
             {
               name = "OTEL_EXPORTER_OTLP_ENDPOINT"
               value = "http://${config.monitoring.otel_collector.release_name}-opentelemetry-collector.${config.monitoring.namespace}:4317"
