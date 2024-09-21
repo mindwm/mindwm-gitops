@@ -453,7 +453,7 @@ def cloudvent_check(cloudevent_type):
         except Empty:
             break
 
-    assert False, f"no pong in nats"
+    assert False, f"There is no {cloudevent_type} in nats topic"
 
 @when("God starts reading message from NATS topic \"{nats_topic_name}\"")
 def nats_message_receive(kube, nats_topic_name):
