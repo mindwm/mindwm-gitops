@@ -156,7 +156,7 @@ def mindwm_host_deleted(kube, host_name):
         host = mindwm_crd.host_get(kube, host_name)
     except kubernetes.client.exceptions.ApiException as e:
         if e.status == 404:
-            with allure.step(f"Namespace '{host_name}' has been deleted"):
+            with allure.step(f"Mindwm host '{host_name}' has been deleted"):
                 pass
             return True
         else:
@@ -178,7 +178,7 @@ def mindwm_user_deleted(kube, user_name):
         user = mindwm_crd.user_get(kube,user_name)
     except kubernetes.client.exceptions.ApiException as e:
         if e.status == 404:
-            with allure.step(f"Namespace '{user_name}' has been deleted"):
+            with allure.step(f"Mindwm user '{user_name}' has been deleted"):
                 pass
             return True
         else:
@@ -199,7 +199,7 @@ def mindwm_context_deleted(kube, context_name):
         context= mindwm_crd.context_get(kube, context_name)
     except kubernetes.client.exceptions.ApiException as e:
         if e.status == 404:
-            with allure.step(f"Namespace '{context_name}' has been deleted"):
+            with allure.step(f"Mindwm context '{context_name}' has been deleted"):
                 pass
             return True
         else:
