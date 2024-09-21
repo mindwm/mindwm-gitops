@@ -754,7 +754,7 @@ items = [
           filters = [{
             "all" = [
                 { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
-                { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+                { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + " OR source LIKE 'org.mindwm.context." + getData(ctx.name) + "._%'" }
                 #{ cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
             ]
           }]
@@ -909,7 +909,7 @@ items = [
         filters = [{
           "all" = [
             { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
-            { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+            { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + " OR source LIKE 'org.mindwm.context._%'" }
             #{ cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
           ]
         }]
