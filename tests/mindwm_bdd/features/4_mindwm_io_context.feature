@@ -19,7 +19,6 @@ Feature: MindWM io context function test
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
 
-    When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
     When God creates a new cloudevent 
       And sets cloudevent "ce-id" to "<cloudevent_id>"
       And sets cloudevent "traceparent" to "<traceparent>"
