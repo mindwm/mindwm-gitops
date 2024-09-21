@@ -34,10 +34,20 @@ Feature: MindWM io context function test
 	  "ps1": "pion@mindwm-stg1:~/work/dev/mindwm-manager$"
 	}
 	"""
+    Then following deployments is in ready state in "context-<context>" namespace
+      | Deployment name            |
+      | iocontext-00001-deployment |
+      | kafka-cdc-00001-deployment |
+    Then the trace with "<traceparent>" should appear in TraceQL
+    And the trace should contains
+      | service name                    |
+      | broker-ingress.knative-eventing |
+      | unknown_service                 |
+    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic
 
     Examples:
      | context | username   | host      | cloudevent_id                        | traceparent 					         |
-     | red   | kitty   | tablet  | 442af213-c860-4535-b639-355f13b2d883 | 00-6df92f3577b34da6a3ce930d0e0e4734-00f064aa0ba902b8-00 |
+     | red   | kitty   | tablet  | 442af213-c860-4535-b639-355f13b2d883 | 00-7df92f3577b34da6a3ce930d0e0e4734-00f064aa0ba902b8-00 |
 
 
   Scenario: Cleanup <username>@<host> in <context>
