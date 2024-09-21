@@ -10,3 +10,4 @@ opentelemetry-sdk
 pytest-order
 git+https://github.com/elapfra/kubetest/
 pytest-bdd-ng[allure]
+neo4j

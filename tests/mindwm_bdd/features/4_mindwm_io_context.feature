@@ -25,7 +25,7 @@ Feature: MindWM io context function test
       And sets cloudevent "ce-subject" to "id"
       And sets cloudevent "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
       And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
-   When sends cloudevent to "context-broker" in "context-<context>" namespace
+    When sends cloudevent to "context-broker" in "context-<context>" namespace
         """
         {	
           "input": "id",
@@ -41,6 +41,9 @@ Feature: MindWM io context function test
       | service name                    |
       | broker-ingress.knative-eventing |
       | unknown_service                 |
+    Then neo4j have node "User" with property "username" = "<username>"
+    And neo4j have node "Host" with property "hostname" = "<host>"
+    And neo4j have node "IoDocument" with property "input" = "id"
 
     Examples:
      | context | username   | host      | cloudevent_id                        | traceparent 					         |

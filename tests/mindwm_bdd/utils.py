@@ -6,6 +6,7 @@ from io import BytesIO
 from kubernetes import client, config
 from kubetest import condition
 from kubetest import utils as kubetest_utils
+import kubetest.objects.service 
 import re
 
 def double_base64_decode(encoded_str):
@@ -289,3 +290,13 @@ def deployment_wait_for(kube, deployment_name, namespace):
         interval=5
     )
     return kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
+
+def neo4j_get_bolt_node_port(kube, context_name):
+    service = kube.get_services(namespace = f"context-{context_name}", labels = {"helm.neo4j.com/service": "neo4j"}).get(f"{context_name}-neo4j-neo4j")
+
+    #k8s_svc = kubetest.objects.Service(service, kube.api_client)
+    for port in service.obj.spec.ports:
+        if port.name == 'tcp-bolt' and port.node_port is not None:
+            return port.node_port
+    
+    return None

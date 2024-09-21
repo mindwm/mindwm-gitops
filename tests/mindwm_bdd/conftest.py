@@ -29,6 +29,7 @@ from functools import wraps
 import inspect
 import nats_reader
 from queue import Empty
+from neo4j import GraphDatabase
 
 @pytest.fixture 
 def ctx():
@@ -469,6 +470,31 @@ def deployment_ready(kube, step, namespace):
             pass
         deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
         deployment.wait_until_ready(180)
+
+@then("neo4j have node \"{node_type}\" with property \"{prop}\" = \"{value}\"")
+def neo4j_check_node(kube, node_type, prop, value, cloudevent):
+    ingress_host = utils.get_lb(kube)
+    bolt_port = utils.neo4j_get_bolt_node_port(kube, "red")
+
+    assert bolt_port is not None, f"No node_port for neo4j bolt service"
+    uri = f"bolt://{ingress_host}:{bolt_port}"
+    auth = ("neo4j", "password")
+
+    traceparent_id = utils.extract_trace_id(cloudevent['traceparent'])
+
+    with GraphDatabase.driver(uri, auth=auth) as driver:
+        driver.verify_connectivity()
+        records, summary, keys = driver.execute_query(f"""
+            MATCH (n:{node_type})
+            WHERE n.traceparent CONTAINS "-{traceparent_id}-"
+            RETURN n
+            """,
+            database_="neo4j",
+        )
+        assert len(records) == 1
+
+        for user in records:
+            assert user['n'][prop] == value
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
