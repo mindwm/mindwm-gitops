@@ -17,6 +17,7 @@ from make import run_make_cmd
 from messages import DataTable
 from kubetest import utils as kubetest_utils
 from kubetest import condition
+import kubernetes.client.exceptions
 import json
 import requests
 import time
@@ -263,7 +264,16 @@ def namespace_exists(ctx, kube, namespace):
 
 @then("namespace \"{namespace}\" should not exists")
 def namespace_not_exists(kube, namespace):
-    ns = Namespace.new(namespace)
+    try:
+        ns = Namespace.new(namespace)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Namespace '{namespace}' deleted"):
+                pass
+            return True
+        else:
+            raise
+
     ns.wait_until_deleted(timeout=180)
     with allure.step(f"Namespace '{namespace}' deleted"):
         pass
