@@ -152,7 +152,15 @@ def mindwm_host_delete(kube, host_name):
 
 @then("the host \"{host_name}\" should be deleted")
 def mindwm_host_deleted(kube, host_name):
-    host = mindwm_crd.host_get(kube, host_name)
+    try:
+        host = mindwm_crd.host_get(kube, host_name)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Namespace '{host_name}' has been deleted"):
+                pass
+            return True
+        else:
+            raise
     host.wait_until_deleted(timeout=30)
     with allure.step(f"Mindwm host {host_name} has been deleted"):
         pass
@@ -166,7 +174,15 @@ def mindwm_user_delete(kube, user_name):
         pass
 @then("the user \"{user_name}\" should be deleted")
 def mindwm_user_deleted(kube, user_name):
-    user = mindwm_crd.user_get(kube,user_name)
+    try:
+        user = mindwm_crd.user_get(kube,user_name)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Namespace '{user_name}' has been deleted"):
+                pass
+            return True
+        else:
+            raise
     user.wait_until_deleted()
     with allure.step(f"Mindwm user {user_name} has been deleted"):
         pass
@@ -179,7 +195,15 @@ def mindwm_context_delete(kube, context_name):
         pass
 @then("the context \"{context_name}\" should be deleted")
 def mindwm_context_deleted(kube, context_name):
-    context= mindwm_crd.context_get(kube, context_name)
+    try:
+        context= mindwm_crd.context_get(kube, context_name)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Namespace '{context_name}' has been deleted"):
+                pass
+            return True
+        else:
+            raise
     context.wait_until_deleted(30)
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
@@ -268,14 +292,14 @@ def namespace_not_exists(kube, namespace):
         ns = Namespace.new(namespace)
     except kubernetes.client.exceptions.ApiException as e:
         if e.status == 404:
-            with allure.step(f"Namespace '{namespace}' deleted"):
+            with allure.step(f"Namespace '{namespace}' has been deleted"):
                 pass
             return True
         else:
             raise
 
     ns.wait_until_deleted(timeout=180)
-    with allure.step(f"Namespace '{namespace}' deleted"):
+    with allure.step(f"Namespace '{namespace}' has been deleted"):
         pass
 
 
