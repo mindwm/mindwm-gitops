@@ -367,7 +367,7 @@ kind: InMemoryChannel
               value = ctx.neo4j.password
             }
 	    {
-	      name = "CONTEXT_NAME",
+	      name = "CONTEXT_NAME"
 	      value = getData(ctx.name)
 	    }
             {
@@ -502,7 +502,7 @@ kind: InMemoryChannel
               value = ctx.neo4j.password
             }
 	    {
-	      name = "CONTEXT_NAME",
+	      name = "CONTEXT_NAME"
 	      value = getData(ctx.name)
 	    }
             {
