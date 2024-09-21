@@ -355,8 +355,8 @@ kind: InMemoryChannel
           image = ctx.io_context.image
           env = [
             {
-              name = "NEO4J_URL"
-              value = getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              name = "NEO4J_URI"
+              value = "bolt://" + getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
               name = "NEO4J_USERNAME"
@@ -491,7 +491,7 @@ kind: InMemoryChannel
           env = [
             {
               name = "NEO4J_URL"
-              value = getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              value = "bolt://" + getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
               name = "NEO4J_USERNAME"
