@@ -33,7 +33,10 @@ Feature: MindWM Ping-pong EDA test
           "ps1": "❯",
           "type": "org.mindwm.v1.iodocument"
         }
-	"""
+	      """
+    Then following deployments is in ready state in "context-<context>" namespace
+      | Deployment name            |
+      | pong-00001-deployment |
     Then the trace with "<traceparent>" should appear in TraceQL
     And the trace should contains 
       | service name                    | 
