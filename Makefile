@@ -231,9 +231,9 @@ mindwm_test:
 	source .venv/bin/activate && \
 	pip3 install -r ./requirements.txt && \
 	pytest -s -x --no-header --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . | tee $(ARTIFACT_DIR)/report.md
-	exit_code=${PIPESTATUS[0]}
-	echo ${exit_code} > $(ARTIFACT_DIR)/exit_code
-	exit ${exit_code}
+	exit_code=$${PIPESTATUS[0]}
+	echo $${exit_code} > $(ARTIFACT_DIR)/exit_code
+	exit $${exit_code}
 
 
 
