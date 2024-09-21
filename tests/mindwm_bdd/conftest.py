@@ -431,17 +431,17 @@ def trace_should_contains(step, trace_data):
         #http_path = row.cells[2].value 
         #pprint.pprint(f"{service_name} {http_code} {http_path}")
         scope_span = utils.span_by_service_name(trace_data['data'], service_name)
-        assert(scope_span is not None)
+        assert(scope_span is not None), f"Scope span {service_name} not found in trace data"
         span = utils.parse_resourceSpan(scope_span)
-        assert(span is not None)
+        assert(span is not None), f"Span {service_name} not found in trace data"
         assert(span['service_name'] == service_name) 
         # assert(span['http_code'] == http_code) 
         # assert(span['http_path'] == http_path) 
     pass
 
 @then("a cloudevent with type == \"{cloudevent_type}\" should have been received from the NATS topic")
-def cloudevent_check(cloudevent_type):
-    time.sleep(5)
+def cloudvent_check(cloudevent_type):
+    time.sleep(10)
     message_queue = nats_reader.message_queue
     while True:
         try:
