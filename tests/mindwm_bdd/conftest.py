@@ -475,7 +475,7 @@ def deployment_ready(kube, step, namespace):
         deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
         deployment.wait_until_ready(180)
 
-@then("neo4j have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
+@then("graph have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
 def neo4j_check_node(kube, node_type, prop, value, cloudevent, context_name):
     ingress_host = utils.get_lb(kube)
     bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)

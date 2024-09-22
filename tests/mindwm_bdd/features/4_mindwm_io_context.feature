@@ -41,13 +41,13 @@ Feature: MindWM io context function test
       | service name                    |
       | broker-ingress.knative-eventing |
       | unknown_service                 |
-    Then neo4j have node "User" with property "username" = "<username>" in context "<context>"
-    And neo4j have node "Host" with property "hostname" = "<host>" in context "<context>"
-    And neo4j have node "IoDocument" with property "input" = "id" in context "<context>"
+    Then graph have node "User" with property "username" = "<username>" in context "<context>"
+    And graph have node "Host" with property "hostname" = "<host>" in context "<context>"
+    And graph have node "IoDocument" with property "input" = "id" in context "<context>"
 
     Examples:
      | context | username   | host      | cloudevent_id                        | traceparent 					         |
-     | red   | kitty   | tablet  | 442af213-c860-4535-b639-355f13b2d883 | 00-7df92f3577b34da6a3ce930d0e0e4734-00f064aa0ba902b8-00 |
+     | red     | kitty      | tablet    | 442af213-c860-4535-b639-355f13b2d883 | 00-7df92f3577b34da6a3ce930d0e0e4734-00f064aa0ba902b8-00 |
 
 
   Scenario: Cleanup <username>@<host> in <context>
@@ -60,5 +60,5 @@ Feature: MindWM io context function test
 
     Examples:
     | context | username | host        | 
-    | red   | kitty   | tablet         |
+    | red     | kitty    | tablet      |
 
