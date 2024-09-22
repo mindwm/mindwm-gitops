@@ -19,22 +19,45 @@ Feature: MindWM kafka_cdc function test
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
 
-    When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+    # When God makes graph query in context "<context>"
+    #   """
+    #   MATCH (N) DETACH DELETE N;
+    #   """
 
-    And God creates graph user node in context "<context>"
+    When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+    And God makes graph query in context "<context>"
+      """
+      CREATE (n:User {
+        atime: 0,
+        traceparent: '00-7df92f3577b34da6a3ce930d0e0e4734-96815d9e32cd6279-01',
+        type: 'org.mindwm.v1.graph.node.user',
+        username: '<user>'
+      })
+      RETURN n;
+      """
+
     Then following knative service is in ready state in "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
     And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic
 
-    When God updates graph user node in context "<context>"
+    When God makes graph query in context "<context>"
+      """
+      MATCH (n:User)
+      SET n.username = 'xxx'
+      RETURN n;
+      """
     Then following knative service is in ready state in "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
     And a cloudevent with type == "org.mindwm.v1.graph.updated" should have been received from the NATS topic
 
 
-    When God deletes graph user node in context "<context>"
+    When God makes graph query in context "<context>"
+      """
+      MATCH (n:User)
+      DELETE n;
+      """
     Then following knative service is in ready state in "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |

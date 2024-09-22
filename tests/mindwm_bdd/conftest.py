@@ -502,71 +502,24 @@ def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
             with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
                 pass
 
+@when("God makes graph query in context \"{context_name}\"")
+def graph_query(kube, context_name, step):
+    q = step.doc_string.content
 
-@when("God creates graph user node in context \"{context_name}\"")
-def graph_create_node(kube, context_name):
     ingress_host = utils.get_lb(kube)
     bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
     assert bolt_port is not None, f"No node_port for neo4j bolt service"
+
     uri = f"bolt://{ingress_host}:{bolt_port}"
     auth = ("neo4j", "password")
 
     with GraphDatabase.driver(uri, auth=auth) as driver:
         driver.verify_connectivity()
-        records, summary, keys = driver.execute_query("""
-            CREATE (n:User {
-              atime: 0,
-              traceparent: '00-7df92f3577b34da6a3ce930d0e0e4734-96815d9e32cd6279-01',
-              type: 'org.mindwm.v1.graph.node.user',
-              username: 'kitty'
-            })
-            RETURN n;
-            """,
-            database_="neo4j",
-        )
-        assert len(records) == 1
-
-
-@when("God updates graph user node in context \"{context_name}\"")
-def graph_update_node(kube, context_name):
-    ingress_host = utils.get_lb(kube)
-    bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
-    assert bolt_port is not None, f"No node_port for neo4j bolt service"
-    uri = f"bolt://{ingress_host}:{bolt_port}"
-    auth = ("neo4j", "password")
-
-    with GraphDatabase.driver(uri, auth=auth) as driver:
-        driver.verify_connectivity()
-        records, summary, keys = driver.execute_query("""
-            MATCH (n:User)
-            SET n.username = 'xxx'
-            RETURN n;
-            """,
-            database_="neo4j",
-        )
-        assert len(records) == 1
-
-@when("God deletes graph user node in context \"{context_name}\"")
-def graph_delete_node(kube, context_name):
-    ingress_host = utils.get_lb(kube)
-    bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
-    assert bolt_port is not None, f"No node_port for neo4j bolt service"
-    uri = f"bolt://{ingress_host}:{bolt_port}"
-    auth = ("neo4j", "password")
-
-    with GraphDatabase.driver(uri, auth=auth) as driver:
-        driver.verify_connectivity()
-        records, summary, keys = driver.execute_query("""
-            MATCH (n:User)
-            DELETE n;
-            """,
-            database_="neo4j",
-        )
-
-
-
+        records, summary, keys = driver.execute_query(q, database_="neo4j")
+ 
+ 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
-    # XXX workaround
-    for item in items:
-        item.add_marker(pytest.mark.namespace(create = False, name = "default"))
-
+     # XXX workaround
+     for item in items:
+         item.add_marker(pytest.mark.namespace(create = False, name = "default"))
+ 
