@@ -45,8 +45,11 @@ Feature: Mindwm event driven architecture
     And following deployments is in ready state in "redpanda" namespace
       | Deployment name         | 
       | redpanda-operator       |
-      | neo4j-cdc-console       |
+    And helm release "neo4j-cdc" is deployed in "redpanda" namespace
     And statefulset "neo4j-cdc" in namespace "redpanda" is in ready state
+    And following deployments is in ready state in "redpanda" namespace
+      | Deployment name         | 
+      | neo4j-cdc-console       |
 
   Scenario: Cert manager
     And namespace "cert-manager" should exists

@@ -26,6 +26,17 @@ Feature: MindWM Ping-pong EDA test
       And sets cloudevent "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
       And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
       And sends cloudevent to "context-broker" in "context-<context>" namespace
+        """
+        {
+          "input": "#ping",
+          "output": "",
+          "ps1": "❯",
+          "type": "org.mindwm.v1.iodocument"
+        }
+	      """
+    Then following deployments is in ready state in "context-<context>" namespace
+      | Deployment name            |
+      | pong-00001-deployment |
     Then the trace with "<traceparent>" should appear in TraceQL
     And the trace should contains 
       | service name                    | 

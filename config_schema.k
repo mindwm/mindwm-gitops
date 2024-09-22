@@ -87,7 +87,7 @@ schema MindwmContext:
     }
     kafka_cdc: KnativeFunction {
         name.data = "kafka-cdc"
-        image = "ghcr.io/mindwm/knfunc-kafka-cdc:latest"
+        image = "ghcr.io/mindwm/knfunc-kafka-cdc:1.0.1"
     }
     pong: KnativeFunction {
         name.data = "pong"

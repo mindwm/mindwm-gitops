@@ -355,8 +355,8 @@ kind: InMemoryChannel
           image = ctx.io_context.image
           env = [
             {
-              name = "NEO4J_URL"
-              value = getData(ctx.namespace) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              name = "NEO4J_URI"
+              value = "bolt://" + getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
               name = "NEO4J_USERNAME"
@@ -365,6 +365,10 @@ kind: InMemoryChannel
             {
               name = "NEO4J_PASSWORD"
               value = ctx.neo4j.password
+            }
+            {
+              name = "CONTEXT_NAME"
+              value = getData(ctx.name)
             }
             {
               name = "OTEL_EXPORTER_OTLP_ENDPOINT"
@@ -487,7 +491,7 @@ kind: InMemoryChannel
           env = [
             {
               name = "NEO4J_URL"
-              value = getData(ctx.namespace) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
+              value = "bolt://" + getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
               name = "NEO4J_USERNAME"
@@ -496,6 +500,10 @@ kind: InMemoryChannel
             {
               name = "NEO4J_PASSWORD"
               value = ctx.neo4j.password
+            }
+            {
+              name = "CONTEXT_NAME"
+              value = getData(ctx.name)
             }
             {
               name = "OTEL_EXPORTER_OTLP_ENDPOINT"
@@ -746,7 +754,7 @@ items = [
           filters = [{
             "all" = [
                 { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
-                { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+                { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%' OR source LIKE 'org.mindwm.context." + getData(ctx.name) + "._%'" }
                 #{ cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
             ]
           }]
@@ -901,7 +909,7 @@ items = [
         filters = [{
           "all" = [
             { cesql = "source NOT LIKE 'org.mindwm." + getData(user.name) + "._%'" }
-            { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%'" }
+            { cesql = "subject LIKE 'org.mindwm." + getData(user.name) + "._%' OR source LIKE 'org.mindwm.context._%'" }
             #{ cesql = "source LIKE 'org.mindwm.context." + getData(ctx.name) + ".graph.%'" }
           ]
         }]

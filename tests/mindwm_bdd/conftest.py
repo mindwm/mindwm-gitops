@@ -17,6 +17,7 @@ from make import run_make_cmd
 from messages import DataTable
 from kubetest import utils as kubetest_utils
 from kubetest import condition
+import kubernetes.client.exceptions
 import json
 import requests
 import time
@@ -28,6 +29,7 @@ from functools import wraps
 import inspect
 import nats_reader
 from queue import Empty
+from neo4j import GraphDatabase
 
 @pytest.fixture 
 def ctx():
@@ -151,7 +153,15 @@ def mindwm_host_delete(kube, host_name):
 
 @then("the host \"{host_name}\" should be deleted")
 def mindwm_host_deleted(kube, host_name):
-    host = mindwm_crd.host_get(kube, host_name)
+    try:
+        host = mindwm_crd.host_get(kube, host_name)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Mindwm host '{host_name}' has been deleted"):
+                pass
+            return True
+        else:
+            raise
     host.wait_until_deleted(timeout=30)
     with allure.step(f"Mindwm host {host_name} has been deleted"):
         pass
@@ -165,7 +175,15 @@ def mindwm_user_delete(kube, user_name):
         pass
 @then("the user \"{user_name}\" should be deleted")
 def mindwm_user_deleted(kube, user_name):
-    user = mindwm_crd.user_get(kube,user_name)
+    try:
+        user = mindwm_crd.user_get(kube,user_name)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Mindwm user '{user_name}' has been deleted"):
+                pass
+            return True
+        else:
+            raise
     user.wait_until_deleted()
     with allure.step(f"Mindwm user {user_name} has been deleted"):
         pass
@@ -178,7 +196,15 @@ def mindwm_context_delete(kube, context_name):
         pass
 @then("the context \"{context_name}\" should be deleted")
 def mindwm_context_deleted(kube, context_name):
-    context= mindwm_crd.context_get(kube, context_name)
+    try:
+        context= mindwm_crd.context_get(kube, context_name)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Mindwm context '{context_name}' has been deleted"):
+                pass
+            return True
+        else:
+            raise
     context.wait_until_deleted(30)
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
@@ -263,9 +289,18 @@ def namespace_exists(ctx, kube, namespace):
 
 @then("namespace \"{namespace}\" should not exists")
 def namespace_not_exists(kube, namespace):
-    ns = Namespace.new(namespace)
+    try:
+        ns = Namespace.new(namespace)
+    except kubernetes.client.exceptions.ApiException as e:
+        if e.status == 404:
+            with allure.step(f"Namespace '{namespace}' has been deleted"):
+                pass
+            return True
+        else:
+            raise
+
     ns.wait_until_deleted(timeout=180)
-    with allure.step(f"Namespace '{namespace}' deleted"):
+    with allure.step(f"Namespace '{namespace}' has been deleted"):
         pass
 
 
@@ -343,7 +378,8 @@ def cloudevent_header_set(cloudevent, key, value):
 
 
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
-def event_send_ping(kube, cloudevent, broker_name, namespace):
+def event_send_ping(kube, step, cloudevent, broker_name, namespace):
+    payload = json.loads(step.doc_string.content)
 
     ingress_host = utils.get_lb(kube)
     url = f"http://{ingress_host}/{namespace}/{broker_name}"
@@ -358,12 +394,12 @@ def event_send_ping(kube, cloudevent, broker_name, namespace):
         "ce-subject": cloudevent['ce-subject'],
         "ce-type": cloudevent['ce-type']
     }
-    payload = {
-        "input": cloudevent["ce-source"],
-        "output": "",
-        "ps1": "❯",
-        "type": cloudevent['ce-type']
-    }
+    # payload = {
+    #     "input": cloudevent["ce-source"],
+    #     "output": "",
+    #     "ps1": "❯",
+    #     "type": cloudevent['ce-type']
+    # }
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
 
@@ -396,34 +432,38 @@ def trace_should_contains(step, trace_data):
         #http_path = row.cells[2].value 
         #pprint.pprint(f"{service_name} {http_code} {http_path}")
         scope_span = utils.span_by_service_name(trace_data['data'], service_name)
-        assert(scope_span is not None)
+        assert(scope_span is not None), f"Scope span {service_name} not found in trace data"
         span = utils.parse_resourceSpan(scope_span)
-        assert(span is not None)
+        assert(span is not None), f"Span {service_name} not found in trace data"
         assert(span['service_name'] == service_name) 
         # assert(span['http_code'] == http_code) 
         # assert(span['http_path'] == http_path) 
     pass
 
 @then("a cloudevent with type == \"{cloudevent_type}\" should have been received from the NATS topic")
-def cloudevent_check(cloudevent_type):
-    time.sleep(5)
+def cloudvent_check(cloudevent_type):
+    time.sleep(10)
     message_queue = nats_reader.message_queue
     while True:
         try:
             message = message_queue.get(timeout=1)
             event = json.loads(message) 
             if (event['type'] == cloudevent_type):
+                with allure.step(f"{cloudevent_type} exists in nats topic"):
+                    pass
                 return True
             message_queue.task_done()
         except Empty:
             break
 
-    assert False, f"no pong in nats"
+    assert False, f"There is no {cloudevent_type} in nats topic"
 
 @when("God starts reading message from NATS topic \"{nats_topic_name}\"")
 def nats_message_receive(kube, nats_topic_name):
     ingress_host = utils.get_lb(kube)
     nats_reader.main(f"nats://root:r00tpass@{ingress_host}:4222", nats_topic_name)
+    with allure.step(f"Start nats reader from the topic {nats_topic_name}"):
+        pass
 
 @then("following deployments is in ready state in \"{namespace}\" namespace")
 def deployment_ready(kube, step, namespace):
@@ -434,6 +474,33 @@ def deployment_ready(kube, step, namespace):
             pass
         deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
         deployment.wait_until_ready(180)
+
+@then("graph have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
+def neo4j_check_node(kube, node_type, prop, value, cloudevent, context_name):
+    ingress_host = utils.get_lb(kube)
+    bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
+
+    assert bolt_port is not None, f"No node_port for neo4j bolt service"
+    uri = f"bolt://{ingress_host}:{bolt_port}"
+    auth = ("neo4j", "password")
+
+    traceparent_id = utils.extract_trace_id(cloudevent['traceparent'])
+
+    with GraphDatabase.driver(uri, auth=auth) as driver:
+        driver.verify_connectivity()
+        records, summary, keys = driver.execute_query(f"""
+            MATCH (n:{node_type})
+            WHERE n.traceparent CONTAINS "-{traceparent_id}-"
+            RETURN n
+            """,
+            database_="neo4j",
+        )
+        assert len(records) == 1
+
+        for user in records:
+            assert user['n'][prop] == value
+            with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
+                pass
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround
