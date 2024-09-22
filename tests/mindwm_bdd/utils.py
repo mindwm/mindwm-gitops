@@ -128,7 +128,11 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
                 namespace = namespace,
                 name = name
             )
-            return True
+            try:
+                a = resource['status']
+                return True
+            except:
+                return False
         except Exception as e:
             return False
 
