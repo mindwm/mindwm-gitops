@@ -449,6 +449,8 @@ def cloudvent_check(cloudevent_type):
             message = message_queue.get(timeout=1)
             event = json.loads(message) 
             if (event['type'] == cloudevent_type):
+                with allure.step(f"{cloudevent_type} exists in nats topic"):
+                    pass
                 return True
             message_queue.task_done()
         except Empty:
@@ -460,6 +462,8 @@ def cloudvent_check(cloudevent_type):
 def nats_message_receive(kube, nats_topic_name):
     ingress_host = utils.get_lb(kube)
     nats_reader.main(f"nats://root:r00tpass@{ingress_host}:4222", nats_topic_name)
+    with allure.step(f"Start nats reader from the topic {nats_topic_name}"):
+        pass
 
 @then("following deployments is in ready state in \"{namespace}\" namespace")
 def deployment_ready(kube, step, namespace):
@@ -471,10 +475,10 @@ def deployment_ready(kube, step, namespace):
         deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
         deployment.wait_until_ready(180)
 
-@then("neo4j have node \"{node_type}\" with property \"{prop}\" = \"{value}\"")
-def neo4j_check_node(kube, node_type, prop, value, cloudevent):
+@then("neo4j have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
+def neo4j_check_node(kube, node_type, prop, value, cloudevent, context_name):
     ingress_host = utils.get_lb(kube)
-    bolt_port = utils.neo4j_get_bolt_node_port(kube, "red")
+    bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
 
     assert bolt_port is not None, f"No node_port for neo4j bolt service"
     uri = f"bolt://{ingress_host}:{bolt_port}"
@@ -495,6 +499,8 @@ def neo4j_check_node(kube, node_type, prop, value, cloudevent):
 
         for user in records:
             assert user['n'][prop] == value
+            with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
+                pass
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     # XXX workaround

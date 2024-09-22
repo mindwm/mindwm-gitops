@@ -41,9 +41,9 @@ Feature: MindWM io context function test
       | service name                    |
       | broker-ingress.knative-eventing |
       | unknown_service                 |
-    Then neo4j have node "User" with property "username" = "<username>"
-    And neo4j have node "Host" with property "hostname" = "<host>"
-    And neo4j have node "IoDocument" with property "input" = "id"
+    Then neo4j have node "User" with property "username" = "<username>" in context "<context>"
+    And neo4j have node "Host" with property "hostname" = "<host>" in context "<context>"
+    And neo4j have node "IoDocument" with property "input" = "id" in context "<context>"
 
     Examples:
      | context | username   | host      | cloudevent_id                        | traceparent 					         |
