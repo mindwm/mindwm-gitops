@@ -155,10 +155,11 @@ jobs:
     - name: prepare env variable for report.md
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
-        echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})" >> $GITHUB_ENV
-        echo '```'
-        grep -vE '^features' artifacts/report.md >> $GITHUB_ENV
-        echo '```'
+        echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})" 
+        echo '<details>' 
+        echo '<summary>gherkin outptu</summary>'
+        grep -vE '^features' artifacts/report.md 
+        echo '</details>' 
         echo "EOF" >> $GITHUB_ENV
 
 
