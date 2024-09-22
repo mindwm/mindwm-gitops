@@ -114,7 +114,7 @@ def knative_service_wait_for(kube, knative_service_name, namespace):
             "v1",
             "services",
             knative_service_name,
-            60
+            180
             )
 
 def custom_object_wait_for(kube, namespace, group, version, plural, name, timeout):
