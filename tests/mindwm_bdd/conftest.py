@@ -31,6 +31,8 @@ import nats_reader
 from queue import Empty
 from neo4j import GraphDatabase
 import uuid
+import functools
+import asyncio
 
 @pytest.fixture 
 def ctx():
@@ -44,6 +46,15 @@ def trace_data():
 @pytest.fixture()
 def http_response(): 
     return {}
+
+def async_to_sync(fn):
+    """Convert async function to sync function."""
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        return asyncio.run(fn(*args, **kwargs))
+
+    return wrapper
 
 
 @scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
@@ -491,7 +502,11 @@ def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
 
 @when("God creates a new cloudevent")
 def cloudevent_create_cloudevent(step, cloudevent):
-    cloudevent['headers'] = {}
+    cloudevent['headers'] = {
+        "ce-id": str(uuid.uuid4()),
+        "ce-specversion": "1.0",
+    }
+
     cloudevent['data'] = ""
 @when("sets cloudevent header \"{header_name}\" to \"{value}\"")
 def cloudevent_header_set(cloudevent, header_name, value):
@@ -556,6 +571,13 @@ def graph_query(kube, context_name, step):
         driver.verify_connectivity()
         records, summary, keys = driver.execute_query(q, database_="neo4j")
  
+@when("sends cloudevent to nats topic \"{nats_topic_name}\"")
+@async_to_sync
+async def cloudevent_to_nats_topic(step, kube, nats_topic_name, cloudevent):
+    payload = step.doc_string.content
+    ingress_host = utils.get_lb(kube)
+    nats_url = f"nats://root:r00tpass@{ingress_host}:4222"
+    await utils.nats_send(nats_url, nats_topic_name, cloudevent['headers'], str.encode(payload))
  
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
      # XXX workaround

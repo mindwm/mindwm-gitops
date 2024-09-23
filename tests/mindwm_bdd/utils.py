@@ -8,6 +8,9 @@ from kubetest import condition
 from kubetest import utils as kubetest_utils
 import kubetest.objects.service 
 import re
+import asyncio
+import json
+import nats
 
 def double_base64_decode(encoded_str):
     try:
@@ -316,3 +319,20 @@ def ksvc_url(kube, namespace, knative_service_name):
             60
             )
     return ksvc
+
+async def nats_send(nats_url, nats_topic_name, event_headers, body):
+    nc = await nats.connect(nats_url)
+
+    
+    headers = {
+        **{
+            "datacontenttype": "application/json",
+            # https://github.com/knative-extensions/eventing-natss/issues/518
+            "ce-knativebrokerttl": "255",
+        }, 
+        **event_headers
+    }
+
+    # Publish with headers
+    #nats_topic_name = "xxx"
+    await nc.publish(nats_topic_name, body, headers = headers ) 
