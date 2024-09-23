@@ -7,7 +7,7 @@ Feature: MindWM Ping-pong EDA test
   Scenario: Prepare environment for ping tests 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    Then following knative service is in ready state in "context-<context>" namespace
+    And following knative service is in ready state in "context-<context>" namespace
       | Knative service name |
       | pong                 |
 
@@ -16,6 +16,8 @@ Feature: MindWM Ping-pong EDA test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
+    And NatsJetStreamChannel "<host>-host-broker-kne-trigger" is ready in "user-<username>" namespace
+
 
     When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
@@ -40,7 +42,7 @@ Feature: MindWM Ping-pong EDA test
       Then the response http code should be "200"
 
     Then following deployments is in ready state in "context-<context>" namespace
-      | Deployment name            |
+      | Deployment name       |
       | pong-00001-deployment |
 
     Examples:
@@ -48,12 +50,12 @@ Feature: MindWM Ping-pong EDA test
      | green4   | amanda4   | pi6-host  | 
 
   Scenario: Send ping via <endpoint>
-    When God create a new cloudevent 
-      And set cloudevent header "ce-subject" to "#ping"
-      And set cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
-      And set cloudevent header "traceparent" to "<traceparent>"
-      And set cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
-      And send cloudevent to "<endpoint>"
+    When God creates a new cloudevent 
+      And sets cloudevent header "ce-subject" to "#ping"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And sets cloudevent header "traceparent" to "<traceparent>"
+      And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And sends cloudevent to "<endpoint>"
       """
       {
         "input": "#ping",
@@ -62,7 +64,7 @@ Feature: MindWM Ping-pong EDA test
         "type": "org.mindwm.v1.iodocument"
       } 
       """
-      Then the response http code should be "202"
+    Then the response http code should be "202"
 
     Then following deployments is in ready state in "context-<context>" namespace
       | Deployment name            |

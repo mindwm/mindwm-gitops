@@ -25,7 +25,7 @@ Feature: MindWM io context function test
       And sets cloudevent header "ce-subject" to "id"
       And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
-      And send cloudevent to "broker-ingress.knative-eventing/context-<context>/context-broker"
+      And sends cloudevent to "broker-ingress.knative-eventing/context-<context>/context-broker"
         """
         {	
           "input": "id",
