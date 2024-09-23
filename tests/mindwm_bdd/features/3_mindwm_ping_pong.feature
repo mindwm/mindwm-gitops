@@ -18,7 +18,6 @@ Feature: MindWM Ping-pong EDA test
     Then the host resource should be ready and operable
     And NatsJetStreamChannel "<host>-host-broker-kne-trigger" is ready in "user-<username>" namespace
 
-
     When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     Examples:
@@ -81,6 +80,33 @@ Feature: MindWM Ping-pong EDA test
      | context | username   | host      | endpoint | traceparent 					         |
      | green4   | amanda4   | pi6-host  | broker-ingress.knative-eventing/context-green4/context-broker   | 00-5df92f3577b34da6a3ce929d0e0e4734-00f067aa0ba902b7-00 |
      | green4   | amanda4   | pi6-host  | broker-ingress.knative-eventing/user-amanda4/user-broker | 00-6df93f3577b34da6a3ce929d0e0e4742-00f067aa0ba902b7-00 |
+
+
+  Scenario: Send ping via nats
+    When God creates a new cloudevent 
+      And sets cloudevent header "ce-subject" to "#ping"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window>.<tmux_pane>.iodocument"
+      And sends cloudevent to nats topic "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window><tmux_pane>.iodocument"
+      """
+      {
+        "input": "#ping",
+        "output": "",
+        "ps1": "❯",
+        "type": "org.mindwm.v1.iodocument"
+      } 
+      """
+
+    Then following deployments is in ready state in "context-<context>" namespace
+      | Deployment name       |
+      | pong-00001-deployment |
+
+    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic
+
+
+    Examples:
+     | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
+     | green4   | amanda4   | pi6-host  | 23        | 36          | 09fb195c-c419-6d62-15e0-51b6ee990922  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
 
 
    Scenario: Cleanup <username>@<host> in <context>
