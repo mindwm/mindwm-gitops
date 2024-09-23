@@ -30,6 +30,7 @@ import inspect
 import nats_reader
 from queue import Empty
 from neo4j import GraphDatabase
+import uuid
 
 @pytest.fixture 
 def ctx():
@@ -517,7 +518,7 @@ def http_response_code_check(http_response, code):
     status_code = str(http_response['answer'].status_code)
     assert status_code == code, f"HTTP status code {status_code} != {code}"
 
-@when("send cloudevent to \"{endpoint}\"")
+@when("sends cloudevent to \"{endpoint}\"")
 def cloudevent_send(step, kube, http_response, cloudevent, endpoint):
     cloudevent['data'] = json.loads(step.doc_string.content)
     (host, path) = endpoint.split("/", 1)
@@ -532,6 +533,7 @@ def cloudevent_send(step, kube, http_response, cloudevent, endpoint):
             "Host": f"{host}.svc.cluster.local",
             "Content-Type": "application/json",
             "Ce-specversion": "1.0",
+            "Ce-id": str(uuid.uuid4()),
         }, 
         **cloudevent['headers']
     }
