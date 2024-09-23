@@ -18,21 +18,27 @@ Feature: MindWM io context function test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
+    # When God makes graph query in context "<context>"
+    #   """
+    #   MATCH (N) DETACH DELETE N;
+    #   """
 
     When God creates a new cloudevent 
-      And sets cloudevent "ce-id" to "<cloudevent_id>"
-      And sets cloudevent "traceparent" to "<traceparent>"
-      And sets cloudevent "ce-subject" to "id"
-      And sets cloudevent "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
-      And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
-    When sends cloudevent to "context-broker" in "context-<context>" namespace
+      And sets cloudevent header "ce-id" to "<cloudevent_id>"
+      And sets cloudevent header "traceparent" to "<traceparent>"
+      And sets cloudevent header "ce-subject" to "id"
+      And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And sends cloudevent to "broker-ingress.knative-eventing/context-<context>/context-broker"
         """
         {	
           "input": "id",
           "output": "uid=1000(pion) gid=1000(pion) groups=1000(pion),4(adm),100(users),112(tmux),988(docker)",
-          "ps1": "pion@mindwm-stg1:~/work/dev/mindwm-manager$"
+          "ps1": "pion@mindwm-stg1:~/work/dev/mindwm-manager$",
+          "type": "org.mindwm.v1.iodocument"
         }
         """
+    Then the response http code should be "202"
     Then following deployments is in ready state in "context-<context>" namespace
       | Deployment name            |
       | iocontext-00001-deployment |

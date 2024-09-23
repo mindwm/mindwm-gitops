@@ -30,6 +30,7 @@ import inspect
 import nats_reader
 from queue import Empty
 from neo4j import GraphDatabase
+import uuid
 
 @pytest.fixture 
 def ctx():
@@ -40,6 +41,10 @@ def cloudevent():
 @pytest.fixture
 def trace_data():
     return {}
+@pytest.fixture()
+def http_response(): 
+    return {}
+
 
 @scenario('lifecycle.feature','Validate Mindwm custom resource definitions')
 def test_scenario():
@@ -368,15 +373,6 @@ def nats_stream_exists(kube, nats_stream_name, namespace):
         pass
     assert(is_ready == 'True')
 
-@when("God creates a new cloudevent")
-def cloudevent_new(cloudevent):
-    cloudevent = {}
-
-@when("sets cloudevent \"{key}\" to \"{value}\"")
-def cloudevent_header_set(cloudevent, key, value):
-    cloudevent[key] = value
-
-
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
 def event_send_ping(kube, step, cloudevent, broker_name, namespace):
     payload = json.loads(step.doc_string.content)
@@ -385,21 +381,12 @@ def event_send_ping(kube, step, cloudevent, broker_name, namespace):
     url = f"http://{ingress_host}/{namespace}/{broker_name}"
 
     headers = {
-        "Host": "broker-ingress.knative-eventing.svc.cluster.local",
-        "Content-Type": "application/json",
-        "traceparent": cloudevent['traceparent'],
-        "Ce-specversion": "1.0",
-        "Ce-id": cloudevent['ce-id'],
-        "ce-source": cloudevent['ce-source'],
-        "ce-subject": cloudevent['ce-subject'],
-        "ce-type": cloudevent['ce-type']
+        **{
+            "Content-Type": "application/json",
+            "Ce-specversion": "1.0",
+        }, 
+        **cloudevent['headers']
     }
-    # payload = {
-    #     "input": cloudevent["ce-source"],
-    #     "output": "",
-    #     "ps1": "❯",
-    #     "type": cloudevent['ce-type']
-    # }
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
 
@@ -413,7 +400,7 @@ def tracesql_get_trace(kube, traceparent, trace_data):
     headers = {
         "Host": "tempo.mindwm.local"
     }
-    time.sleep(5)
+    time.sleep(10)
     response = requests.get(url, headers = headers)
     assert response.status_code == 200, f"Response code {response.status_code} != 200"
     tempo_reply = json.loads(response.text)
@@ -483,7 +470,7 @@ def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
     uri = f"bolt://{ingress_host}:{bolt_port}"
     auth = ("neo4j", "password")
 
-    traceparent_id = utils.extract_trace_id(cloudevent['traceparent'])
+    traceparent_id = utils.extract_trace_id(cloudevent['headers']['traceparent'])
 
     with GraphDatabase.driver(uri, auth=auth) as driver:
         driver.verify_connectivity()
@@ -501,6 +488,58 @@ def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
             assert node['n'][prop] == value
             with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
                 pass
+
+@when("God creates a new cloudevent")
+def cloudevent_create_cloudevent(step, cloudevent):
+    cloudevent['headers'] = {}
+    cloudevent['data'] = ""
+@when("sets cloudevent header \"{header_name}\" to \"{value}\"")
+def cloudevent_header_set(cloudevent, header_name, value):
+    cloudevent['headers'][header_name] = value
+
+@when("sends cloudevent to knative service \"{knative_service_name}\" in \"{namespace}\" namespace")
+def cloudevent_send_to_ksvc(step, http_response, kube, cloudevent, knative_service_name, namespace):
+    cloudevent['data'] = json.loads(step.doc_string.content)
+    ksvc = utils.ksvc_url(kube, namespace, knative_service_name)
+    url = ksvc['status']['url']
+
+    headers = {
+        **{
+            "Content-Type": "application/json",
+            "Ce-specversion": "1.0",
+        }, 
+        **cloudevent['headers']
+    }
+
+    http_response['answer'] = requests.post(url, headers=headers, data=json.dumps(cloudevent['data']))
+
+@then("the response http code should be \"{code}\"")
+def http_response_code_check(http_response, code):
+    status_code = str(http_response['answer'].status_code)
+    assert status_code == code, f"HTTP status code {status_code} != {code}"
+
+@when("sends cloudevent to \"{endpoint}\"")
+def cloudevent_send(step, kube, http_response, cloudevent, endpoint):
+    cloudevent['data'] = json.loads(step.doc_string.content)
+    (host, path) = endpoint.split("/", 1)
+    assert host is not None, f"Host in {endpoint} is None"
+    assert path is not None, f"Path in {endpoint} is None"
+    
+    ingress_host = utils.get_lb(kube)
+    url = f"http://{ingress_host}/{path}"
+
+    headers = {
+        **{
+            "Host": f"{host}.svc.cluster.local",
+            "Content-Type": "application/json",
+            "Ce-specversion": "1.0",
+            "Ce-id": str(uuid.uuid4()),
+        }, 
+        **cloudevent['headers']
+    }
+
+    http_response['answer'] = requests.post(url, headers=headers, data=json.dumps(cloudevent['data']))
+
 
 @when("God makes graph query in context \"{context_name}\"")
 def graph_query(kube, context_name, step):
