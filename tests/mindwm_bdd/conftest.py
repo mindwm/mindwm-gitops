@@ -462,10 +462,9 @@ def deployment_ready(kube, step, namespace):
         deployment.wait_until_ready(180)
 
 @then("graph have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
-def neo4j_check_node(kube, node_type, prop, value, cloudevent, context_name):
+def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
     ingress_host = utils.get_lb(kube)
     bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
-
     assert bolt_port is not None, f"No node_port for neo4j bolt service"
     uri = f"bolt://{ingress_host}:{bolt_port}"
     auth = ("neo4j", "password")
@@ -483,8 +482,9 @@ def neo4j_check_node(kube, node_type, prop, value, cloudevent, context_name):
         )
         assert len(records) == 1
 
-        for user in records:
-            assert user['n'][prop] == value
+        for node in records:
+            pprint.pprint(node)
+            assert node['n'][prop] == value
             with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
                 pass
 
@@ -539,8 +539,24 @@ def cloudevent_send(step, kube, http_response, cloudevent, endpoint):
     http_response['answer'] = requests.post(url, headers=headers, data=json.dumps(cloudevent['data']))
 
 
-def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
-    # XXX workaround
-    for item in items:
-        item.add_marker(pytest.mark.namespace(create = False, name = "default"))
+@when("God makes graph query in context \"{context_name}\"")
+def graph_query(kube, context_name, step):
+    q = step.doc_string.content
 
+    ingress_host = utils.get_lb(kube)
+    bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
+    assert bolt_port is not None, f"No node_port for neo4j bolt service"
+
+    uri = f"bolt://{ingress_host}:{bolt_port}"
+    auth = ("neo4j", "password")
+
+    with GraphDatabase.driver(uri, auth=auth) as driver:
+        driver.verify_connectivity()
+        records, summary, keys = driver.execute_query(q, database_="neo4j")
+ 
+ 
+def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
+     # XXX workaround
+     for item in items:
+         item.add_marker(pytest.mark.namespace(create = False, name = "default"))
+ 
