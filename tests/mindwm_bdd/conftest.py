@@ -372,18 +372,6 @@ def nats_stream_exists(kube, nats_stream_name, namespace):
         pass
     assert(is_ready == 'True')
 
-@when("God creates a new cloudevent")
-def cloudevent_new(cloudevent):
-    cloudevent = {
-        "headers": {},
-        "body": ""
-    }
-
-@when("sets cloudevent \"{key}\" to \"{value}\"")
-def cloudevent_header_set(cloudevent, key, value):
-    cloudevent[key] = value
-
-
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
 def event_send_ping(kube, step, cloudevent, broker_name, namespace):
     payload = json.loads(step.doc_string.content)
@@ -392,14 +380,11 @@ def event_send_ping(kube, step, cloudevent, broker_name, namespace):
     url = f"http://{ingress_host}/{namespace}/{broker_name}"
 
     headers = {
-        "Host": "broker-ingress.knative-eventing.svc.cluster.local",
-        "Content-Type": "application/json",
-        "traceparent": cloudevent['traceparent'],
-        "Ce-specversion": "1.0",
-        "Ce-id": cloudevent['ce-id'],
-        "ce-source": cloudevent['ce-source'],
-        "ce-subject": cloudevent['ce-subject'],
-        "ce-type": cloudevent['ce-type']
+        **{
+            "Content-Type": "application/json",
+            "Ce-specversion": "1.0",
+        }, 
+        **cloudevent['headers']
     }
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
@@ -485,7 +470,7 @@ def neo4j_check_node(kube, node_type, prop, value, cloudevent, context_name):
     uri = f"bolt://{ingress_host}:{bolt_port}"
     auth = ("neo4j", "password")
 
-    traceparent_id = utils.extract_trace_id(cloudevent['traceparent'])
+    traceparent_id = utils.extract_trace_id(cloudevent['headers']['traceparent'])
 
     with GraphDatabase.driver(uri, auth=auth) as driver:
         driver.verify_connectivity()
@@ -503,17 +488,15 @@ def neo4j_check_node(kube, node_type, prop, value, cloudevent, context_name):
             with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
                 pass
 
-@when("God create a new cloudevent")
+@when("God creates a new cloudevent")
 def cloudevent_create_cloudevent(step, cloudevent):
-    cloudevent['headers'] = {
-        "ce-id": "123",
-    } 
+    cloudevent['headers'] = {}
     cloudevent['data'] = ""
-@when("set cloudevent header \"{header_name}\" to \"{value}\"")
+@when("sets cloudevent header \"{header_name}\" to \"{value}\"")
 def cloudevent_header_set(cloudevent, header_name, value):
     cloudevent['headers'][header_name] = value
 
-@when("send cloudevent to knative service \"{knative_service_name}\" in \"{namespace}\" namespace")
+@when("sends cloudevent to knative service \"{knative_service_name}\" in \"{namespace}\" namespace")
 def cloudevent_send_to_ksvc(step, http_response, kube, cloudevent, knative_service_name, namespace):
     cloudevent['data'] = json.loads(step.doc_string.content)
     ksvc = utils.ksvc_url(kube, namespace, knative_service_name)

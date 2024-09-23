@@ -24,11 +24,11 @@ Feature: MindWM Ping-pong EDA test
      | green4   | amanda4   | pi6-host  | 
 
   Scenario: Send pind to knative ping service
-    When God create a new cloudevent 
-      And set cloudevent header "ce-subject" to "#ping"
-      And set cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
-      And set cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
-      And send cloudevent to knative service "pong" in "context-<context>" namespace
+    When God creates a new cloudevent 
+      And sets cloudevent header "ce-subject" to "#ping"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And sends cloudevent to knative service "pong" in "context-<context>" namespace
       """
       {
         "input": "#ping",

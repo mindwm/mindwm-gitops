@@ -20,12 +20,12 @@ Feature: MindWM io context function test
     Then the host resource should be ready and operable
 
     When God creates a new cloudevent 
-      And sets cloudevent "ce-id" to "<cloudevent_id>"
-      And sets cloudevent "traceparent" to "<traceparent>"
-      And sets cloudevent "ce-subject" to "id"
-      And sets cloudevent "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
-      And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
-    When sends cloudevent to "context-broker" in "context-<context>" namespace
+      And sets cloudevent header "ce-id" to "<cloudevent_id>"
+      And sets cloudevent header "traceparent" to "<traceparent>"
+      And sets cloudevent header "ce-subject" to "id"
+      And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And send cloudevent to "broker-ingress.knative-eventing/context-<context>/context-broker"
         """
         {	
           "input": "id",
@@ -33,6 +33,7 @@ Feature: MindWM io context function test
           "ps1": "pion@mindwm-stg1:~/work/dev/mindwm-manager$"
         }
         """
+    Then the response http code should be "202"
     Then following deployments is in ready state in "context-<context>" namespace
       | Deployment name            |
       | iocontext-00001-deployment |
