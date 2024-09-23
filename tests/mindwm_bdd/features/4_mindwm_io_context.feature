@@ -18,6 +18,10 @@ Feature: MindWM io context function test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
+    # When God makes graph query in context "<context>"
+    #   """
+    #   MATCH (N) DETACH DELETE N;
+    #   """
 
     When God creates a new cloudevent 
       And sets cloudevent header "ce-id" to "<cloudevent_id>"
@@ -30,7 +34,8 @@ Feature: MindWM io context function test
         {	
           "input": "id",
           "output": "uid=1000(pion) gid=1000(pion) groups=1000(pion),4(adm),100(users),112(tmux),988(docker)",
-          "ps1": "pion@mindwm-stg1:~/work/dev/mindwm-manager$"
+          "ps1": "pion@mindwm-stg1:~/work/dev/mindwm-manager$",
+          "type": "org.mindwm.v1.iodocument"
         }
         """
     Then the response http code should be "202"
