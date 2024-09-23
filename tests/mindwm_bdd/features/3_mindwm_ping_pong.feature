@@ -4,8 +4,7 @@ Feature: MindWM Ping-pong EDA test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: Ping <context>
-
+  Scenario: Prepare environment for ping tests 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
     Then following knative service is in ready state in "context-<context>" namespace
@@ -19,21 +18,52 @@ Feature: MindWM Ping-pong EDA test
     Then the host resource should be ready and operable
 
     When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
-    When God creates a new cloudevent 
-      And sets cloudevent "ce-id" to "<cloudevent_id>"
-      And sets cloudevent "traceparent" to "<traceparent>"
-      And sets cloudevent "ce-subject" to "#ping"
-      And sets cloudevent "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
-      And sets cloudevent "ce-type" to "org.mindwm.v1.iodocument"
-      And sends cloudevent to "context-broker" in "context-<context>" namespace
-        """
-        {
-          "input": "#ping",
-          "output": "",
-          "ps1": "❯",
-          "type": "org.mindwm.v1.iodocument"
-        }
-	      """
+
+    Examples:
+     | context | username   | host      |
+     | green4   | amanda4   | pi6-host  | 
+
+  Scenario: Send pind to knative ping service
+    When God create a new cloudevent 
+      And set cloudevent header "ce-subject" to "#ping"
+      And set cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And set cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And send cloudevent to knative service "pong" in "context-<context>" namespace
+      """
+      {
+        "input": "#ping",
+        "output": "",
+        "ps1": "❯",
+        "type": "org.mindwm.v1.iodocument"
+      } 
+      """
+      Then the response http code should be "200"
+
+    Then following deployments is in ready state in "context-<context>" namespace
+      | Deployment name            |
+      | pong-00001-deployment |
+
+    Examples:
+     | context | username   | host      |
+     | green4   | amanda4   | pi6-host  | 
+
+  Scenario: Send ping via <endpoint>
+    When God create a new cloudevent 
+      And set cloudevent header "ce-subject" to "#ping"
+      And set cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And set cloudevent header "traceparent" to "<traceparent>"
+      And set cloudevent header "ce-source" to "org.mindwm.<username>.<host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And send cloudevent to "<endpoint>"
+      """
+      {
+        "input": "#ping",
+        "output": "",
+        "ps1": "❯",
+        "type": "org.mindwm.v1.iodocument"
+      } 
+      """
+      Then the response http code should be "202"
+
     Then following deployments is in ready state in "context-<context>" namespace
       | Deployment name            |
       | pong-00001-deployment |
@@ -46,8 +76,9 @@ Feature: MindWM Ping-pong EDA test
     And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic
 
     Examples:
-     | context | username   | host      | cloudevent_id                        | traceparent 					         |
-     | green4   | amanda4   | pi6-host  | 442af213-c860-4535-b639-355f13b2d443 | 00-5df92f3577b34da6a3ce929d0e0e4734-00f067aa0ba902b7-00 |
+     | context | username   | host      | endpoint | traceparent 					         |
+     | green4   | amanda4   | pi6-host  | broker-ingress.knative-eventing/context-green4/context-broker   | 00-5df92f3577b34da6a3ce929d0e0e4734-00f067aa0ba902b7-00 |
+     | green4   | amanda4   | pi6-host  | broker-ingress.knative-eventing/user-amanda4/user-broker | 00-6df93f3577b34da6a3ce929d0e0e4742-00f067aa0ba902b7-00 |
 
 
    Scenario: Cleanup <username>@<host> in <context>
