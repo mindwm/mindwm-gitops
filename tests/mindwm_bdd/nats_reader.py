@@ -6,6 +6,7 @@ from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
 from queue import Queue, Empty
 
 # Configuration
+subscriber_thread = None
 message_queue = Queue()
 
 async def subscribe_to_nats(nats_url, topic: str):
@@ -57,6 +58,16 @@ def run_nats_subscriber(nats_url, topic):
         loop.close()
 
 def main(nats_url: str, topic: str):
+    global subscriber_thread
+    if subscriber_thread and subscriber_thread.is_alive():
+        subscriber_thread.join(timeout=10)
+        # cleanup message queue
+        while not message_queue.empty():
+            try:
+                message_queue.get_nowait()
+            except Empty:
+                break
+
     subscriber_thread = threading.Thread(target=run_nats_subscriber, daemon=True, args=(nats_url, topic,))
     subscriber_thread.start()
 
