@@ -1,4 +1,5 @@
-@two_hosts_one_user
+@mindwm_two_hosts_one_user
+@mindwm_test
 Feature: MindWM kafka_cdc function test
   Background:
     Given A MindWM environment
@@ -35,11 +36,11 @@ Feature: MindWM kafka_cdc function test
 
   Scenario: Send ping via nats host: <host>, user: <username>
     When God creates a new cloudevent 
-      When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+      And God starts reading message from NATS topic ">"
       And sets cloudevent header "ce-subject" to "#ping"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
       And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window>.<tmux_pane>.iodocument"
-      And sends cloudevent to nats topic "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window><tmux_pane>.iodocument"
+      And sends cloudevent to nats topic "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window>.<tmux_pane>.iodocument"
       """
       {
         "input": "#ping",
@@ -53,7 +54,7 @@ Feature: MindWM kafka_cdc function test
       | Deployment name       |
       | pong-00001-deployment |
 
-    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     Examples:
      | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
@@ -62,7 +63,6 @@ Feature: MindWM kafka_cdc function test
 
   Scenario: Send iodocument via nats host: <host>, user: <username> and check that second host received graph the update
     When God creates a new cloudevent 
-      When God starts reading message from NATS topic "user-<username>.travellapop-host-broker-kne-trigger._knative"
       And sets cloudevent header "ce-subject" to "id"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
       And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window>.<tmux_pane>.iodocument"
@@ -81,12 +81,12 @@ Feature: MindWM kafka_cdc function test
       | iocontext-00001-deployment |
       | kafka-cdc-00001-deployment |
 
-    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     Examples:
      | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
      | varanasi  | shesha   | workstation01  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
-     #     | varanasi  | shesha   | travellaptop  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
+     | varanasi  | shesha   | travellaptop  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
 
 
   Scenario: Cleanup hosts <host> in user <username>

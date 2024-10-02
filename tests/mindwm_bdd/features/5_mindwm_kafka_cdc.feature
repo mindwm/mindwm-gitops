@@ -1,4 +1,5 @@
-@kafka_cdc
+@mindwm_kafka_cdc
+@mindwm_test
 Feature: MindWM kafka_cdc function test
   Background:
     Given A MindWM environment
@@ -24,7 +25,7 @@ Feature: MindWM kafka_cdc function test
     #   MATCH (N) DETACH DELETE N;
     #   """
 
-    When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+    When God starts reading message from NATS topic ">"
     And God makes graph query in context "<context>"
       """
       CREATE (n:User {
@@ -39,7 +40,7 @@ Feature: MindWM kafka_cdc function test
     Then following knative service is in ready state in "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
-    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     When God makes graph query in context "<context>"
       """
