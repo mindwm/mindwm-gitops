@@ -51,7 +51,7 @@ Feature: MindWM kafka_cdc function test
     Then following knative service is in ready state in "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
-    And a cloudevent with type == "org.mindwm.v1.graph.updated" should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.graph.updated" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
 
     When God makes graph query in context "<context>"
@@ -62,7 +62,7 @@ Feature: MindWM kafka_cdc function test
     Then following knative service is in ready state in "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
-    And a cloudevent with type == "org.mindwm.v1.graph.deleted" should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.graph.deleted" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     Examples:
      | context  | username   | host      | 
