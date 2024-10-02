@@ -39,8 +39,8 @@ Feature: MindWM two users one context function test
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "id"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
-      And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window>.<tmux_pane>.iodocument"
-      And sends cloudevent to nats topic "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window><tmux_pane>.iodocument"
+      And sets cloudevent header "ce-source" to "org.mindwm.<src_user>.<src_host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.8d839f82-79da-11ef-bc9f-f74fac7543ac.23.36.iodocument"
+      And sends cloudevent to nats topic "org.mindwm.<src_user>.<src_host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.8d839f82-79da-11ef-bc9f-f74fac7543ac.23.36.iodocument"
       """
       {
         "input": "id",
@@ -51,15 +51,17 @@ Feature: MindWM two users one context function test
       """
 
     Then following deployments is in ready state in "context-<context>" namespace
-      | Deployment name       |
+      | Deployment name            |
       | iocontext-00001-deployment |
       | kafka-cdc-00001-deployment |
 
-    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-tengu.tablet-host-broker-kne-trigger._knative"
+    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<dst_user>.<dst_host>-host-broker-kne-trigger._knative"
 
     Examples:
-     | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
-     | tokyo  | godzilla   | laptop  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
+    | src_user | src_host | dst_user | dst_host |  
+    | godzilla | laptop   | tengu    | tablet   |
+    | tengu    | tablet   | godzilla | laptop   | 
+
 
   Scenario: Cleanup <host> host for <username> username
 
