@@ -37,6 +37,7 @@ Feature: MindWM two users one context function test
 
   Scenario: Send iodocument via nats host: <host>, user: <username> and check that second user received graph update
     When God creates a new cloudevent 
+      And God starts reading message from NATS topic ">"
       And sets cloudevent header "ce-subject" to "id"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
       And sets cloudevent header "ce-source" to "org.mindwm.<src_user>.<src_host>.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.8d839f82-79da-11ef-bc9f-f74fac7543ac.23.36.iodocument"
