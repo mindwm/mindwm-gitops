@@ -34,6 +34,8 @@ import uuid
 import functools
 import asyncio
 
+nats_messages = []
+
 @pytest.fixture 
 def ctx():
     return {}
@@ -438,23 +440,35 @@ def trace_should_contains(step, trace_data):
         # assert(span['http_path'] == http_path) 
     pass
 
-@then("a cloudevent with type == \"{cloudevent_type}\" should have been received from the NATS topic")
-def cloudvent_check(cloudevent_type):
+@then("a cloudevent with type == \"{cloudevent_type}\" should have been received from the NATS topic \"{topic_name}\"")
+def cloudvent_check(cloudevent_type, topic_name):
     time.sleep(10)
     message_queue = nats_reader.message_queue
+    # copy data from message_queue to nats_queue
+
     while True:
         try:
             message = message_queue.get(timeout=1)
-            event = json.loads(message) 
-            if (event['type'] == cloudevent_type):
-                with allure.step(f"{cloudevent_type} exists in nats topic"):
-                    pass
-                return True
+            nats_messages.append(message)
             message_queue.task_done()
         except Empty:
             break
+        
+    for msg in nats_messages:
+        subject = msg['subject']
+        data = msg['data']
+        if (subject == topic_name):
+            event = json.loads(data) 
+            if (event['type'] == cloudevent_type):
+                with allure.step(f"{cloudevent_type} exists in nats topic {topic_name}"):
+                    pass
+                return True
 
-    assert False, f"There is no {cloudevent_type} in nats topic"
+    assert False, f"There is no {cloudevent_type} in nats topic in {topic_name}"
+
+@then("cleanup nats messages")
+def nats_messages_cleanup():
+    nats_messages = []
 
 @when("God starts reading message from NATS topic \"{nats_topic_name}\"")
 def nats_message_receive(kube, nats_topic_name):
