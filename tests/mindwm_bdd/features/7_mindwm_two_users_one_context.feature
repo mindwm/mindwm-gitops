@@ -35,6 +35,32 @@ Feature: MindWM two users one context function test
     | godzilla | laptop | 
     | tengu    | tablet | 
 
+  Scenario: Send iodocument via nats host: <host>, user: <username> and check that second user received graph update
+    When God creates a new cloudevent 
+      And sets cloudevent header "ce-subject" to "id"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window>.<tmux_pane>.iodocument"
+      And sends cloudevent to nats topic "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window><tmux_pane>.iodocument"
+      """
+      {
+        "input": "id",
+        "output": "uid=1000(pion) gid=1000(pion) groups=1000(pion),4(adm),100(users),112(tmux),988(docker)",
+        "ps1": "pion@mindwm-stg1:~/work/dev/mindwm-manager$",
+        "type": "org.mindwm.v1.iodocument"
+      } 
+      """
+
+    Then following deployments is in ready state in "context-<context>" namespace
+      | Deployment name       |
+      | iocontext-00001-deployment |
+      | kafka-cdc-00001-deployment |
+
+    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-tengu.tablet-host-broker-kne-trigger._knative"
+
+    Examples:
+     | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
+     | tokyo  | godzilla   | laptop  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
+
   Scenario: Cleanup <host> host for <username> username
 
     When God deletes the MindWM host resource "<host>"
