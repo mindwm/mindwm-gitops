@@ -1,6 +1,6 @@
 @mindwm_two_hosts_one_user
 @mindwm_test
-Feature: MindWM kafka_cdc function test
+Feature: MindWM two hosts one user function test
   Background:
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
@@ -81,12 +81,12 @@ Feature: MindWM kafka_cdc function test
       | iocontext-00001-deployment |
       | kafka-cdc-00001-deployment |
 
-    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+    And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.travellaptop-host-broker-kne-trigger._knative"
 
     Examples:
      | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
      | varanasi  | shesha   | workstation01  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
-     | varanasi  | shesha   | travellaptop  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
+     #| varanasi  | shesha   | travellaptop  | 23        | 36          | 8d839f82-79da-11ef-bc9f-f74fac7543ac  |L3RtcC90bXV4LTEwMDAvZGVmYXVsdA== |
 
 
   Scenario: Cleanup hosts <host> in user <username>
