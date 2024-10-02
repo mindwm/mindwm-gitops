@@ -1,4 +1,5 @@
-@io_context
+@mindwm_io_context
+@mindwm_test
 Feature: MindWM io context function test
   Background:
     Given A MindWM environment

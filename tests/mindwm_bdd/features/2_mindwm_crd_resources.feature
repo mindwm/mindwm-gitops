@@ -1,4 +1,5 @@
-@crd_resources
+@mindwm_crd_resources
+@mindwm_test
 Feature: MindWM Custom kubernetes resources
 
   Background:

@@ -1,4 +1,5 @@
-@crd
+@mindwm_crd
+@mindwm_test
 Feature: MindWM Custom Resource Definition
 
   Background:

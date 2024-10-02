@@ -1,4 +1,5 @@
-@ping_pong
+@mindwm_ping_pong
+@mindwm_test
 Feature: MindWM Ping-pong EDA test
   Background:
     Given A MindWM environment
@@ -18,7 +19,7 @@ Feature: MindWM Ping-pong EDA test
     Then the host resource should be ready and operable
     And NatsJetStreamChannel "<host>-host-broker-kne-trigger" is ready in "user-<username>" namespace
 
-    When God starts reading message from NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+    When God starts reading message from NATS topic ">"
 
     Examples:
      | context | username   | host      |
@@ -74,7 +75,7 @@ Feature: MindWM Ping-pong EDA test
       | broker-ingress.knative-eventing | 
       | unknown_service                 | 
       | jetstream-ch-dispatcher         |
-    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     Examples:
      | context | username   | host      | endpoint | traceparent 					         |
@@ -101,7 +102,7 @@ Feature: MindWM Ping-pong EDA test
       | Deployment name       |
       | pong-00001-deployment |
 
-    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic
+    And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
 
     Examples:
