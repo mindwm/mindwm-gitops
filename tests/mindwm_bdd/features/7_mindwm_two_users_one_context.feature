@@ -59,9 +59,9 @@ Feature: MindWM two users one context function test
     And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<dst_user>.<dst_host>-host-broker-kne-trigger._knative"
 
     Examples:
-    | src_user | src_host | dst_user | dst_host |  
-    | godzilla | laptop   | tengu    | tablet   |
-    | tengu    | tablet   | godzilla | laptop   | 
+    | context | src_user | src_host | dst_user | dst_host |  
+    | tokyo   | godzilla | laptop   | tengu    | tablet   |
+    | tokyo   | tengu    | tablet   | godzilla | laptop   | 
 
 
   Scenario: Cleanup <host> host for <username> username
