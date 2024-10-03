@@ -157,7 +157,7 @@ jobs:
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
         echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})"  >> $GITHUB_ENV
         echo '<details>' >> $GITHUB_ENV
-        echo '<summary>gherkin outptu</summary>' >> $GITHUB_ENV
+        echo '<summary>gherkin outptut</summary>' >> $GITHUB_ENV
         grep -vE '^features' artifacts/report.md  >> $GITHUB_ENV
         echo '</details>' >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
