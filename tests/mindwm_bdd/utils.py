@@ -209,20 +209,41 @@ def nats_stream_wait_for(kube, nats_stream_name, namespace):
             180
             )
 
-def custom_object_plural_wait_for(kube, group, version, plural):
-    def exists():
+def nats_stream_wait_for_ready(kube, nats_stream_name, namespace):
+    def is_ready():
         try:
-            kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
-            return True
+            nats_stream = nats_stream_wait_for(kube, nats_stream_name, namespace)
+            pprint.pprint(nats_stream)
+            is_ready = resource_get_condition(nats_stream['status'], 'Ready')
+            return is_ready
         except Exception as e:
             return False
+
+    ready_condition = condition.Condition(f"NatsJetStreamChannel {nats_stream_name} in ready state", is_ready)
+
+    kubetest_utils.wait_for_condition(
+        condition=ready_condition,
+        timeout=180, # More details in #118 github issue
+        interval=5
+    )
+
+    return nats_stream_wait_for(kube, nats_stream_name, namespace)
+     
+ 
+def custom_object_plural_wait_for(kube, group, version, plural):
+    def exists():
+         try:
+             kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
+             return True
+         except Exception as e:
+             return False
 
     exists_condition = condition.Condition(f"Wait for custom object {group}/{version} {plural} exists", exists)
 
     kubetest_utils.wait_for_condition(
-        condition=exists_condition,
-        timeout=60,
-        interval=5
+         condition=exists_condition,
+         timeout=60,
+         interval=5
     )
     return kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
 

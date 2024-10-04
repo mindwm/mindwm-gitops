@@ -380,7 +380,7 @@ def kafka_source_exist(kube, kafka_source_name, namespace):
 
 @then("NatsJetStreamChannel \"{nats_stream_name}\" is ready in \"{namespace}\" namespace")
 def nats_stream_exist(kube, nats_stream_name, namespace):
-    nats_stream = utils.nats_stream_wait_for(kube, nats_stream_name, namespace)
+    nats_stream = utils.nats_stream_wait_for_ready(kube, nats_stream_name, namespace)
     is_ready = utils.resource_get_condition(nats_stream['status'], 'Ready')
     with allure.step(f"Nats stream '{nats_stream}' ready state is {is_ready}"):
         pass
