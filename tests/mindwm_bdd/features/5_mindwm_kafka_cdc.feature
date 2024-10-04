@@ -9,7 +9,7 @@ Feature: MindWM kafka_cdc function test
 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    Then following knative service is in ready state in "context-<context>" namespace
+    Then following knative services are in in a ready state in the "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
@@ -37,7 +37,7 @@ Feature: MindWM kafka_cdc function test
       RETURN n;
       """
 
-    Then following knative service is in ready state in "context-<context>" namespace
+    Then following knative services are in in a ready state in the "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
     And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
@@ -48,7 +48,7 @@ Feature: MindWM kafka_cdc function test
       SET n.username = 'xxx'
       RETURN n;
       """
-    Then following knative service is in ready state in "context-<context>" namespace
+    Then following knative services are in in a ready state in the "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
     And a cloudevent with type == "org.mindwm.v1.graph.updated" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
@@ -59,7 +59,7 @@ Feature: MindWM kafka_cdc function test
       MATCH (n:User)
       DELETE n;
       """
-    Then following knative service is in ready state in "context-<context>" namespace
+    Then following knative services are in in a ready state in the "context-<context>" namespace
       | Knative service name |
       | kafka-cdc            |
     And a cloudevent with type == "org.mindwm.v1.graph.deleted" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"

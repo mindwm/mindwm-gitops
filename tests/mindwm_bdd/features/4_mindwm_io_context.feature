@@ -9,7 +9,7 @@ Feature: MindWM io context function test
 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    Then following knative service is in ready state in "context-<context>" namespace
+    Then following knative services are in in a ready state in the "context-<context>" namespace
       | Knative service name |
       | iocontext            |
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
@@ -40,7 +40,7 @@ Feature: MindWM io context function test
         }
         """
     Then the response http code should be "202"
-    Then following deployments is in ready state in "context-<context>" namespace
+    Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name            |
       | iocontext-00001-deployment |
     Then the trace with "<traceparent>" should appear in TraceQL
