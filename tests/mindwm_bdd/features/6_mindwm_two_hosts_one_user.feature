@@ -8,7 +8,7 @@ Feature: MindWM two hosts one user function test
   Scenario: Create context <context> and user <username>
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    Then following knative services are in in a ready state in the "context-<context>" namespace
+    Then the following knative services are in a ready state in the "context-<context>" namespace
       | Knative service name |
       | iocontext            |
       | pong                 |
