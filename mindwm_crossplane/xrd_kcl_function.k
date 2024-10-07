@@ -490,7 +490,7 @@ kind: InMemoryChannel
           image = ctx.kafka_cdc.image
           env = [
             {
-              name = "NEO4J_URL"
+              name = "NEO4J_URI"
               value = "bolt://" + getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
@@ -565,7 +565,7 @@ kind: InMemoryChannel
           image = ctx.clipboard.image
           env = [
             {
-              name = "NEO4J_URL"
+              name = "NEO4J_URI"
               value = "bolt://" + getData(ctx.name) + "-" + getData(ctx.neo4j.name) + "-neo4j:" + str(ctx.neo4j.port)
             }
             {
