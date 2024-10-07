@@ -25,7 +25,7 @@ Feature: MindWM clipboard EDA test
      | context | username   | host      |
      | philadelphia   | flukeman   | the-host  | 
 
-  Scenario: Send pind to knative ping service
+  Scenario: Send clipboard to knative ping service
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "clipboard"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.clipboard"
@@ -43,7 +43,7 @@ Feature: MindWM clipboard EDA test
 
     Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name       |
-      | clipboard-00003-deployment |
+      | clipboard-00001-deployment |
 
     Examples:
      | context | username   | host      | traceparent                                             |
@@ -67,7 +67,7 @@ Feature: MindWM clipboard EDA test
 
     Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name            |
-      | clipboard-00003-deployment |
+      | clipboard-00001-deployment |
     Then the trace with "<traceparent>" should appear in TraceQL
     And the trace should contains 
       | service name                    | 
@@ -100,7 +100,7 @@ Feature: MindWM clipboard EDA test
 
     Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name       |
-      | clipboard-00003-deployment |
+      | clipboard-00001-deployment |
 
     And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
