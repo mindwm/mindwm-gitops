@@ -94,6 +94,11 @@ schema MindwmContext:
         image = "ghcr.io/mindwm/knfunc-pong:latest"
     }
 
+    clipboard: KnativeFunction {
+        name.data = "clipboard"
+        image = "ghcr.io/mindwm/knfunc-clipboard:master"
+    }
+
 schema KafkaTopic:
     name: ResourceNameStr
 
