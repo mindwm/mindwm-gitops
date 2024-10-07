@@ -5,10 +5,10 @@ Feature: Mindwm event driven architecture
     Then all nodes in Kubernetes are ready
 
   Scenario: Knative
-    And namespace "knative-serving" should exists 
-    And namespace "knative-eventing" should exists
-    And namespace "knative-operator" should exists
-    And following deployments is in ready state in "knative-serving" namespace
+    And namespace "knative-serving" should exist
+    And namespace "knative-eventing" should exist
+    And namespace "knative-operator" should exist
+    And the following deployments are in a ready state in the "knative-serving" namespace
       | Deployment name      | 
       | activator            |
       | autoscaler           |
@@ -17,7 +17,7 @@ Feature: Mindwm event driven architecture
       | net-istio-controller |
       | net-istio-webhook    |
       | webhook              |
-    And following deployments is in ready state in "knative-eventing" namespace
+    And the following deployments are in a ready state in the "knative-eventing" namespace
       | Deployment name         | 
       | eventing-controller     |
       | eventing-webhook        |
@@ -34,41 +34,41 @@ Feature: Mindwm event driven architecture
    
 
   Scenario: Istio
-    And namespace "istio-system" should exists
-    And following deployments is in ready state in "istio-system" namespace
+    And namespace "istio-system" should exist
+    And the following deployments are in a ready state in the "istio-system" namespace
       | Deployment name         | 
       | istiod                  |
       | istio-ingressgateway    |
 
   Scenario: Redpanda
-    And namespace "redpanda" should exists
-    And following deployments is in ready state in "redpanda" namespace
+    And namespace "redpanda" should exist
+    And the following deployments are in a ready state in the "redpanda" namespace
       | Deployment name         | 
       | redpanda-operator       |
     And helm release "neo4j-cdc" is deployed in "redpanda" namespace
     And statefulset "neo4j-cdc" in namespace "redpanda" is in ready state
-    And following deployments is in ready state in "redpanda" namespace
+    And the following deployments are in a ready state in the "redpanda" namespace
       | Deployment name         | 
       | neo4j-cdc-console       |
 
   Scenario: Cert manager
-    And namespace "cert-manager" should exists
-    And following deployments is in ready state in "cert-manager" namespace
+    And namespace "cert-manager" should exist
+    And the following deployments are in a ready state in the "cert-manager" namespace
       | Deployment name          | 
       | cert-manager             |
       | cert-manager-cainjector |
       | cert-manager-webhook     |
 
   Scenario: Nats
-    And namespace "nats" should exists
-    And following deployments is in ready state in "nats" namespace
+    And namespace "nats" should exist
+    And the following deployments are in a ready state in the "nats" namespace
       | Deployment name         | 
       | nats-box                |
     And statefulset "nats" in namespace "nats" is in ready state
 
   Scenario: Monitoring
-    And namespace "monitoring" should exists
-    And following deployments is in ready state in "monitoring" namespace
+    And namespace "monitoring" should exist
+    And the following deployments are in a ready state in the "monitoring" namespace
       | Deployment name         | 
       | loki-gateway | 
       | otel-collector-opentelemetry-collector | 

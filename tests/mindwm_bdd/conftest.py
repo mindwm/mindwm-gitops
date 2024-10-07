@@ -76,7 +76,7 @@ def kubernetes_cluster():
 def kubernetes_nodes(kube):
     for node in kube.get_nodes().values():
         node_is_ready = node.is_ready()
-        with allure.step(f"Kubernetes node '{node.name}' is {node_is_ready}"):
+        with allure.step(f"Kubernetes node '{node.name}' are {node_is_ready}"):
             pass
 
         assert(node_is_ready), f"{node.name} is not ready"
@@ -94,7 +94,7 @@ def mindwm_environment(kube):
     for plural in ["xcontexts", "xhosts", "xusers"]:
         utils.custom_object_plural_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
         kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
-        with allure.step(f"Mindwm crd '{plural}' is exists"):
+        with allure.step(f"Mindwm crd '{plural}' is exist"):
             pass
 
     pass
@@ -260,7 +260,7 @@ def helm_release_deploeyd(kube, helm_release, namespace):
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
     utils.argocd_application(kube, application_name, namespace)
-    with allure.step(f"Argocd application '{application_name}' exists"):
+    with allure.step(f"Argocd application '{application_name}' exist"):
         pass
 
 @then("the argocd \"{application_name}\" application is {namespace} namespace in a progressing status")
@@ -286,27 +286,27 @@ def argocd_applications_check(kube, step):
             pass
 
 @then("the following roles should exist:")
-def role_exists(kube, step):
+def role_exist(kube, step):
     title_row, *rows = step.data_table.rows
     cluster_roles = kube.get_clusterroles()
     for row in rows:
         role_name = row.cells[0].value 
         role = cluster_roles.get(role_name)
         assert role is not None, f"Role {role_name} not found"
-        with allure.step(f"Role '{role_name}' exists"):
+        with allure.step(f"Role '{role_name}' exist"):
             pass
 
 
-@then("namespace \"{namespace}\" should exists")
-def namespace_exists(ctx, kube, namespace):
+@then("namespace \"{namespace}\" should exist")
+def namespace_exist(ctx, kube, namespace):
     ns = Namespace.new(namespace)
     ns.wait_until_ready(timeout=60)
     with allure.step(f"Namespace '{namespace}' is ready"):
         pass
     ctx['namespace'] = namespace
 
-@then("namespace \"{namespace}\" should not exists")
-def namespace_not_exists(kube, namespace):
+@then("namespace \"{namespace}\" should not exist")
+def namespace_not_exist(kube, namespace):
     try:
         ns = Namespace.new(namespace)
     except kubernetes.client.exceptions.ApiException as e:
@@ -329,8 +329,8 @@ def statefulset_is_ready(kube, statefulset_name, namespace):
     with allure.step(f"Statefulset '{statefulset_name}' in '{namespace}' is ready"):
         pass
 
-@then("following knative service is in ready state in \"{namespace}\" namespace")
-def knative_service_exists(kube, step, namespace):
+@then("the following knative services are in a ready state in the \"{namespace}\" namespace")
+def knative_service_exist(kube, step, namespace):
     title_row, *rows = step.data_table.rows
     for row in rows:
         service_name = row.cells[0].value 
@@ -340,8 +340,8 @@ def knative_service_exists(kube, step, namespace):
             pass
         assert(is_ready), f"Knative service '{namespace}'/{service_name} is not ready"
 
-@then("following knative triggers is in ready state in \"{namespace}\" namespace")
-def knative_trigger_exists(kube, step, namespace):
+@then("the following knative triggers are in a ready state in the \"{namespace}\" namespace")
+def knative_trigger_exist(kube, step, namespace):
     title_row, *rows = step.data_table.rows
     for row in rows:
         trigger_name = row.cells[0].value 
@@ -351,8 +351,8 @@ def knative_trigger_exists(kube, step, namespace):
             pass
         assert(is_ready == 'True')
 
-@then("following knative brokers is in ready state in \"{namespace}\" namespace")
-def knative_broker_exists(kube, step, namespace):
+@then("the following knative brokers are in a ready state in the \"{namespace}\" namespace")
+def knative_broker_exist(kube, step, namespace):
     title_row, *rows = step.data_table.rows
     for row in rows:
         broker_name = row.cells[0].value 
@@ -363,7 +363,7 @@ def knative_broker_exists(kube, step, namespace):
         assert(is_ready == 'True')
 
 @then("kafka topic \"{kafka_topic_name}\" is in ready state in \"{namespace}\" namespace")
-def kafka_topic_exists(kube, kafka_topic_name, namespace):
+def kafka_topic_exist(kube, kafka_topic_name, namespace):
     kafka_topic = utils.kafka_topic_wait_for(kube, kafka_topic_name, namespace)
     is_ready = utils.resource_get_condition(kafka_topic['status'], 'Ready')
     with allure.step(f"Kafka topic '{kafka_topic_name}' ready state is {is_ready}"):
@@ -371,7 +371,7 @@ def kafka_topic_exists(kube, kafka_topic_name, namespace):
     assert(is_ready == 'True')
 
 @then("kafka source \"{kafka_source_name}\" is in ready state in \"{namespace}\" namespace")
-def kafka_source_exists(kube, kafka_source_name, namespace):
+def kafka_source_exist(kube, kafka_source_name, namespace):
     kafka_source = utils.kafka_source_wait_for(kube, kafka_source_name, namespace)
     is_ready = utils.resource_get_condition(kafka_source['status'], 'Ready')
     with allure.step(f"Kafka source '{kafka_source_name}' ready state is {is_ready}"):
@@ -379,8 +379,8 @@ def kafka_source_exists(kube, kafka_source_name, namespace):
     assert(is_ready == 'True')
 
 @then("NatsJetStreamChannel \"{nats_stream_name}\" is ready in \"{namespace}\" namespace")
-def nats_stream_exists(kube, nats_stream_name, namespace):
-    nats_stream = utils.nats_stream_wait_for(kube, nats_stream_name, namespace)
+def nats_stream_exist(kube, nats_stream_name, namespace):
+    nats_stream = utils.nats_stream_wait_for_ready(kube, nats_stream_name, namespace)
     is_ready = utils.resource_get_condition(nats_stream['status'], 'Ready')
     with allure.step(f"Nats stream '{nats_stream}' ready state is {is_ready}"):
         pass
@@ -460,7 +460,7 @@ def cloudvent_check(cloudevent_type, topic_name):
         if (subject == topic_name):
             event = json.loads(data) 
             if (event['type'] == cloudevent_type):
-                with allure.step(f"{cloudevent_type} exists in nats topic {topic_name}"):
+                with allure.step(f"{cloudevent_type} exist in nats topic {topic_name}"):
                     pass
                 return True
 
@@ -477,7 +477,7 @@ def nats_message_receive(kube, nats_topic_name):
     with allure.step(f"Start nats reader from the topic {nats_topic_name}"):
         pass
 
-@then("following deployments is in ready state in \"{namespace}\" namespace")
+@then("the following deployments are in a ready state in the \"{namespace}\" namespace")
 def deployment_ready(kube, step, namespace):
     title_row, *rows = step.data_table.rows
     for row in rows:

@@ -9,21 +9,21 @@ Feature: MindWM Custom kubernetes resources
   Scenario: Create Context and check k8s resources
     When God creates a MindWM context with the name "cyan"
     Then the context should be ready and operable
-    And namespace "context-cyan" should exists 
+    And namespace "context-cyan" should exist 
     And helm release "cyan-neo4j" is deployed in "context-cyan" namespace
     And statefulset "cyan-neo4j" in namespace "context-cyan" is in ready state
-    And following knative service is in ready state in "context-cyan" namespace
+    And the following knative services are in a ready state in the "context-cyan" namespace
       | Knative service name |
       | dead-letter          |
       | iocontext            |
       | kafka-cdc            |
       | pong                 |
-    And following knative triggers is in ready state in "context-cyan" namespace
+    And the following knative triggers are in a ready state in the "context-cyan" namespace
       | Knative trigger name |
       | iocontext-trigger    |
       | kafka-cdc-trigger    |
       | pong-trigger         |
-    And following knative brokers is in ready state in "context-cyan" namespace
+    And the following knative brokers are in a ready state in the "context-cyan" namespace
       | Knative broker name |
       | context-broker      |
     And kafka topic "context-cyan-cdc" is in ready state in "redpanda" namespace
@@ -32,14 +32,14 @@ Feature: MindWM Custom kubernetes resources
   Scenario: Create User and check k8s resources
     When God creates a MindWM user resource with the name "bob" and connects it to the context "cyan"
     Then the user resource should be ready and operable
-    And namespace "user-bob" should exists 
-    And following knative brokers is in ready state in "user-bob" namespace
+    And namespace "user-bob" should exist 
+    And the following knative brokers are in a ready state in the "user-bob" namespace
       | Knative broker name |
       | user-broker         |
-    And following knative triggers is in ready state in "context-cyan" namespace
+    And the following knative triggers are in a ready state in the "context-cyan" namespace
       | Knative trigger name          |
       | context-cyan-to-user-bob    |
-    And following knative triggers is in ready state in "user-bob" namespace
+    And the following knative triggers are in a ready state in the "user-bob" namespace
       | Knative trigger name          |
       | user-bob-to-context-cyan    |
 
@@ -47,11 +47,11 @@ Feature: MindWM Custom kubernetes resources
     When God creates a MindWM host resource with the name "workstation" and connects it to the user "bob"
     Then the host resource should be ready and operable
     And NatsJetStreamChannel "workstation-host-broker-kne-trigger" is ready in "user-bob" namespace
-    And following knative triggers is in ready state in "user-bob" namespace
+    And the following knative triggers are in a ready state in the "user-bob" namespace
       | Knative trigger name                    |
       | user-bob-to-context-cyan              |
       | user-broker-to-workstation-broker-trigger    |
-    And following knative brokers is in ready state in "user-bob" namespace
+    And the following knative brokers are in a ready state in the "user-bob" namespace
       | Knative broker name  |
       | workstation-host-broker   |
 
@@ -64,11 +64,11 @@ Feature: MindWM Custom kubernetes resources
 
     When God deletes the MindWM user resource "bob"
     Then the user "bob" should be deleted
-    And namespace "user-bob" should not exists
+    And namespace "user-bob" should not exist
 
     When God deletes the MindWM context resource "cyan"
     Then the context "cyan" should be deleted
-    And namespace "context-cyan" should not exists
+    And namespace "context-cyan" should not exist
 
 
 

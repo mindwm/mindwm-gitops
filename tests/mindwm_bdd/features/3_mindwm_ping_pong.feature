@@ -8,7 +8,7 @@ Feature: MindWM Ping-pong EDA test
   Scenario: Prepare environment for ping tests 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    And following knative service is in ready state in "context-<context>" namespace
+    And the following knative services are in a ready state in the "context-<context>" namespace
       | Knative service name |
       | pong                 |
 
@@ -41,7 +41,7 @@ Feature: MindWM Ping-pong EDA test
       """
       Then the response http code should be "200"
 
-    Then following deployments is in ready state in "context-<context>" namespace
+    Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name       |
       | pong-00001-deployment |
 
@@ -66,7 +66,7 @@ Feature: MindWM Ping-pong EDA test
       """
     Then the response http code should be "202"
 
-    Then following deployments is in ready state in "context-<context>" namespace
+    Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name            |
       | pong-00001-deployment |
     Then the trace with "<traceparent>" should appear in TraceQL
@@ -98,7 +98,7 @@ Feature: MindWM Ping-pong EDA test
       } 
       """
 
-    Then following deployments is in ready state in "context-<context>" namespace
+    Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name       |
       | pong-00001-deployment |
 
