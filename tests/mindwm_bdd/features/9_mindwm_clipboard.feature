@@ -11,6 +11,7 @@ Feature: MindWM clipboard EDA test
     And the following knative services are in a ready state in the "context-<context>" namespace
       | Knative service name |
       | clipboard            |
+    And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
     Then the user resource should be ready and operable
