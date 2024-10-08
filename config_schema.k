@@ -87,11 +87,16 @@ schema MindwmContext:
     }
     kafka_cdc: KnativeFunction {
         name.data = "kafka-cdc"
-        image = "ghcr.io/mindwm/knfunc-kafka-cdc:1.0.1"
+        image = "ghcr.io/mindwm/knfunc-kafka-cdc:1.0.3"
     }
     pong: KnativeFunction {
         name.data = "pong"
         image = "ghcr.io/mindwm/knfunc-pong:latest"
+    }
+
+    clipboard: KnativeFunction {
+        name.data = "clipboard"
+        image = "ghcr.io/mindwm/knfunc-clipboard:master"
     }
 
 schema KafkaTopic:
