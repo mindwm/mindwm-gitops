@@ -35,7 +35,7 @@ Feature: MindWM clipboard EDA test
       And sends cloudevent to knative service "clipboard" in "context-<context>" namespace
       """
       {
-        "uuid": "3ca8a133-aba6-4f7f-ab95-242802fcac2c",
+        "uuid": "6ca8a133-aba6-4f7f-ab95-242802fcac2c",
         "time": 1728325473,
         "data": "clipboard primary data"
       } 
@@ -50,8 +50,9 @@ Feature: MindWM clipboard EDA test
      | context | username   | host      | traceparent                                             |
      | philadelphia   | flukeman   | the-host  | 00-6ef92f3577b34da6a3ce929d0e0e4734-00f067aa0ba902b7-00 |
 
-  Scenario: Send ping via <endpoint>
+  Scenario: Send ping directly to function <endpoint>
     When God creates a new cloudevent 
+      And God starts reading message from NATS topic ">"
       And sets cloudevent header "ce-subject" to "clipboard"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.clipboard"
       And sets cloudevent header "ce-source" to "org.mindwm.<username>.<host>.clipboard"
@@ -93,7 +94,7 @@ Feature: MindWM clipboard EDA test
       And sends cloudevent to nats topic "org.mindwm.<username>.<host>.clipboard"
       """
       {
-        "uuid": "4bca8a133-aba6-4f7f-ab95-242802fcac2c",
+        "uuid": "3bca8a133-aba6-4f7f-ab95-242802fcac3c",
         "time": 1728325474,
         "data": "clipboard #3 data"
       } 
@@ -111,15 +112,15 @@ Feature: MindWM clipboard EDA test
      | philadelphia   | flukeman   | the-host  | 09fb195c-c419-6d62-15e0-51b6ee990922 | 00-8af92f3577b34da6a3ce929d0e0e4742-00f067aa0ba902b7-00 |
 
 
-   Scenario: Cleanup <username>@<host> in <context>
-     When God deletes the MindWM host resource "<host>"
-     Then the host "<host>" should be deleted
+  Scenario: Cleanup <username>@<host> in <context>
+    When God deletes the MindWM host resource "<host>"
+    Then the host "<host>" should be deleted
 
-     When God deletes the MindWM user resource "<username>"
+    When God deletes the MindWM user resource "<username>"
 
-     When God deletes the MindWM context resource "<context>"
+    When God deletes the MindWM context resource "<context>"
 
-     Examples:
-     | context | username | host        | 
-     | philadelphia   | flukeman   | the-host         |
+    Examples:
+    | context | username | host        | 
+    | philadelphia   | flukeman   | the-host         |
 
