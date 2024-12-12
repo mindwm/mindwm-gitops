@@ -4,6 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.3
+    argocd.argoproj.io/sync-options: ServerSideApply=true
   name: redpandas.cluster.redpanda.com
 spec:
   group: cluster.redpanda.com
