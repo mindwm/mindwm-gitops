@@ -7,6 +7,8 @@ metadata:
 spec:
   chartRef:
     timeout: 1m0s
+    chartVersion: 5.9.16
+    useFlux: false
   clusterSpec:
     resources:
       cpu:
