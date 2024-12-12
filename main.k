@@ -220,10 +220,10 @@ mindwm_app = ArgoCdOrder.make({
                 version = flux.chart_version
             })
 
-        ] + yaml.decode_all(file.read("redpanda/cluster.redpanda.com_users.yaml")) \
-        + yaml.decode_all(file.read("redpanda/cluster.redpanda.com_topics.yaml")) \
-        + yaml.decode_all(file.read("redpanda/cluster.redpanda.com_schemas.yaml")) \
-        + yaml.decode_all(file.read("redpanda/cluster.redpanda.com_redpandas.yaml")) \
+        ] + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_users.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_topics.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_schemas.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_redpandas.yaml")) \
         + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
         + yaml.decode_all(file.read("manifests/knative-operator.yaml"))
         [
