@@ -225,7 +225,7 @@ mindwm_app = ArgoCdOrder.make({
         + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_schemas.yaml")) \
         + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_redpandas.yaml")) \
         + yaml.decode_all(file.read("redpanda/crd/redpanda.vectorized.io_clusters.yaml")) \
-        + yaml.decode_all(file.read("redpanda.vectorized.io_consoles.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/redpanda.vectorized.io_consoles.yaml")) \
         + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
         + yaml.decode_all(file.read("manifests/knative-operator.yaml"))
         [
