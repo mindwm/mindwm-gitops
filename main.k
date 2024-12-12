@@ -228,7 +228,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = redpanda_config.redpanda.namespace
                 name = "redpanda-operator"
                 chart = charts.redpanda_operator
-                version = "0.4.30"
+                version = "0.4.36"
                 values = {
                   image.tag = "v2.2.2-24.2.4"
                 }
