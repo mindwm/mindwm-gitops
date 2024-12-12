@@ -7,6 +7,7 @@ additionalVolumes:
     claimName: neo4j-plugins
 config:
   dbms.security.procedures.whitelist: streams.*,apoc.*
+  apoc.export.file.enabled: 'true'
 env:
   NEO4J_apoc_export_file_enabled: 'true'
   NEO4J_apoc_import_file_enabled: 'true'
