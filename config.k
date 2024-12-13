@@ -269,3 +269,7 @@ config = {
     }
 }
 
+
+gitea = {
+  namespace = "gitea"
+}

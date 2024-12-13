@@ -81,3 +81,6 @@ Feature: Mindwm event driven architecture
     And statefulset "loki" in namespace "monitoring" is in ready state
     And statefulset "tempo" in namespace "monitoring" is in ready state
     And statefulset "vmalertmanager-vm-aio-victoria-metrics-k8s-stack" in namespace "monitoring" is in ready state
+
+  Scenario: Gitea
+    And namespace "gitea" should exist

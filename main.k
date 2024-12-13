@@ -45,6 +45,10 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.name = config.knative.eventing.namespace
             }
 
+            k8core.Namespace {
+                metadata.name = config.gitea.namespace
+            }
+
             argocdSchema.argoHelmRelease({
                 namespace = "cert-manager"
                 name = "cert-manager"
