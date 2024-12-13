@@ -6,14 +6,14 @@ Feature: Mindwm Lifecycle Management
     And the mindwm-gitops repository is cloned into the "~/mindwm-gitops" directory
 
   Scenario: Deploy Mindwm Cluster and Applications
-     When God executes "make cluster"
-     Then all nodes in Kubernetes are ready
+    When God executes "make cluster"
+    Then all nodes in Kubernetes are ready
 
-     When God executes "make argocd"
-     Then helm release "argocd" is deployed in "argocd" namespace
+    When God executes "make argocd"
+    Then helm release "argocd" is deployed in "argocd" namespace
 
-     When God executes "make argocd_app"
-     Then the argocd "mindwm-gitops" application appears in "argocd" namespace
+    When God executes "make argocd_app"
+    Then the argocd "mindwm-gitops" application appears in "argocd" namespace
 
     When God executes "make argocd_app_sync_async"
     Then the argocd "mindwm-gitops" application is argocd namespace in a progressing status 
@@ -36,10 +36,7 @@ Feature: Mindwm Lifecycle Management
       | vm-aio			     |
       | redpanda-operator            |
 
-   When God executes "make crossplane_rolebinding_workaround"
-   Then the following roles should exist:
+    When God executes "make crossplane_rolebinding_workaround"
+    Then the following roles should exist:
       | Role name                      |
-#      | provider-kubernetes-admin      |
-#     | provider-helm-admin            |
       | crossplane-admin               |
-#      | jetstream-ch-dispatcher-admin  |
