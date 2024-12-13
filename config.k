@@ -272,4 +272,5 @@ config = {
 
 gitea = {
   namespace = "gitea"
+  helm_chart_version = "10.6.0"
 }

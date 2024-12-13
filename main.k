@@ -125,6 +125,27 @@ mindwm_app = ArgoCdOrder.make({
                 }
 
             })
+            argocdSchema.argoHelmRelease({
+                namespace = config.gitea.namespace,
+                name = "gitea"
+                chart = charts.gitea
+                version = config.gitea.helm_chart_version
+                values = {
+                  "redis-cluster".enabled = False
+                  redis.enabled = False
+                  postgresql.enabled = False
+                  "postgresql-ha".enabled = False
+                  persistence.enabled = False
+                  gitea = {
+                    config = {
+                      database.DB_TYPE = "sqlite3"
+                      session.PROVIDER = "memory"
+                      cache.ADAPTER = "memory"
+                      queue.TYPE = "level"
+                    }
+                  } 
+                }
+            })
         ]
         [
 
