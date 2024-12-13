@@ -8,7 +8,7 @@ import file
 import .nats as nats
 import knative_operator.v1beta1 as knative
 import json_merge_patch as p
-import .flux as flux
+#import .flux as flux
 import .redpanda.config as redpanda_config
 import .redpanda.schema as RedPandaSchema
 import .mindwm_crossplane.function as CrossPlaneFunction
@@ -213,14 +213,21 @@ mindwm_app = ArgoCdOrder.make({
 
             # required by redpanda-operator
             # https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/kubernetes/k-deployment-overview/
-            argocdSchema.argoHelmRelease({
-                namespace = flux.namespace
-                name = "flux"
-                chart = charts.flux
-                version = flux.chart_version
-            })
+            # argocdSchema.argoHelmRelease({
+            #     namespace = flux.namespace
+            #     name = "flux"
+            #     chart = charts.flux
+            #     version = flux.chart_version
+            # })
 
-        ] + yaml.decode_all(file.read("redpanda/crds.yaml")) \
+        ] + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_users.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_topics.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_schemas.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/cluster.redpanda.com_redpandas.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/redpanda.vectorized.io_clusters.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/redpanda.vectorized.io_consoles.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/helm-controller.yaml")) \
+        + yaml.decode_all(file.read("redpanda/crd/source-controller.yaml")) \
         + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
         + yaml.decode_all(file.read("manifests/knative-operator.yaml"))
         [
@@ -228,7 +235,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = redpanda_config.redpanda.namespace
                 name = "redpanda-operator"
                 chart = charts.redpanda_operator
-                version = "0.4.30"
+                version = "0.4.36"
                 values = {
                   image.tag = "v2.2.2-24.2.4"
                 }

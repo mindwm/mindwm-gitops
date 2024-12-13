@@ -81,7 +81,7 @@ def argocd_application_wait_status(kube, application_name, namespace):
         except Exception as e: 
             return False
             
-    status_condition = condition.Condition("api object deleted", has_status)
+    status_condition = condition.Condition(f"argocd application '{ application_name }' has health and status in namespace '{ namespace }'", has_status)
 
     # 07:h8
     kubetest_utils.wait_for_condition(

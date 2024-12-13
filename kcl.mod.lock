@@ -22,6 +22,7 @@
     name = "istio"
     full_name = "istio_1.21.2"
     version = "1.21.2"
+    sum = "FtqHLhCwxWFWtREklVT0J/GjT34BUUdUG2uoaOlPwYY="
   [dependencies.json_merge_patch]
     name = "json_merge_patch"
     full_name = "json_merge_patch_0.1.0"
