@@ -23,7 +23,6 @@ Feature: Mindwm Lifecycle Management
       | ArgoCD Application name      |
       | cert-manager		     |
       | crossplane		     |
-      | flux			     |
       | istio-base		     |
       | istio-ingressgateway	     |
       | istiod			     |
