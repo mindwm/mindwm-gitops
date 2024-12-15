@@ -84,3 +84,15 @@ Feature: Mindwm event driven architecture
 
   Scenario: Gitea
     And namespace "gitea" should exist
+
+  Scenario: Tekton-pipelines
+    And namespace "tekton-pipelines" should exist
+    And namespace "tekton-pipelines-resolvers" should exist
+    And the following deployments are in a ready state in the "tekton-pipelines" namespace
+      | Deployment name                         |
+      | tekton-events-controller                |
+      | tekton-pipelines-controller             |
+      | tekton-pipelines-webhook                |
+    And the following deployments are in a ready state in the "tekton-pipelines-resolvers" namespace
+      | Deployment name                         |
+      | tekton-pipelines-remote-resolvers       |

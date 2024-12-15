@@ -258,7 +258,8 @@ mindwm_app = ArgoCdOrder.make({
         + yaml.decode_all(file.read("redpanda/crd/helm-controller.yaml")) \
         + yaml.decode_all(file.read("redpanda/crd/source-controller.yaml")) \
         + yaml.decode_all(file.read("redpanda/fix_cluster_role_binding.yaml")) \
-        + yaml.decode_all(file.read("manifests/knative-operator.yaml"))
+        + yaml.decode_all(file.read("manifests/knative-operator.yaml")) \
+        + yaml.decode_all(file.read("manifests/tekton-pipelines.yaml"))
         [
             argocdSchema.argoHelmRelease({
                 namespace = redpanda_config.redpanda.namespace
