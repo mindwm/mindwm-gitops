@@ -131,10 +131,14 @@ mindwm_app = ArgoCdOrder.make({
                 chart = charts.gitea
                 version = config.gitea.helm_chart_version
                 values = {
-                  "redis-cluster".enabled = False
+                  "redis-cluster" = {
+                    enabled = False
+                  }
                   redis.enabled = False
                   postgresql.enabled = False
-                  "postgresql-ha".enabled = False
+                  "postgresql-ha" = {
+                    enabled = False
+                  }
                   persistence.enabled = False
                   gitea = {
                     config = {
