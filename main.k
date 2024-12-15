@@ -562,7 +562,7 @@ mindwm_app = ArgoCdOrder.make({
                 http = [{
                   match = [{ uri.prefix = "/", port = 80}]
                   route = [{ 
-                    destination.host = config.gitea.release_name #
+                    destination.host = config.gitea.release_name + "-http"
                     destination.port.number = config.gitea.http_port # TODO(@metacoma) hardcode
                   }]
 
