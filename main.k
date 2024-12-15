@@ -127,7 +127,7 @@ mindwm_app = ArgoCdOrder.make({
             })
             argocdSchema.argoHelmRelease({
                 namespace = config.gitea.namespace,
-                name = "gitea"
+                name = config.gitea.release_name
                 chart = charts.gitea
                 version = config.gitea.helm_chart_version
                 values = {
@@ -526,13 +526,55 @@ mindwm_app = ArgoCdOrder.make({
 
                 }]
               }
-            }
-          ]
+          }
+
+
+            istio_gateway.Gateway {
+              metadata.name = config.gitea.gateway_name
+              metadata.namespace = config.gitea.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                selector.istio = "ingressgateway" #TODO@(metacoma) ingress release name ?
+                servers = [{
+                  port = {
+                    number = 80
+                    name = "http"
+                    protocol = "HTTP"
+                  }
+                  hosts = [
+                    config.gitea.url
+                  ]
+                }]
+              }
+            } 
+
+            istio_virtual_service.VirtualService {
+              metadata.name = config.gitea.virtual_service
+              metadata.namespace = config.gitea.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.gitea.url ]
+                gateways = [ config.gitea.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 80}]
+                  route = [{ 
+                    destination.host = config.gitea.release_name #
+                    destination.port.number = config.gitea.http_port # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+          }
+
+
+      ]
     ]
 })
 
 manifests.yaml_stream([
     mindwm_app
 ])
-
-

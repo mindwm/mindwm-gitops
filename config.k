@@ -273,7 +273,12 @@ config = {
 gitea = {
   namespace = "gitea"
   helm_chart_version = "10.6.0"
+  release_name = "gitea"
   adminUser = "mindwm"
   # autogenerate
   adminPassword = "mindwm4242@Mindwm"
+  url = "git.${mindwm_domain}"
+  gateway_name = "gitea"
+  virtual_service = "gitea-http"
+  http_port = 3000
 }
