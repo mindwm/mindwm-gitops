@@ -141,6 +141,11 @@ mindwm_app = ArgoCdOrder.make({
                   }
                   persistence.enabled = False
                   gitea = {
+                    admin = {
+                      username = config.gitea.adminUser
+                      password = config.gitea.adminPassword
+                      passwordMode = "keepUpdated"
+                    }
                     config = {
                       database.DB_TYPE = "sqlite3"
                       session.PROVIDER = "memory"

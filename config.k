@@ -273,4 +273,7 @@ config = {
 gitea = {
   namespace = "gitea"
   helm_chart_version = "10.6.0"
+  adminUser = "mindwm"
+  # autogenerate
+  adminPassword = "mindwm4242@Mindwm"
 }
