@@ -76,4 +76,7 @@ otel_collector : schema.HelmChart = {
     repoURL = "https://open-telemetry.github.io/opentelemetry-helm-charts"
 } 
 
-
+zot_registry : schema.HelmChart = {
+  name = "zot"
+  repoURL = "https://zotregistry.dev/helm-charts/"
+}

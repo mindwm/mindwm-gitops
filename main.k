@@ -151,6 +151,16 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             argocdSchema.argoHelmRelease({
+                namespace = config.zot.namespace
+                name = config.zot.release_name
+                chart = charts.zot_registry
+                version = config.zot.chart_version
+                values = {
+                  service.type = "ClusterIP"
+                }
+            })
+
+            argocdSchema.argoHelmRelease({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.otel_collector.release_name
                 chart = charts.otel_collector
