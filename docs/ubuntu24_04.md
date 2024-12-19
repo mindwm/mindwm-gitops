@@ -29,6 +29,11 @@ sudo apt-get update
 ### 3.2 Install Docker packages
 ```bash
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin  
+cat<<EOF | sudo tee /etc/docker/daemon.json
+{
+  "insecure-registries": ["localhost:30001"]
+}
+EOF
 ```
 
 ### 3.3 Add user to the Docker group
