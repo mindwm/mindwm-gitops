@@ -157,7 +157,7 @@ mindwm_app = ArgoCdOrder.make({
                 version = config.zot.chart_version
                 values = {
                   service.type = "NodePort"
-                  service.nodePort = "5000"
+                  service.nodePort = "30001"
                 }
             })
 
