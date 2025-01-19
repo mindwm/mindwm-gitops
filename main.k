@@ -151,6 +151,17 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             argocdSchema.argoHelmRelease({
+                namespace = config.zot.namespace
+                name = config.zot.release_name
+                chart = charts.zot_registry
+                version = config.zot.chart_version
+                values = {
+                  service.type = "NodePort"
+                  service.nodePort = "30001"
+                }
+            })
+
+            argocdSchema.argoHelmRelease({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.otel_collector.release_name
                 chart = charts.otel_collector
@@ -370,6 +381,24 @@ mindwm_app = ArgoCdOrder.make({
             for resource in XrdKclFunction.makeContextXR() + XrdKclFunction.makeUserXR() + XrdKclFunction.makeHostXR()
         ]
         [
+            k8core.Service {
+                metadata = {
+                    name = "zot-int"
+                    namespace = "zot"
+                }
+                spec = {
+                    type = "ClusterIP"
+                    ports = [{
+                        port = 5000
+                        targetPort = "zot"
+                        protocol = "TCP"
+                    }]
+                    selector = {
+                        "app.kubernetes.io/instance" = "zot"
+                        "app.kubernetes.io/name" =  "zot"
+                    }
+                }
+            }
             istio_gateway.Gateway {
               metadata.name = config.monitoring.gateway_name
               metadata.namespace = config.monitoring.namespace
