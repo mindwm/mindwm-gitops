@@ -93,3 +93,9 @@ Feature: Mindwm event driven architecture
     And the following deployments are in a ready state in the "tekton-pipelines-resolvers" namespace
       | Deployment name                         |
       | tekton-pipelines-remote-resolvers       |
+
+  Scenario: zot registry
+    And namespace "zot" should exist
+    And the following deployments are in a ready state in the "zot" namespace
+      | Deployment name                         |
+      | zot                                     |
