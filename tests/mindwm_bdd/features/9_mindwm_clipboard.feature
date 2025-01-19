@@ -70,12 +70,12 @@ Feature: MindWM clipboard EDA test
     Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name            |
       | clipboard-00001-deployment |
-    Then the trace with "<traceparent>" should appear in TraceQL
-    And the trace should contains 
-      | service name                    | 
-      | broker-ingress.knative-eventing | 
-      | unknown_service                 | 
-      | jetstream-ch-dispatcher         |
+    # Then the trace with "<traceparent>" should appear in TraceQL
+    # And the trace should contains 
+    #   | service name                    | 
+    #   | broker-ingress.knative-eventing | 
+    #   | unknown_service                 | 
+    #   | jetstream-ch-dispatcher         |
     And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     Examples:

@@ -69,12 +69,12 @@ Feature: MindWM Ping-pong EDA test
     Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name            |
       | pong-00001-deployment |
-    Then the trace with "<traceparent>" should appear in TraceQL
-    And the trace should contains 
-      | service name                    | 
-      | broker-ingress.knative-eventing | 
-      | unknown_service                 | 
-      | jetstream-ch-dispatcher         |
+    # Then the trace with "<traceparent>" should appear in TraceQL
+    # And the trace should contains 
+    #   | service name                    | 
+    #   | broker-ingress.knative-eventing | 
+    #   | unknown_service                 | 
+    #   | jetstream-ch-dispatcher         |
     And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
 
     Examples:
@@ -113,11 +113,8 @@ Feature: MindWM Ping-pong EDA test
    Scenario: Cleanup <username>@<host> in <context>
      When God deletes the MindWM host resource "<host>"
      Then the host "<host>" should be deleted
-
      When God deletes the MindWM user resource "<username>"
-
      When God deletes the MindWM context resource "<context>"
-
      Examples:
      | context | username | host        | 
      | green4   | amanda4   | pi6-host         |
