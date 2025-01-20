@@ -260,6 +260,7 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
+                spec.version = config.knative.serving.version
                 spec.config.tracing = {
                     backend = "zipkin"
                     "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
@@ -279,6 +280,7 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
+                spec.version = config.knative.eventing.version
                 spec.config.tracing = {
                     backend = "zipkin"
                     "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
