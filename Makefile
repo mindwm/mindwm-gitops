@@ -242,7 +242,7 @@ mindwm_test:
 sleep-%:
 	sleep $(@:sleep-%=%)
 
-mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts mindwm_resources service_dashboard
+mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts service_dashboard
 
 
 

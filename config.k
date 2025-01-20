@@ -145,7 +145,7 @@ knative = {
 }
 
 istio = {
-    version = "1.21.1"
+    version = "1.24.2"
     system = {
         namespace = "istio-system"
     }
