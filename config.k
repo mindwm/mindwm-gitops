@@ -136,7 +136,7 @@ Mindwm = {
 knative = {
     serving = {
         namespace = "knative-serving"
-        version = "1.15.1" #current 1.15.2
+        version = "1.15.2" #current 1.15.2
     }
     eventing = {
         namespace = "knative-eventing"
