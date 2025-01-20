@@ -144,6 +144,11 @@ knative = {
     }
 }
 
+cert_manager = {
+  helm_chart_version = "1.16.3"
+  namespace = "cert-manager"
+}
+
 istio = {
     version = "1.24.2"
     system = {

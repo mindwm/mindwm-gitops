@@ -46,10 +46,10 @@ mindwm_app = ArgoCdOrder.make({
             }
 
             argocdSchema.argoHelmRelease({
-                namespace = "cert-manager"
+                namespace = config.cert_manager.namespace
                 name = "cert-manager"
                 chart = charts.cert_manager
-                version = "1.14.4"
+                version = config.cert_manager.helm_chart_version
                 values = {
                     installCRDs = True
                 }
