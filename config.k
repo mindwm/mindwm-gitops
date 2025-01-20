@@ -140,7 +140,7 @@ knative = {
     }
     eventing = {
         namespace = "knative-eventing"
-        version = "1.15.5" #current 1.15.5
+        version = "1.15.0" #current 1.15.5
     }
 }
 
