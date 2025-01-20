@@ -29,7 +29,7 @@ EOF
 payload | jq | curl \
     -vvvv \
     -XPOST  \
-    "http://${INGRESS_HOST}/context-${context_name}/context-broker"  \
+    "http://${INGRESS_HOST}/context-${CONTEXT_NAME}/context-broker"  \
     -H "Host: broker-ingress.knative-eventing.svc.cluster.local" \
     -H "Content-Type: application/json" \
     -H "traceparent: $TRACEPARENT" \
