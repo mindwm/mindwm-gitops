@@ -446,26 +446,6 @@ mindwm_app = ArgoCdOrder.make({
 
 
             istio_virtual_service.VirtualService {            
-              metadata.name = config.monitoring.grafana.virtual_service
-              metadata.namespace = config.monitoring.namespace
-              metadata.annotations = {
-                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-              }
-              spec = {
-                hosts = [ config.monitoring.grafana.url ]
-                gateways = [ config.monitoring.gateway_name ]
-                http = [{
-                  match = [{ uri.prefix = "/", port = 80}]
-                  route = [{ 
-                    destination.host = config.monitoring.grafana.destination()
-                    destination.port.number = 3000 # TODO(@metacoma) hardcode
-                  }]
-
-                }]
-              }
-            }
-
-            istio_virtual_service.VirtualService {
               metadata.name = config.monitoring.loki.virtual_service
               metadata.namespace = config.monitoring.namespace
               metadata.annotations = {
@@ -476,9 +456,29 @@ mindwm_app = ArgoCdOrder.make({
                 gateways = [ config.monitoring.gateway_name ]
                 http = [{
                   match = [{ uri.prefix = "/", port = 80}]
-                  route = [{
+                  route = [{ 
                     destination.host = config.monitoring.loki.destination()
-                    destination.port.number = 80
+                    destination.port.number = 80 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
+
+            istio_virtual_service.VirtualService {
+              metadata.name = config.monitoring.tempo.virtual_service
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.monitoring.tempo.url ]
+                gateways = [ config.monitoring.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 80}]
+                  route = [{
+                    destination.host = config.monitoring.tempo.destination()
+                    destination.port.number = 3000 
                   }]
 
                 }]
