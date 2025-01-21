@@ -478,7 +478,7 @@ mindwm_app = ArgoCdOrder.make({
                   match = [{ uri.prefix = "/", port = 80}]
                   route = [{
                     destination.host = config.monitoring.tempo.destination()
-                    destination.port.number = 3000 
+                    destination.port.number = 3100
                   }]
 
                 }]
