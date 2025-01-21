@@ -209,6 +209,7 @@ service_dashboard:
 	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
 	http://argocd.$(DOMAIN):$$INGRESS_PORT
 	http://grafana.$(DOMAIN):$$INGRESS_PORT
+	http://loki.$(DOMAIN):$$INGRESS_PORT
 	http://vm.$(DOMAIN):$$INGRESS_PORT
 	http://tempo.$(DOMAIN):$$INGRESS_PORT
 	http://neo4j.$(CONTEXT_NAME).$(DOMAIN):$$INGRESS_PORT
@@ -221,7 +222,7 @@ edit_hosts:
 	export INGRESS_NS=istio-system
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	sudo sed -i -e '/$(DOMAIN)/d' /etc/hosts
-	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) loki.$(DOMAIN) | sudo tee -a /etc/hosts
 
 .PHONY: mindwm_test
 mindwm_test: 
@@ -245,5 +246,7 @@ sleep-%:
 mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts service_dashboard
 
 
+debug_pod:
+	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot
 
 # make mindwm_lifecycle TARGET_REVISION="`git branch ls --show-current`"

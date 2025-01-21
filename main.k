@@ -418,7 +418,8 @@ mindwm_app = ArgoCdOrder.make({
                   hosts = [
                     config.monitoring.grafana.url,
                     config.monitoring.victoria_metrics.url,
-                    config.monitoring.tempo.url
+                    config.monitoring.tempo.url,
+                    config.monitoring.loki.url
                   ]
                 }]
               }
@@ -443,6 +444,27 @@ mindwm_app = ArgoCdOrder.make({
               }
             }
 
+
+            istio_virtual_service.VirtualService {            
+              metadata.name = config.monitoring.loki.virtual_service
+              metadata.namespace = config.monitoring.namespace
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+              spec = {
+                hosts = [ config.monitoring.loki.url ]
+                gateways = [ config.monitoring.gateway_name ]
+                http = [{
+                  match = [{ uri.prefix = "/", port = 80}]
+                  route = [{ 
+                    destination.host = config.monitoring.loki.destination()
+                    destination.port.number = 80 # TODO(@metacoma) hardcode
+                  }]
+
+                }]
+              }
+            }
+
             istio_virtual_service.VirtualService {
               metadata.name = config.monitoring.tempo.virtual_service
               metadata.namespace = config.monitoring.namespace
@@ -456,7 +478,7 @@ mindwm_app = ArgoCdOrder.make({
                   match = [{ uri.prefix = "/", port = 80}]
                   route = [{
                     destination.host = config.monitoring.tempo.destination()
-                    destination.port.number = 3100 # TODO(@metacoma) hardcode
+                    destination.port.number = 3000 
                   }]
 
                 }]

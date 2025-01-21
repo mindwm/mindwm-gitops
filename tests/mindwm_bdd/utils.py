@@ -120,6 +120,7 @@ def knative_service_wait_for(kube, knative_service_name, namespace):
             180
             )
 
+
 def custom_object_wait_for(kube, namespace, group, version, plural, name, timeout):
     def exists():
         try:
@@ -139,7 +140,7 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
         except Exception as e:
             return False
 
-    exists_condition = condition.Condition(f"Wait for {group}/{version} {name} exists in namespace {namespace}", exists)
+    exists_condition = condition.Condition(f"Wait for {group}/{version} {plural} {name} exists in namespace {namespace}", exists)
 
     kubetest_utils.wait_for_condition(
         condition=exists_condition,
@@ -357,3 +358,35 @@ async def nats_send(nats_url, nats_topic_name, event_headers, body):
     # Publish with headers
     #nats_topic_name = "xxx"
     await nc.publish(nats_topic_name, body, headers = headers ) 
+
+def custom_object_exists(kube, namespace, group, version, plural, name, timeout):
+    def exists():
+        try:
+            api_instance = client.CustomObjectsApi(kube.api_client)
+            resource = api_instance.get_namespaced_custom_object(
+                group=group,
+                version=version,
+                plural=plural,
+                namespace = namespace,
+                name = name
+            )
+            return True
+        except Exception as e:
+            pprint.pprint(e)
+
+            return False
+
+    exists_condition = condition.Condition(f"Wait for {group}/{version} {plural} {name} exists in namespace {namespace}", exists)
+
+    kubetest_utils.wait_for_condition(
+        condition=exists_condition,
+        timeout=timeout,
+        interval=5
+    )
+    return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                group=group,
+                version=version,
+                plural=plural,
+                namespace = namespace,
+                name = name
+            )

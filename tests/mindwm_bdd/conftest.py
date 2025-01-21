@@ -598,3 +598,29 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
      for item in items:
          item.add_marker(pytest.mark.namespace(create = False, name = "default"))
  
+@then('istio-gateway "{istio_gateway_name}" exists in "{namespace_name}" namespace')
+def istio_gateway(kube, istio_gateway_name, namespace_name, step):
+    utils.custom_object_exists(
+        kube,
+        namespace_name,
+        'networking.istio.io',
+        "v1beta1",
+        "gateways",
+        istio_gateway_name,
+        60
+    )
+
+@then('the following istio-virtualservice exists in the "{namespace_name}" namespace')
+def istio_gateway(kube, istio_gateway_name, namespace_name, step):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        virtualservice_name = row.cells[0].value 
+        virtualservice = utils.custom_object_exists(
+            kube,
+            namespace_name,
+            'networking.istio.io',
+            "v1",
+            "virtualservices",
+            virtualservice_name,
+            60
+        )

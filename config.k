@@ -177,7 +177,12 @@ monitoring = {
     release_name = "otel-collector"
   }
   loki = {
+    url = "loki.${mindwm_domain}"
     release_name = "loki"
+    virtual_service = "loki-vs"
+    destination = lambda {
+        "${monitoring.loki.release_name}-gateway"
+    }
   }
   tempo = {
     url = "tempo.${mindwm_domain}"
