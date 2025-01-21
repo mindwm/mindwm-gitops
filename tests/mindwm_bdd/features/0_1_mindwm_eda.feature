@@ -81,6 +81,13 @@ Feature: Mindwm event driven architecture
     And statefulset "loki" in namespace "monitoring" is in ready state
     And statefulset "tempo" in namespace "monitoring" is in ready state
     And statefulset "vmalertmanager-vm-aio-victoria-metrics-k8s-stack" in namespace "monitoring" is in ready state
+    And istio-gateway "monitoring-gateway" exists in "monitoring" namespace
+    And the following istio-virtualservice exists in the "monitoring" namespace
+      | Istio virtual service name | Host                 | # host not checked
+      | grafana-vs                 | grafana.mindwm.local |
+      | loki-vs                    | loki.mindwm.local    |
+      | tempo-vs                   | tempo.mindwm.local    |
+      | vm-vs                      | vm.mindwm.local    |
 
   Scenario: Tekton-pipelines
     And namespace "tekton-pipelines" should exist
