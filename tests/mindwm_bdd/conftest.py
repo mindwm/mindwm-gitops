@@ -598,3 +598,14 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
      for item in items:
          item.add_marker(pytest.mark.namespace(create = False, name = "default"))
  
+@then('istio-gateway "{istio_gateway_name}" exists in "{namespace_name}" namespace')
+def istio_gateway(kube, istio_gateway_name, namespace_name, step):
+    utils.custom_object_exists(
+        kube,
+        namespace_name,
+        'networking.istio.io',
+        "v1beta1",
+        "gateways",
+        istio_gateway_name,
+        10
+    )
