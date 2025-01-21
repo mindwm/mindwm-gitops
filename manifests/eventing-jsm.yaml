@@ -17,7 +17,7 @@ kind: ClusterRole
 metadata:
   name: nats-webhook-admission
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 rules:
   # webhook deployment watches these to
   - apiGroups:
@@ -52,7 +52,7 @@ metadata:
   name: nats-webhook
   namespace: knative-eventing
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 rules:
   # webhook requires access to manage the nats-webhook-cert, the informers uses the system namespace scope so only
   # requires to be a Role and not a ClusterRole
@@ -106,7 +106,7 @@ metadata:
   name: nats-webhook
   namespace: knative-eventing
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 
 ---
 # Copyright 2021 The Knative Authors
@@ -238,7 +238,7 @@ kind: MutatingWebhookConfiguration
 metadata:
   name: defaulting.webhook.nats.messaging.knative.dev
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 webhooks:
   - admissionReviewVersions: ["v1beta1"]
     clientConfig:
@@ -271,7 +271,7 @@ metadata:
   name: nats-webhook
   namespace: knative-eventing
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 spec:
   replicas: 1
   selector:
@@ -301,7 +301,7 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           # This is the Go import path for the binary that is containerized
           # and substituted here.
-          image: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/webhook@sha256:de89efb512f642e97831fa5ac0c7f6cba88ff5e7d96e4de07936f82202c6f0f1
+          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/webhook:latest
           resources:
             requests:
               # taken from serving.
@@ -374,7 +374,7 @@ kind: ValidatingWebhookConfiguration
 metadata:
   name: validation.webhook.nats.messaging.knative.dev
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 webhooks:
   - admissionReviewVersions: ["v1beta1"]
     clientConfig:
@@ -405,7 +405,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
     role: nats-webhook
   name: nats-webhook
   namespace: knative-eventing
@@ -437,7 +437,7 @@ kind: ClusterRole
 metadata:
   name: nats-jsm-addressable-resolver
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
     duck.knative.dev/addressable: "true"
 # Do not use this role directly. These rules will be added to the "addressable-resolver" role.
 rules:
@@ -471,7 +471,7 @@ kind: ClusterRole
 metadata:
   name: nats-jsm-channelable-manipulator
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
     duck.knative.dev/channelable: "true"
 # Do not use this role directly. These rules will be added to the "channelable-manipulator" role.
 rules:
@@ -650,7 +650,7 @@ metadata:
   name: jetstream-ch-controller
   namespace: knative-eventing
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 
 ---
 # Copyright 2021 The Knative Authors
@@ -678,22 +678,12 @@ rules:
       - messaging.knative.dev
     resources:
       - natsjetstreamchannels
-      - natsjetstreamchannels/status
     verbs:
       - get
       - list
       - watch
       - update
       - patch
-  - apiGroups:
-      - eventing.knative.dev
-    resources:
-      - eventpolicies
-      - eventpolicies/status
-    verbs:
-      - get
-      - list
-      - watch
   - apiGroups:
       - messaging.knative.dev
     resources:
@@ -719,26 +709,6 @@ rules:
       - create
       - patch
       - update
-  - apiGroups:
-      - "" # Core API group.
-    resources:
-      - configmaps
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - "coordination.k8s.io"
-    resources:
-      - "leases"
-    verbs:
-      - get
-      - list
-      - create
-      - update
-      - delete
-      - patch
-      - watch
 
 ---
 # Copyright 2021 The Knative Authors
@@ -807,7 +777,7 @@ metadata:
   name: jetstream-ch-dispatcher
   namespace: knative-eventing
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
 
 ---
 # Copyright 2021 The Knative Authors
@@ -1017,7 +987,7 @@ kind: CustomResourceDefinition
 metadata:
   name: natsjetstreamchannels.messaging.knative.dev
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
     knative.dev/crd-install: "true"
     messaging.knative.dev/subscribable: "true"
     duck.knative.dev/addressable: "true"
@@ -1972,7 +1942,7 @@ metadata:
   name: jetstream-ch-controller
   namespace: knative-eventing
   labels:
-    nats.eventing.knative.dev/release: "v1.15.1"
+    nats.eventing.knative.dev/release: "v1.15.0"
     messaging.knative.dev/channel: nats-jetstream-channel
     messaging.knative.dev/role: controller
 spec:
@@ -1990,14 +1960,14 @@ spec:
       serviceAccountName: jetstream-ch-controller
       containers:
         - name: controller
-          image: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/jetstream/controller@sha256:ad9fe58f45f59bb21a6f41dbfe49d69eeb30580d9b110294241cb3295c56635c
+          image: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/jetstream/controller:latest
           env:
             - name: CONFIG_LOGGING_NAME
               value: config-logging
             - name: METRICS_DOMAIN
               value: knative.dev/eventing
             - name: DISPATCHER_IMAGE
-              value: gcr.io/knative-releases/knative.dev/eventing-natss/cmd/jetstream/dispatcher@sha256:be29220674337350eb10b7339c656e6e881c36ba777763832a774919c22e9ea9
+              value: ghcr.io/mindwm/eventing-natss/knative.dev/eventing-natss/cmd/jetstream/dispatcher:latest
             - name: DISPATCHER_SERVICE_ACCOUNT
               value: jetstream-ch-dispatcher
             - name: SYSTEM_NAMESPACE
