@@ -33,7 +33,7 @@ from neo4j import GraphDatabase
 import uuid
 import functools
 import asyncio
-from api_loki import loki_pod_logs_range
+from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
 nats_messages = []
 
@@ -625,7 +625,11 @@ def istio_gateway(kube, istio_gateway_name, namespace_name, step):
             virtualservice_name,
             60
         )
-@then('container "{container_name}" in pod "{pod_regex}" in namespace "{namespace}" contains "{log_regex}" regex')
-def pod_container_contains_regex(kube, namespace, pod_regex, container_name, log_regex, step):
-    pod_logs = loki_pod_logs_range(namespace, pod_regex, 10)
-    #assert not re.search("cloudevent", pod_logs['dead-letter-00001']["user-container"], re.DOTALL)
+@then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should contain "{log_regex}" regex')
+def pod_container_shoult_contain_regex(kube, namespace, pod_name_regex, container_name, log_regex, step):
+    pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex)
+
+
+@then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should not contain "{log_regex}" regex')
+def pod_container_should_not_contain_regex(kube, namespace, pod_name_regex, container_name, log_regex, step):
+    pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name, log_regex)
