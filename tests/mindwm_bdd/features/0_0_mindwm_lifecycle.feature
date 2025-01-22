@@ -40,3 +40,5 @@ Feature: Mindwm Lifecycle Management
     Then the following roles should exist:
       | Role name                      |
       | crossplane-admin               |
+    When God executes "make edit_hosts"
+    Then file "/etc/hosts" contain "mindwm.local" regex

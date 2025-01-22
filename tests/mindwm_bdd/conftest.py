@@ -33,6 +33,7 @@ from neo4j import GraphDatabase
 import uuid
 import functools
 import asyncio
+from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
 nats_messages = []
 
@@ -624,3 +625,20 @@ def istio_gateway(kube, istio_gateway_name, namespace_name, step):
             virtualservice_name,
             60
         )
+@then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should contain "{log_regex}" regex')
+def pod_container_shoult_contain_regex(kube, namespace, pod_name_regex, container_name, log_regex, step):
+    pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex)
+
+
+@then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should not contain "{log_regex}" regex')
+def pod_container_should_not_contain_regex(kube, namespace, pod_name_regex, container_name, log_regex, step):
+    pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name, log_regex)
+
+@then('file "{file_path}" contain "{match_regex}" regex')
+def file_contains_regex(file_path, match_regex):
+    with open(file_path, 'r') as file:
+            content = file.read()
+            if re.search(match_regex, content):
+                return True
+            else:
+                raise ValueError

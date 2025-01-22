@@ -51,6 +51,7 @@ Feature: MindWM io context function test
     Then graph have node "User" with property "username" = "<username>" in context "<context>"
     And graph have node "Host" with property "hostname" = "<host>" in context "<context>"
     And graph have node "IoDocument" with property "input" = "id" in context "<context>"
+    And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
 
     Examples:
      | context | username   | host      | cloudevent_id                        | traceparent 					         |

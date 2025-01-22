@@ -22,6 +22,7 @@ users:
     passwd: "$6$rounds=4096$RWK7Xzd2AmIkMDFn$kQOkIaN9HjzT2B1LERN5pletj1TL0jCVTsG7LorawrHC/bcRAh7Tl5fH91F.IWkGKMRKjiTQhhx6liAkYDR5s/"
     ssh-authorized-keys:
         - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICZu5HNWRwNF05fROu+QjEM1KANXkuDMZAuroU4jzqhx
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK6XzX9hvNy3H7dc0nu5jvzhrlYiuW5XNvf0hCZdr768
 expire: False
 runcmd:
   - [sed, "-i''", "/^search/d", "/etc/resolv.conf" ]
@@ -35,3 +36,5 @@ runcmd:
   - sysctl -w fs.inotify.max_user_watches=2099999999
   - sysctl -w fs.inotify.max_user_instances=2099999999
   - sysctl -w fs.inotify.max_queued_events=2099999999
+  - curl -Lo /usr/bin/kubectl https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl
+  - chmod +x /usr/bin/kubectl
