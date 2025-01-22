@@ -104,7 +104,7 @@ Feature: MindWM Ping-pong EDA test
 
     And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
     And container "user-container" in pod "^pong-00001-deployment-.*" in namespace "context-<context>" should contain ".*'org.mindwm.v1.pong'*" regex
-    And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevent.Event\n" regex
+    And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
 
 
     Examples:
