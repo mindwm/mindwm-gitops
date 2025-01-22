@@ -65,6 +65,7 @@ Feature: MindWM kafka_cdc function test
       | Knative service name |
       | kafka-cdc            |
     And a cloudevent with type == "org.mindwm.v1.graph.deleted" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+    And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "context-<context>" should not contain "Traceback \(most recent call last\):" regex
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
 
     Examples:
