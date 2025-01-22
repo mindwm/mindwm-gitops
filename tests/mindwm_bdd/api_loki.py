@@ -83,9 +83,10 @@ def pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name,
     raise TimeoutError
 
 
+#And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "context-<context>" should not contain "Traceback (most recent call last):" regex
 # namespace = "context-red"
-# pod_name_regex = "dead-letter-.*"
+# pod_name_regex = "^.*-00001-deployment-.*"
 # container_name = "user-container"
-# log_regex = "cloudevents.Event\n"
-# r = pod_logs_should_contain_regex(namespace, pod_name_regex, container_name,"cloudevents.Event\n")
+# log_regex = "Traceback \(most recent call last\):"
+# r = pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex)
 # pprint.pprint(r)
