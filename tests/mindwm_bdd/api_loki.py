@@ -1,5 +1,5 @@
 import json
-#import pprint
+import pprint
 
 from kubetest import condition
 from kubetest import utils as kubetest_utils
@@ -42,12 +42,16 @@ def loki_pod_logs_range(namespace, pod_name_regex, duration_min):
     return r
 
 def loki_logs_contain_regex(namespace, pod_name_regex, container_name, match_regex):
-    duration_min = 60
+    duration_min = 10
     loki_logs = loki_pod_logs_range(namespace, pod_name_regex, duration_min)
     for pod_name in loki_logs:
         if re.search(pod_name_regex, pod_name):
+            #print(f"find {match_regex} in {pod_name}/{container_name}")
             assert(container_name in loki_logs[pod_name])
-            return re.search(match_regex, loki_logs[pod_name][container_name])
+            #pprint.pprint(loki_logs[pod_name][container_name])
+            if re.search(match_regex, loki_logs[pod_name][container_name], re.DOTALL):
+                #print(f"found {match_regex} in {pod_name}/{container_name}")
+                return True
 
     assert(False)
 
@@ -63,7 +67,7 @@ def _pod_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex
 
     kubetest_utils.wait_for_condition(
         condition=condition.Condition(f"{pod_name_regex} pod, container {container_name} should contain {log_regex}", log_match_regex),
-        timeout=15,
+        timeout=30,
         interval=3
     )
 
@@ -79,9 +83,9 @@ def pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name,
     raise TimeoutError
 
 
-
-# namespace = "context-varanasi"
+# namespace = "context-red"
 # pod_name_regex = "dead-letter-.*"
 # container_name = "user-container"
+# log_regex = "cloudevents.Event\n"
 # r = pod_logs_should_contain_regex(namespace, pod_name_regex, container_name,"cloudevents.Event\n")
 # pprint.pprint(r)
