@@ -63,8 +63,8 @@ def _pod_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex
 
     kubetest_utils.wait_for_condition(
         condition=condition.Condition(f"{pod_name_regex} pod, container {container_name} should contain {log_regex}", log_match_regex),
-        timeout=60, 
-        interval=5
+        timeout=15,
+        interval=3
     )
 
 def pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex):
