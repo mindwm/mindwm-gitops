@@ -55,6 +55,7 @@ Feature: MindWM two hosts one user function test
       | pong-00001-deployment |
 
     And a cloudevent with type == "org.mindwm.v1.pong" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
+    And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
 
     Examples:
      | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
@@ -82,6 +83,7 @@ Feature: MindWM two hosts one user function test
       | kafka-cdc-00001-deployment |
 
     And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.travellaptop-host-broker-kne-trigger._knative"
+    And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
 
     Examples:
      | context | username   | host      | tmux_pane | tmux_window | uuid                                  | tmux_socket                     |
