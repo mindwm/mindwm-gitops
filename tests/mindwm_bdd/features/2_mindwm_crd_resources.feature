@@ -15,6 +15,7 @@ Feature: MindWM Custom kubernetes resources
     And the following knative services are in a ready state in the "context-cyan" namespace
       | Knative service name |
       | dead-letter          |
+      | clipboard            |
       | iocontext            |
       | kafka-cdc            |
       | pong                 |
@@ -23,6 +24,7 @@ Feature: MindWM Custom kubernetes resources
       | iocontext-trigger    |
       | kafka-cdc-trigger    |
       | pong-trigger         |
+      | clipboard-trigger    |
     And the following knative brokers are in a ready state in the "context-cyan" namespace
       | Knative broker name |
       | context-broker      |
