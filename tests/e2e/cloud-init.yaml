@@ -35,3 +35,5 @@ runcmd:
   - sysctl -w fs.inotify.max_user_watches=2099999999
   - sysctl -w fs.inotify.max_user_instances=2099999999
   - sysctl -w fs.inotify.max_queued_events=2099999999
+  - curl -Lo /usr/bin/kubectl https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl
+  - chmod +x /usr/bin/kubectl
