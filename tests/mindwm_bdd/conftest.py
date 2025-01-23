@@ -421,6 +421,7 @@ def tracesql_get_trace(kube, traceparent, trace_data):
     trace_resourceSpans = {
                 "resourceSpans": tempo_reply['batches']
     }
+    allure.attach(json.dumps(tempo_reply), name = "Tempo reply", attachment_type='application/json')
     trace_data['data'] = ParseDict(trace_resourceSpans, trace_pb2.TracesData())
 
 @then("the trace should contains")
