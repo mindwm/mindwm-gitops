@@ -145,7 +145,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.loki.release_name
                 chart = charts.loki
-                version = "6.7.3"
+                version = "6.25.0"
                 values = util.yaml_file_merge("observability/loki.yaml", {
                 })
             })
@@ -175,7 +175,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
-                version = "1.10.1"
+                version = "1.18.1"
                 values = {
                     tempo.receivers.zipkin.endpoint = "0.0.0.0:9411"
                     tempo.metricsGenerator = {
@@ -199,7 +199,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.promtail.release_name
                 chart = charts.promtail
-                version = "6.16.4"
+                version = "6.16.6"
                 values = {
                   config.clients = [{
                     url = "http://${config.monitoring.loki.release_name}.${config.monitoring.namespace}:3100/loki/api/v1/push"
@@ -214,7 +214,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.config.crossplane.namespace
                 name = "crossplane"
                 chart = charts.crossplane
-                version = "1.15.2"
+                version = "1.18.2"
             })
 
         ]
@@ -247,7 +247,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = redpanda_config.redpanda.namespace
                 name = "redpanda-operator"
                 chart = charts.redpanda_operator
-                version = "0.4.36"
+                version = "0.4.39"
                 values = {
                   image.tag = "v2.2.2-24.2.4"
                 }
