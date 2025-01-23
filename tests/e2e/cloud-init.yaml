@@ -8,6 +8,8 @@ packages:
   - yq
   - python3-venv
   - python3-pip
+  - asciinema
+  - tmux
 groups:
   - ci
   - docker
