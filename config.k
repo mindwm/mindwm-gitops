@@ -246,7 +246,7 @@ makeKafkaTopicName = lambda context_name : str {
 }
 
 neo4j = {
-    version = "4.4.33"
+    version = "4.4.35"
     username = "neo4j"
     password = "password"
     release_name = "neo4j"
