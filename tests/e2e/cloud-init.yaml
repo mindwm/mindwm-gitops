@@ -40,3 +40,4 @@ runcmd:
   - sysctl -w fs.inotify.max_queued_events=2099999999
   - curl -Lo /usr/bin/kubectl https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl
   - chmod +x /usr/bin/kubectl
+  - pip3 install --break-system-packages git+https://github.com/mindwm/mindwm-sdk-python-ng.git@feat/new_events_model nats-py python-decouple aiofiles dbus-next pyte textfsm tabulate pydantic python-dateutil urllib3 urwid blessed opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation opentelemetry-exporter-otlp-proto-grpc fastapi neontology surrealdb
