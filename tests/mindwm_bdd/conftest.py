@@ -35,7 +35,7 @@ import asyncio
 from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
 from git_utils import git_clone
-from tmux import create_tmux_session, send_command_to_pane, vertically_split_window
+from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists
 
 nats_messages = []
 
@@ -666,16 +666,23 @@ def execute_cmd(cmd, work_dir):
 
 @when("God creates a tmux session named '{tmux_session}' with a window named '{tmux_window_name}'")
 def tmux_create_sesion(tmux_session, tmux_window_name):
-    create_tmux_session(tmux_session, tmux_window_name, work_dir)
+    r = create_tmux_session(tmux_session, tmux_window_name, work_dir)
+    if (r is None):
+        assert RuntimeError
     pass
 
 @then("the tmux session '{tmux_session}' should exist")
-def tmux_session_exists(tmux_session):
+def tmux_check_session(tmux_session):
+    r = tmux_session_exists(tmux_session)
+    if (r is not True):
+        raise RuntimeError
     pass
 
 @then("God sends the command '{cmd}' to the tmux session '{tmux_session}', window '{tmux_window_name}', pane '{tmux_pane_id}'")
 def tmux_send_command(tmux_session, tmux_window_name, tmux_pane_id, cmd):
-    send_command_to_pane(tmux_session, tmux_window_name, int(tmux_pane_id), cmd)
+    r = send_command_to_pane(tmux_session, tmux_window_name, int(tmux_pane_id), cmd)
+    if (r is None):
+        assert RuntimeError
     pass
 
 @then("God waits for '{n}' seconds")
@@ -685,5 +692,7 @@ def sleep_n_seconds(n):
 
 @then("God vertically splits the tmux session '{tmux_session}', window '{tmux_window_name}'")
 def tmux_vertically_split(tmux_session, tmux_window_name):
-    vertically_split_window(tmux_session, tmux_window_name)
+    r = vertically_split_window(tmux_session, tmux_window_name)
+    if (r is None):
+        assert RuntimeError
     pass
