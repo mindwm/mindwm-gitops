@@ -43,7 +43,23 @@ Feature: MindWM manager integration test
     Then God vertically splits the tmux session '<tmux_session>', window '<tmux_window_name>'
     Then God sends the command 'cd <work_dir> && bash ./join.sh' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
     Then God waits for '5' seconds
-    Then God sends the command 'echo hello world' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
+    Then God sends the command 'echo integration-test' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
     Examples:
      | manager_repo                             | manager_branch | manager_commit | work_dir            | host      | user | tmux_session | tmux_window_name |
      | https://github.com/mindwm/mindwm-manager | master         | HEAD           | /tmp/mindwm-manager | localhost | ci   | test-integration | main |
+
+  Scenario: Verification that the io-document has been delivered and processed
+    Then the following knative services are in a ready state in the "context-<context>" namespace
+      | Knative service name |
+      | iocontext            |
+      | kafka-cdc            |
+    Then the following deployments are in a ready state in the "context-<context>" namespace
+      | Deployment name            |
+      | iocontext-00001-deployment |
+      | kafka-cdc-00001-deployment |
+    And container "user-container" in pod "iocontext-00001-deployment.*" in namespace "context-<context>" should contain "integration-test" regex
+    And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "context-<context>" should not contain "Traceback \(most recent call last\):" regex
+    And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
+    Examples:
+      | context | username   | host      |
+      | tratata | ci         | localhost |
