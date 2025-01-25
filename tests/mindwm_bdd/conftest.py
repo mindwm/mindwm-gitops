@@ -13,7 +13,6 @@ import re
 import os
 import utils
 from typing import List
-from make import run_cmd
 from messages import DataTable
 from kubetest import utils as kubetest_utils
 from kubetest import condition
@@ -36,7 +35,6 @@ import asyncio
 from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
 from git_utils import git_clone
-from make import run_cmd
 from tmux import create_tmux_session, send_command_to_pane, vertically_split_window
 
 nats_messages = []
@@ -252,7 +250,7 @@ def mindwm_repo(ctx, repo_dir):
 def run_make(ctx, target_name):
     with allure.step(f"make {target_name}"):
         pass
-    run_cmd(f"make {target_name}", ctx['repo_dir'])
+    utils.run_cmd(f"make {target_name}", ctx['repo_dir'])
 
 @then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
 def helm_release_deploeyd(kube, helm_release, namespace):
@@ -663,7 +661,7 @@ def dir_exists(dir_path):
 
 @when("God runs the command '{cmd}' inside the '{work_dir}' directory")
 def execute_cmd(cmd, work_dir):
-    run_cmd(cmd, work_dir)
+    utils.run_cmd(cmd, work_dir)
     pass
 
 @when("God creates a tmux session named '{tmux_session}' with a window named '{tmux_window_name}'")
