@@ -1,7 +1,7 @@
 import libtmux
 import pprint
 
-def create_tmux_session(session_name, dir=None):
+def create_tmux_session(session_name, window_name, dir=None):
     try:
         server = libtmux.Server()
         if dir is None:
@@ -12,7 +12,7 @@ def create_tmux_session(session_name, dir=None):
             return server.find_where({"session_name": session_name})
 
         print(f"Creating new tmux session: '{session_name}' in directory: '{dir}'")
-        session = server.new_session(session_name=session_name, start_directory=dir, attach=False, kill_session=True, window_name="integration-test")
+        session = server.new_session(session_name=session_name, start_directory=dir, attach=False, kill_session=True, window_name=window_name)
 
         default_window = session.attached_window
         default_window.set_option("automatic-rename", "off")

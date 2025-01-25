@@ -35,6 +35,10 @@ import functools
 import asyncio
 from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
+from git_utils import git_clone
+from make import run_cmd
+from tmux import create_tmux_session, send_command_to_pane, vertically_split_window
+
 nats_messages = []
 
 @pytest.fixture 
@@ -643,3 +647,45 @@ def file_contains_regex(file_path, match_regex):
                 return True
             else:
                 raise ValueError
+
+@when("God clones the repository '{repo}' with branch '{branch}' and commit '{commit}' to '{work_dir}'")
+def git_clone_repo(repo, branch, commit, work_dir):
+    git_clone(work_dir, repo, branch, commit)
+    pass
+
+@then("the directory '{dir_path}' should exist")
+def dir_exists(dir_path):
+    if os.path.isdir(dir_path):
+        print(f"Directory '{dir_path}' exists.")
+    else:
+        raise FileNotFoundError(f"Directory '{dir_path}' does not exist.")
+    pass
+
+@when("God runs the command '{cmd}' inside the '{work_dir}' directory")
+def execute_cmd(cmd, work_dir):
+    run_cmd(cmd, work_dir)
+    pass
+
+@when("God creates a tmux session named '{tmux_session}' with a window named '{tmux_window_name}'")
+def tmux_create_sesion(tmux_session, tmux_window_name):
+    create_tmux_session(tmux_session, tmux_window_name, work_dir)
+    pass
+
+@then("the tmux session '{tmux_session}' should exist")
+def tmux_session_exists(tmux_session):
+    pass
+
+@then("God sends the command '{cmd}' to the tmux session '{tmux_session}', window '{tmux_window_name}', pane '{tmux_pane_id}'")
+def tmux_send_command(tmux_session, tmux_window_name, tmux_pane_id, cmd):
+    send_command_to_pane(tmux_session, tmux_window_name, int(tmux_pane_id), cmd)
+    pass
+
+@then("God waits for '{n}' seconds")
+def sleep_n_seconds(n):
+    time.sleep(int(n))
+    pass
+
+@then("God vertically splits the tmux session '{tmux_session}', window '{tmux_window_name}'")
+def tmux_vertically_split(tmux_session, tmux_window_name):
+    vertically_split_window(tmux_session, tmux_window_name)
+    pass
