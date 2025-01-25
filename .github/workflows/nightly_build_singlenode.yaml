@@ -1,0 +1,175 @@
+name: Nightly build, singlenode, linode
+
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+on:
+  schedule:
+    - cron: "20 4 * * *" # Runs every day at 4:20 AM
+
+env:
+  TF_VAR_ssh_private_key: ${{ secrets.CI_SSH_KEY }}
+  TF_VAR_linode_token: ${{ secrets.CI_LINODE_TOKEN }}
+  TF_VAR_root_password: ${{ secrets.CI_ROOT_PASSWORD }}
+  TF_DIR: "./tests/e2e"
+  TF_VAR_git_repository: "mindwm/mindwm-gitops"
+  TF_VAR_git_commit_sha: "HEAD"
+  TF_VAR_git_ref_name: "master"
+  TV_VAR_artifact_dir: "/tmp/artifacts"
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: zulu
+        java-version: 17
+
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: master
+        repository: mindwm/mindwm-gitops
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.1.7"
+
+    - name: terraform init
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform init
+
+    - name: terraform plan
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform plan
+
+    - name: terraform apply
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform apply -auto-approve
+
+    - name: set CI_INSTANCE_IP variable
+      working-directory: "${{ env.TF_DIR }}"
+      run: |
+        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
+
+
+    - name: show CI_INSTANCE_IP
+      run: | 
+        echo $CI_INSTANCE_IP
+
+    - name: run pytests
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.CI_INSTANCE_IP }}
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        command_timeout: 60m
+        script: |
+          test -d ${{ env.TV_VAR_artifact_dir }} &&  rm -rfv ${{ env.TV_VAR_artifact_dir }}
+          mkdir -p ${{ env.TV_VAR_artifact_dir }}
+          echo 0 > ${{ env.TV_VAR_artifact_dir }}/exit_code
+          test -d ~/.kube || mkdir ~/.kube
+          test -d mindwm-gitops && rm -rf mindwm-gitops
+          git clone -b "${{ github.event.pull_request.head.ref }}" https://github.com/${{ github.event.pull_request.head.repo.full_name }}
+          cd mindwm-gitops 
+          export KUBECONFIG=${HOME}/.kube/config
+          make mindwm_test 
+          echo $? > ${{ env.TV_VAR_artifact_dir }}/exit_code
+          cd ${{ env.TV_VAR_artifact_dir }}
+          tar cvf /tmp/artifacts.tar . 
+
+
+    - name: Download artifacts
+      uses: nicklasfrahm/scp-action@main
+      if: always()
+      continue-on-error: true
+      with:
+        direction: download
+        host: ${{ env.CI_INSTANCE_IP }}
+        insecure_ignore_fingerprint: true
+        username: ci
+        key: ${{ secrets.CI_SSH_KEY }}
+        source: /tmp/artifacts.tar
+        target: artifacts.tar
+
+
+    - name: Unpack artifacts
+      if: always()
+      continue-on-error: true
+      run: |
+        mkdir artifacts
+        tar xvf artifacts.tar -C artifacts
+
+    - name: Load test report history
+      uses: actions/checkout@v4
+      if: always()
+      continue-on-error: true
+      with:
+        token: ${{ secrets.MINDWM_TOKEN }}
+        repository: 'mindwm/mindwm.github.io'
+        ref: main
+        path: gh-pages
+
+    - name: Build test report
+      uses: simple-elf/allure-report-action@v1.7
+      if: always()
+      with:
+        gh_pages: gh-pages/mindwm-gitops
+        allure_history: allure-history
+        allure_report: allure-report
+        allure_results: artifacts/allure-results
+
+    - name: git commit workaround
+      run: |
+        sudo rm -rf mindwm-gitops/allure-history/.git
+
+    - name: Update mindwm.github.io
+      id: update_mindwm_github_io
+      uses: cpina/github-action-push-to-another-repository@target-branch
+      env:
+        SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+      with:
+        source-directory: allure-history
+        destination-github-username: 'mindwm'
+        destination-repository-name: 'mindwm.github.io'
+        user-email: github-actions@github.com
+        commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+        target-branch: main
+        target-directory: /mindwm-gitops
+
+    - name: prepare env variable for report.md
+      run: | 
+        echo "REPORT_MD<<EOF" >> $GITHUB_ENV
+        echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})"  >> $GITHUB_ENV
+        echo '<details>' >> $GITHUB_ENV
+        echo '<summary>gherkin outptut</summary>' >> $GITHUB_ENV
+        grep -vE '^features' artifacts/report.md  >> $GITHUB_ENV
+        echo '</details>' >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+
+    - uses: actions/github-script@v7
+      env:
+        COMMENT_BODY: ${{env.REPORT_MD}}
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: process.env.COMMENT_BODY
+          })
+
+    - name: return exit code
+      run: | 
+        exit `cat artifacts/exit_code`
+
+    - name: terraform destroy
+      if: always()
+      working-directory: "${{ env.TF_DIR }}"
+      run: terraform destroy -auto-approve
