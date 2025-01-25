@@ -24,7 +24,7 @@ git_clone(work_dir, "https://github.com/mindwm/mindwm-manager", "master", "HEAD"
 run_cmd("python3.11 -m venv .venv", work_dir)
 # run_cmd(f"{work_dir}/.venv/bin/pip install -r requirements.txt", work_dir)
 # exit(0)
-create_tmux_session(tmux_session_name, work_dir)
+create_tmux_session(tmux_session_name, window_name, work_dir)
 send_command_to_pane(tmux_session_name, window_name, 0, ". .venv/bin/activate")
 for env_var in mindwm_manager_env.keys():
     send_command_to_pane(tmux_session_name, window_name, 0, f"export {env_var}={mindwm_manager_env[env_var]}")
