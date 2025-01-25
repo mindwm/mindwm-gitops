@@ -24,6 +24,14 @@ def create_tmux_session(session_name, window_name, dir=None):
         print(f"An error occurred: {e}")
         return None
 
+def tmux_session_exists(session_name):
+    try:
+        server = libtmux.Server()
+        return server.has_session(session_name)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
 def send_command_to_pane(session_name, window_name, pane_index, command):
     try:
         server = libtmux.Server()
