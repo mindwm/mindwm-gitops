@@ -13,7 +13,7 @@ import re
 import os
 import utils
 from typing import List
-from make import run_make_cmd
+from make import run_cmd
 from messages import DataTable
 from kubetest import utils as kubetest_utils
 from kubetest import condition
@@ -248,7 +248,7 @@ def mindwm_repo(ctx, repo_dir):
 def run_make(ctx, target_name):
     with allure.step(f"make {target_name}"):
         pass
-    run_make_cmd(f"make {target_name}", ctx['repo_dir'])
+    run_cmd(f"make {target_name}", ctx['repo_dir'])
 
 @then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
 def helm_release_deploeyd(kube, helm_release, namespace):

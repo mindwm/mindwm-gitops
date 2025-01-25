@@ -1,6 +1,6 @@
 import subprocess
 
-def run_make_cmd(cmd, cwd):
+def run_cmd(cmd, cwd):
     try:
         result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd=cwd)
         #print("Command Output:", result.stdout)
