@@ -76,7 +76,7 @@ jobs:
           echo 0 > ${{ env.TV_VAR_artifact_dir }}/exit_code
           test -d ~/.kube || mkdir ~/.kube
           test -d mindwm-gitops && rm -rf mindwm-gitops
-          git clone -b "${{ github.event.pull_request.head.ref }}" https://github.com/${{ github.event.pull_request.head.repo.full_name }}
+          git clone -b master https://github.com/mindwm/mindwm-gitops
           cd mindwm-gitops 
           export KUBECONFIG=${HOME}/.kube/config
           make mindwm_test 
