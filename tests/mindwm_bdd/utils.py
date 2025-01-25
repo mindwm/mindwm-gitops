@@ -6,6 +6,7 @@ from io import BytesIO
 from kubernetes import client, config
 from kubetest import condition
 from kubetest import utils as kubetest_utils
+import subprocess
 import kubetest.objects.service 
 import re
 import asyncio
@@ -390,3 +391,13 @@ def custom_object_exists(kube, namespace, group, version, plural, name, timeout)
                 namespace = namespace,
                 name = name
             )
+    
+def run_cmd(cmd, cwd):
+    try:
+        result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd=cwd)
+        #print("Command Output:", result.stdout)
+        assert result.returncode == 0, f"Expected return code 0 but got {result.returncode}"
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing '{cmd}': {e}")
+        print(f"Output: {e.stdout}")
+        print(f"Error Output: {e.stderr}")

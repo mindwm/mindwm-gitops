@@ -116,9 +116,7 @@ Feature: MindWM Ping-pong EDA test
    Scenario: Cleanup <username>@<host> in <context>
      When God deletes the MindWM host resource "<host>"
      Then the host "<host>" should be deleted
-
      When God deletes the MindWM user resource "<username>"
-
      When God deletes the MindWM context resource "<context>"
 
      Examples:

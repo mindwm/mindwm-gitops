@@ -13,7 +13,6 @@ import re
 import os
 import utils
 from typing import List
-from make import run_make_cmd
 from messages import DataTable
 from kubetest import utils as kubetest_utils
 from kubetest import condition
@@ -34,6 +33,9 @@ import uuid
 import functools
 import asyncio
 from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
+
+from git_utils import git_clone
+from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists
 
 nats_messages = []
 
@@ -248,7 +250,7 @@ def mindwm_repo(ctx, repo_dir):
 def run_make(ctx, target_name):
     with allure.step(f"make {target_name}"):
         pass
-    run_make_cmd(f"make {target_name}", ctx['repo_dir'])
+    utils.run_cmd(f"make {target_name}", ctx['repo_dir'])
 
 @then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
 def helm_release_deploeyd(kube, helm_release, namespace):
@@ -643,3 +645,54 @@ def file_contains_regex(file_path, match_regex):
                 return True
             else:
                 raise ValueError
+
+@when("God clones the repository '{repo}' with branch '{branch}' and commit '{commit}' to '{work_dir}'")
+def git_clone_repo(repo, branch, commit, work_dir):
+    git_clone(work_dir, repo, branch, commit)
+    pass
+
+@then("the directory '{dir_path}' should exist")
+def dir_exists(dir_path):
+    if os.path.isdir(dir_path):
+        print(f"Directory '{dir_path}' exists.")
+    else:
+        raise FileNotFoundError(f"Directory '{dir_path}' does not exist.")
+    pass
+
+@when("God runs the command '{cmd}' inside the '{work_dir}' directory")
+def execute_cmd(cmd, work_dir):
+    utils.run_cmd(cmd, work_dir)
+    pass
+
+@when("God creates a tmux session named '{tmux_session}' with a window named '{tmux_window_name}'")
+def tmux_create_sesion(tmux_session, tmux_window_name):
+    r = create_tmux_session(tmux_session, tmux_window_name, work_dir)
+    if (r is None):
+        assert RuntimeError
+    pass
+
+@then("the tmux session '{tmux_session}' should exist")
+def tmux_check_session(tmux_session):
+    r = tmux_session_exists(tmux_session)
+    if (r is not True):
+        raise RuntimeError
+    pass
+
+@then("God sends the command '{cmd}' to the tmux session '{tmux_session}', window '{tmux_window_name}', pane '{tmux_pane_id}'")
+def tmux_send_command(tmux_session, tmux_window_name, tmux_pane_id, cmd):
+    r = send_command_to_pane(tmux_session, tmux_window_name, int(tmux_pane_id), cmd)
+    if (r is None):
+        assert RuntimeError
+    pass
+
+@then("God waits for '{n}' seconds")
+def sleep_n_seconds(n):
+    time.sleep(int(n))
+    pass
+
+@then("God vertically splits the tmux session '{tmux_session}', window '{tmux_window_name}'")
+def tmux_vertically_split(tmux_session, tmux_window_name):
+    r = vertically_split_window(tmux_session, tmux_window_name)
+    if (r is None):
+        assert RuntimeError
+    pass

@@ -105,7 +105,6 @@ Feature: MindWM two hosts one user function test
   Scenario: Cleanup user <username> and context <context>
     When God deletes the MindWM user resource "<username>"
     Then the user "<username>" should be deleted
-
     When God deletes the MindWM context resource "<context>"
     Then the context "<context>" should be deleted
 
