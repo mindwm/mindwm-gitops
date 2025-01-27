@@ -2,6 +2,8 @@ import pprint
 import base64
 import gzip
 import json
+import allure
+import logging
 from io import BytesIO
 from kubernetes import client, config
 from kubetest import condition
@@ -12,6 +14,8 @@ import re
 import asyncio
 import json
 import nats
+
+logger = logging.getLogger(__name__)
 
 def double_base64_decode(encoded_str):
     try:
@@ -401,3 +405,27 @@ def run_cmd(cmd, cwd):
         print(f"Error executing '{cmd}': {e}")
         print(f"Output: {e.stdout}")
         print(f"Error Output: {e.stderr}")
+
+def execute_and_attach_log(command):
+    with allure.step(f"execute '{command}'"):
+        try:
+            result = subprocess.run(command, shell=True, text=True, capture_output=True, check=True)
+            # for line in result.stdout.split("\n"):
+            #     if (line == ""):
+            #         continue
+            #     logger.info(line)
+            # for line in result.stderr.split("\n"):
+            #     if (line == ""):
+            #         continue
+            #     logger.error(line)
+            if len(result.stdout.split("\n")) > 1:
+                allure.attach(result.stdout, name = f"stdout", attachment_type='text/plain')
+            if len(result.stderr.split("\n")) > 1:
+                a = len(result.stderr.split("\n"))
+                logger.info(f"stderr {a}")
+                allure.attach(result.stderr, name = f"stderr", attachment_type='text/plain')
+            return result
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Command failed with exit code {e.returncode}: {e.stderr.strip()}")
+            return None
+        pass
