@@ -372,6 +372,7 @@ def parse_resourceSpan(resourceSpan):
         # context broker
     }
 def deployment_wait_for(kube, deployment_name, namespace):
+    timeout = 180
     def exists():
         try:
             deployment = kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
@@ -382,13 +383,19 @@ def deployment_wait_for(kube, deployment_name, namespace):
             pprint.pprint(e)
             return False
 
-    exists_condition = condition.Condition(f"deployment {deployment_name} exists", exists)
+    condition_name = f"deployment {deployment_name} exists in {namespace} should exitst, timeout = {timeout}"
 
-    kubetest_utils.wait_for_condition(
-        condition=exists_condition,
-        timeout=180,
-        interval=5
-    )
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get deployment")
+
+            raise e
     return kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
 
 def neo4j_get_bolt_node_port(kube, context_name):

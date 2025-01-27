@@ -370,12 +370,16 @@ def role_exist(kube, step):
 
 
 @then("namespace \"{namespace}\" should exist")
-def namespace_exist(ctx, kube, namespace):
-    ns = Namespace.new(namespace)
-    ns.wait_until_ready(timeout=60)
-    with allure.step(f"Namespace '{namespace}' is ready"):
-        pass
+def namespace_exist(ctx, kube, namespace, step):
     ctx['namespace'] = namespace
+    with allure.step(f"then {step.text}"):
+        try:
+            ns = Namespace.new(namespace)
+            ns.wait_until_ready(timeout=60)
+        except Exception as e:
+            utils.execute_and_attach_log("kubectl get ns")
+            raise e
+        pass
 
 @then("namespace \"{namespace}\" should not exist")
 def namespace_not_exist(kube, namespace):
@@ -557,10 +561,14 @@ def deployment_ready(kube, step, namespace):
     title_row, *rows = step.data_table.rows
     for row in rows:
         deployment_name = row.cells[0].value 
-        with allure.step(f"Wait for deployment '{deployment_name}' ready state"):
-            pass
-        deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
-        deployment.wait_until_ready(180)
+        with allure.step(f"then {step.text} {deployment_name}"):
+            deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
+            with allure.step(f"waiting for {deployment_name} is ready"):
+                try:
+                    deployment.wait_until_ready(180)
+                except Exception as e:
+                    utils.execute_and_attach_log(f"kubectl -n {namespace} get deployment")
+                    raise e
 
 @then("graph have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
 def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
