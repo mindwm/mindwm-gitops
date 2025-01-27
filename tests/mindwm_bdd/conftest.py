@@ -1,4 +1,5 @@
 import allure
+import logging
 import pytest
 import re
 import pprint
@@ -39,6 +40,41 @@ from tmux import create_tmux_session, send_command_to_pane, vertically_split_win
 
 nats_messages = []
 
+# configure allure logging
+class AllureLoggingHandler(logging.Handler):
+    def log(self, message):
+        with allure.step('Log {}'.format(message)):
+	        pass
+
+    def emit(self, record):
+        self.log("({}) {}".format(record.levelname, record.getMessage()))
+
+class AllureCatchLogs:
+    def __init__(self):
+        self.rootlogger = logging.getLogger()
+        self.allurehandler = AllureLoggingHandler()
+    def __enter__(self):
+        if self.allurehandler not in self.rootlogger.handlers:
+            self.rootlogger.addHandler(self.allurehandler)
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.rootlogger.removeHandler(self.allurehandler)
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_setup():
+    with AllureCatchLogs():
+        yield
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_call():
+    with AllureCatchLogs():
+        yield
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_teardown():
+    with AllureCatchLogs():
+        yield
+
+
 @pytest.fixture 
 def ctx():
     return {}
@@ -66,6 +102,7 @@ def async_to_sync(fn):
 def test_scenario():
     assert False
 
+# XXX: (@metacoma) not used?
 @allure.step("Cluster info")
 @given(".*kubernetes cluster$")
 def kubernetes_cluster():
