@@ -102,6 +102,7 @@ def argocd_application_wait_status(kube, application_name, namespace):
     )
 
 def statefulset_wait_for(kube, statefulset_name, namespace):
+    timeout = 60
     def exists():
         try:
             statefulset = kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
@@ -111,13 +112,17 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
         except Exception as e:
             return False
 
-    exists_condition = condition.Condition("statefulset exists", exists)
-
-    kubetest_utils.wait_for_condition(
-        condition=exists_condition,
-        timeout=60,
-        interval=5
-    )
+    condition_name = f"Waiting for statefulset {statefulset_name} in {namespace} namespace, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get statefulset")
+            raise e
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
 
 def knative_service_wait_for(kube, knative_service_name, namespace):

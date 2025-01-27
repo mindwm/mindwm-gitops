@@ -397,11 +397,15 @@ def namespace_not_exist(kube, namespace):
 
 
 @then("statefulset \"{statefulset_name}\" in namespace \"{namespace}\" is in ready state")
-def statefulset_is_ready(kube, statefulset_name, namespace):
-    statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
-    statefulset.wait_until_ready(180)
-    with allure.step(f"Statefulset '{statefulset_name}' in '{namespace}' is ready"):
-        pass
+def statefulset_is_ready(kube, statefulset_name, namespace, step):
+    with allure.step(f"then {step.text}"):
+        statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
+        with allure.step(f"waiting for statefulset {statefulset_name} is ready"):
+            try:
+                statefulset.wait_until_ready(180)
+            except Exception as e:
+                utils.execute_and_attach_log(f"kubectl -n {namespace} get statefulset")
+                raise e
 
 @then("the following knative services are in a ready state in the \"{namespace}\" namespace")
 def knative_service_exist(kube, step, namespace):
