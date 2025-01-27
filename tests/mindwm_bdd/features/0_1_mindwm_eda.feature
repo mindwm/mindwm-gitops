@@ -1,13 +1,20 @@
 @eda
 Feature: Mindwm event driven architecture
   Background:
-    Given a MindWM environment
+    Given a kubernetes cluster
     Then all nodes in Kubernetes are ready
+    Given a MindWM environment
+    Then following CRD should exists
+      | Plural    | Group     | Version |
+      | xhosts    | mindwm.io | v1beta1 |
+      | xcontexts | mindwm.io | v1beta1 |
+      | xusers    | mindwm.io | v1beta1 |
+
 
   Scenario: Knative
+    And namespace "knative-operator" should exist
     And namespace "knative-serving" should exist
     And namespace "knative-eventing" should exist
-    And namespace "knative-operator" should exist
     And the following deployments are in a ready state in the "knative-serving" namespace
       | Deployment name      | 
       | activator            |

@@ -102,14 +102,12 @@ def async_to_sync(fn):
 def test_scenario():
     assert False
 
-# XXX: (@metacoma) not used?
-@allure.step("Cluster info")
-@given(".*kubernetes cluster$")
-def kubernetes_cluster():
-    cluster_info = clusterinfo()
-    with allure.step("Result: {}".format(json.dumps(cluster_info))):
+@given("a kubernetes cluster$")
+def kubernetes_cluster(kube, step):
+    with allure.step(f"Given {step.text}"):
+        cluster_info = utils.execute_and_attach_log("kubectl cluster-info")
         pass
-    assert(cluster_info)
+    pass
 
 @allure.step("Check that all nodes in kubernetes are ready")
 @then("all nodes in kubernetes are ready")
@@ -122,8 +120,6 @@ def kubernetes_nodes(kube):
                 with allure.step(f"Kubernetes node '{node.name}' are {node_is_ready}"):
                     logging.info(f"Version {node_instance.status.node_info.kubelet_version}")
                     logging.info(f"Kernel version {node_instance.status.node_info.kernel_version}")
-                    #pprint.pprint(node)
-                    #allure.attach(json.dumps(node), name = f"{node.name}_details.json", attachment_type='application/json')
                     pass
 
                 assert(node_is_ready), f"{node.name} is not ready"
@@ -135,16 +131,24 @@ def kubernetes_nodes(kube):
 def test_mindwm():
     return True
 
-@allure.step("Mindwm environment")
 @given('a MindWM environment')
-def mindwm_environment(kube):
-    with allure.step("Check MindWM environment"):
-        for plural in ["xcontexts", "xhosts", "xusers"]:
-            utils.custom_object_plural_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
-            kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
-            with allure.step(f"Mindwm crd '{plural}' is exist"):
-                pass
+def mindwm_environment(step):
+    with allure.step(f"given {step.text}"):
+        pass
 
+@then('following CRD should exists')
+def crd_should_exists(kube, step):
+    with allure.step(f"then {step.text}"):
+        title_row, *rows = step.data_table.rows
+        for row in rows:
+            plural = row.cells[0].value
+            group = row.cells[1].value
+            version = row.cells[2].value
+            with allure.step(f"check CRD {plural}.{group}/{version}"):
+                utils.custom_object_plural_wait_for(kube, group, version, plural)
+                kube.get_custom_objects(group = group, version = version, plural = plural, all_namespaces = True)
+                utils.execute_and_attach_log(f"kubectl describe crd {plural}.{group}")
+                pass
         pass
 
 
