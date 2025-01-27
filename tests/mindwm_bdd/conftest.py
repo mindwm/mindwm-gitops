@@ -507,9 +507,9 @@ def trace_should_contains(step, trace_data):
     title_row, *rows = step.data_table.rows
     for row in rows:
         service_name = row.cells[0].value 
-        http_code = row.cells[1].value 
-        http_path = row.cells[2].value 
-        logging.debug(f"{service_name} {http_code} {http_path}")
+        #http_code = row.cells[1].value 
+        #http_path = row.cells[2].value 
+        #logging.debug(f"{service_name} {http_code} {http_path}")
         scope_span = utils.span_by_service_name(trace_data['data'], service_name)
         logging.debug(f"Scope span {service_name} not found in trace data")
         assert(scope_span is not None), f"Scope span {service_name} not found in trace data"
