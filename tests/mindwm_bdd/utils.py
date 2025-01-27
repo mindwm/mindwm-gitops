@@ -37,6 +37,7 @@ def gunzip_data(compressed_data):
 
 
 def helm_release_info(kube, release_name, namespace):
+    # with allure.step(f"get helm release info for {release_name} in namespace {namespace}"):
     helm_secret = kube.get_secrets(namespace, labels = {"name": release_name})[f'sh.helm.release.v1.{release_name}.v1']
     #release_str = json.loads(helm_secret.obj.data)
     data_base64 = helm_secret.obj.data['release']
@@ -45,6 +46,7 @@ def helm_release_info(kube, release_name, namespace):
     return data['info']
 
 def helm_release_is_ready(kube, release_name, namespace):
+    timeout = 300
     def is_ready():
         try:
             info = helm_release_info(kube, release_name, namespace)
@@ -52,13 +54,17 @@ def helm_release_is_ready(kube, release_name, namespace):
         except Exception as e:
             return False
 
-    ready_condition = condition.Condition("helm release has status and info", is_ready)
-
-    kubetest_utils.wait_for_condition(
-        condition=ready_condition,
-        timeout=600, # More details in #118 github issue
-        interval=5
-    )
+    condition_name = f"wait for helm release {release_name} has status and info in {namespace}, timeout"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, is_ready),
+                timeout=timeout, # More details in #118 github issue
+                interval=5
+            )
+        except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get helmrelease")
+            raise e
 
 
     return helm_release_info(kube, release_name, namespace)

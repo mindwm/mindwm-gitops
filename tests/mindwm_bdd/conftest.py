@@ -322,12 +322,10 @@ def run_make(ctx, target_name):
     utils.run_cmd(f"make {target_name}", ctx['repo_dir'])
 
 @then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
-def helm_release_deploeyd(kube, helm_release, namespace):
-    #info = utils.helm_release_info(kube, helm_release, namespace)
-    info = utils.helm_release_is_ready(kube, helm_release, namespace)
-    assert(info['status'] == "deployed")
-    with allure.step(f"Helm release '{helm_release}' deployed in {namespace}"):
-        pass
+def helm_release_deployed(kube, helm_release, namespace, step):
+    with allure.step(f"then {step.text}"):
+        info = utils.helm_release_is_ready(kube, helm_release, namespace)
+        assert(info['status'] == "deployed")
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
 def argocd_application(kube, application_name, namespace):
