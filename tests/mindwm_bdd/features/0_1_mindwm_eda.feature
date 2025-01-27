@@ -1,5 +1,5 @@
+@name:xxx
 @eda
-@allure.feature:JohnDoe
 Feature: Mindwm event driven architecture
 
   Background:

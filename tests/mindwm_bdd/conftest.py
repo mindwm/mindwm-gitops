@@ -74,6 +74,10 @@ def pytest_runtest_teardown():
     with AllureCatchLogs():
         yield
 
+def pytest_bdd_before_scenario(feature, scenario):
+    #logging.info(feature.name)
+    allure.dynamic.title(scenario.name)
+    allure.dynamic.feature(feature.name)
 
 @pytest.fixture 
 def ctx():
