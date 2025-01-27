@@ -310,7 +310,7 @@ def argocd_application_in_progress(kube, application_name, namespace):
     health_status = argocd_app['status']['health']['status']
     with allure.step(f"Argocd application '{application_name}' is {health_status}"):
         pass
-    #print(f"{application_name} {health_status}")
+    logging.info(f"{application_name} {health_status}")
     # @metacoma(TODO) Progressing only
     assert(health_status == 'Progressing' or health_status == "Healthy") or health_status == "Missing"
 
@@ -465,16 +465,18 @@ def tracesql_get_trace(kube, traceparent, trace_data):
 
 @then("the trace should contains")
 def trace_should_contains(step, trace_data):
-    #pprint.pprint(f"TRACE DATA = {trace_data['data']}")
+    logging.debug(f"TRACE DATA = {trace_data['data']}")
     title_row, *rows = step.data_table.rows
     for row in rows:
         service_name = row.cells[0].value 
-        #http_code = row.cells[1].value 
-        #http_path = row.cells[2].value 
-        #pprint.pprint(f"{service_name} {http_code} {http_path}")
+        http_code = row.cells[1].value 
+        http_path = row.cells[2].value 
+        logging.debug(f"{service_name} {http_code} {http_path}")
         scope_span = utils.span_by_service_name(trace_data['data'], service_name)
+        logging.debug(f"Scope span {service_name} not found in trace data")
         assert(scope_span is not None), f"Scope span {service_name} not found in trace data"
         span = utils.parse_resourceSpan(scope_span)
+        logging.debug(f"Span {service_name} not found in trace data")
         assert(span is not None), f"Span {service_name} not found in trace data"
         assert(span['service_name'] == service_name) 
         # assert(span['http_code'] == http_code) 
@@ -550,7 +552,7 @@ def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
         assert len(records) == 1
 
         for node in records:
-            pprint.pprint(node)
+            logging.debug(node)
             assert node['n'][prop] == value
             with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
                 pass
@@ -691,7 +693,7 @@ def git_clone_repo(repo, branch, commit, work_dir):
 @then("the directory '{dir_path}' should exist")
 def dir_exists(dir_path):
     if os.path.isdir(dir_path):
-        print(f"Directory '{dir_path}' exists.")
+        logging.debug(f"Directory '{dir_path}' exists.")
     else:
         raise FileNotFoundError(f"Directory '{dir_path}' does not exist.")
     pass
