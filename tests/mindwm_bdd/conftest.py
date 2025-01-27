@@ -114,12 +114,21 @@ def kubernetes_cluster():
 @allure.step("Check that all nodes in kubernetes are ready")
 @then("all nodes in kubernetes are ready")
 def kubernetes_nodes(kube):
-    for node in kube.get_nodes().values():
-        node_is_ready = node.is_ready()
-        with allure.step(f"Kubernetes node '{node.name}' are {node_is_ready}"):
-            pass
+    with allure.step(f"Check kubernetes nodes"):
+        for node in kube.get_nodes().values():
+            with allure.step(f"Node '{node.name}'"):
+                node_is_ready = node.is_ready()
+                node_instance = node.obj
+                with allure.step(f"Kubernetes node '{node.name}' are {node_is_ready}"):
+                    logging.info(f"Version {node_instance.status.node_info.kubelet_version}")
+                    logging.info(f"Kernel version {node_instance.status.node_info.kernel_version}")
+                    #pprint.pprint(node)
+                    #allure.attach(json.dumps(node), name = f"{node.name}_details.json", attachment_type='application/json')
+                    pass
 
-        assert(node_is_ready), f"{node.name} is not ready"
+                assert(node_is_ready), f"{node.name} is not ready"
+            pass
+    pass
 
 
 @scenario('mindwm_crd.feature','Validate Mindwm custom resource definitions')
@@ -129,15 +138,15 @@ def test_mindwm():
 @allure.step("Mindwm environment")
 @given('a MindWM environment')
 def mindwm_environment(kube):
+    with allure.step("Check MindWM environment"):
+        for plural in ["xcontexts", "xhosts", "xusers"]:
+            utils.custom_object_plural_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
+            kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
+            with allure.step(f"Mindwm crd '{plural}' is exist"):
+                pass
 
-    
-    for plural in ["xcontexts", "xhosts", "xusers"]:
-        utils.custom_object_plural_wait_for(kube, 'mindwm.io', 'v1beta1', plural)
-        kube.get_custom_objects(group = 'mindwm.io', version = 'v1beta1', plural = plural, all_namespaces = True)
-        with allure.step(f"Mindwm crd '{plural}' is exist"):
-            pass
+        pass
 
-    pass
 
 @when("God creates a MindWM context with the name \"{context_name}\"")
 def mindwm_context(ctx, kube, context_name):
