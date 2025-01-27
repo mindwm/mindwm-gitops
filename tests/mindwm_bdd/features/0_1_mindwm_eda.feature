@@ -1,8 +1,12 @@
 @eda
+@allure.feature:JohnDoe
 Feature: Mindwm event driven architecture
+
   Background:
     Given a kubernetes cluster
     Then all nodes in Kubernetes are ready
+
+  Scenario: MindWM CRD
     Given a MindWM environment
     Then following CRD should exists
       | Plural    | Group     | Version |
@@ -10,11 +14,21 @@ Feature: Mindwm event driven architecture
       | xcontexts | mindwm.io | v1beta1 |
       | xusers    | mindwm.io | v1beta1 |
 
-
-  Scenario: Knative
+  Scenario: Knative operator
     And namespace "knative-operator" should exist
+    And the following deployments are in a ready state in the "knative-operator" namespace
+      | Deployment name      |
+      | knative-operator     |
+      | operator-webhook     |
+
+    Then following CRD should exists
+      | Plural            | Group                | Version |
+      | knativeeventings  | operator.knative.dev | v1beta1 |
+      | knativeservings   | operator.knative.dev | v1beta1 |
+
+
+  Scenario: Knative Serving
     And namespace "knative-serving" should exist
-    And namespace "knative-eventing" should exist
     And the following deployments are in a ready state in the "knative-serving" namespace
       | Deployment name      | 
       | activator            |
@@ -24,6 +38,10 @@ Feature: Mindwm event driven architecture
       | net-istio-controller |
       | net-istio-webhook    |
       | webhook              |
+    And resource "knative-serving" of type "knativeservings.operator.knative.dev/v1beta1" has a status "Ready" equal "True" in "knative-serving" namespace
+
+  Scenario: Knative Eventing
+    And namespace "knative-eventing" should exist
     And the following deployments are in a ready state in the "knative-eventing" namespace
       | Deployment name         | 
       | eventing-controller     |
@@ -38,6 +56,7 @@ Feature: Mindwm event driven architecture
       | mt-broker-filter        |
       | mt-broker-ingress       |
       | nats-webhook            |
+    And resource "knative-eventing" of type "knativeeventings.operator.knative.dev/v1beta1" has a status "Ready" equal "True" in "knative-eventing" namespace
    
 
   Scenario: Istio

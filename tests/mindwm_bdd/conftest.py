@@ -127,12 +127,13 @@ def kubernetes_nodes(kube):
     pass
 
 
-@scenario('mindwm_crd.feature','Validate Mindwm custom resource definitions')
+@scenario('0_1_mindwm_eda.feature','Validate Mindwm custom resource definitions')
 def test_mindwm():
     return True
 
 @given('a MindWM environment')
 def mindwm_environment(step):
+    """ change test name, using fixture names """
     with allure.step(f"given {step.text}"):
         pass
 
@@ -279,6 +280,24 @@ def mindwm_context_deleted(kube, context_name):
     context.wait_until_deleted(30)
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
+
+@then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
+def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step):
+    with allure.step(f'then {step.text}'):
+        plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
+        utils.custom_object_status_waiting_for(
+            kube,
+            namespace,
+            group,
+            version,
+            plural,
+            resource_name,
+            status_name,
+            status,
+            120
+            )
+        pass
+    pass
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
 def environment(ctx, ubuntu_version, cpu, mem):

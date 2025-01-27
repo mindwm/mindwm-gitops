@@ -145,20 +145,86 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
         except Exception as e:
             return False
 
-    exists_condition = condition.Condition(f"Wait for {group}/{version} {plural} {name} exists in namespace {namespace}", exists)
+    condition_name = f"Wait for {group}/{version} {plural} {name} exists in namespace {namespace}, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                    group=group,
+                    version=version,
+                    plural=plural,
+                    namespace = namespace,
+                    name = name
+            )
+            raise e
+        return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                    group=group,
+                    version=version,
+                    plural=plural,
+                    namespace = namespace,
+                    name = name
+                )
 
-    kubetest_utils.wait_for_condition(
-        condition=exists_condition,
-        timeout=timeout,
-        interval=5
-    )
-    return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+def custom_object_status_waiting_for(kube, namespace, group, version, plural, name, status_name, status, timeout):
+    def status_equal():
+        r = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
                 group=group,
                 version=version,
                 plural=plural,
                 namespace = namespace,
                 name = name
             )
+        assert (r is not None)
+        if ("status" not in r):
+            return False
+        if ("conditions" not in r['status']):
+            return False
+        for condition in r['status']['conditions']:
+            if condition['type'] == status_name:
+                if condition['status'] == status:
+                    return True
+        return False
+
+    resource = custom_object_wait_for(
+        kube,
+        namespace,
+        group,
+        version,
+        plural,
+        name,
+        timeout
+    )
+    condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status}, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, status_equal),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                    group=group,
+                    version=version,
+                    plural=plural,
+                    namespace = namespace,
+                    name = name
+            )
+            allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group} {name}")
+            raise e
+    return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+            group=group,
+            version=version,
+            plural=plural,
+            namespace = namespace,
+            name = name
+    )
 
 def knative_trigger_wait_for(kube, knative_trigger_name, namespace):
     return custom_object_wait_for(
