@@ -5,7 +5,7 @@ Feature: MindWM kafka_cdc function test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: Kafka Change Data Capture test
+  Scenario: Create environment
 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
@@ -27,7 +27,7 @@ Feature: MindWM kafka_cdc function test
     #   MATCH (N) DETACH DELETE N;
     #   """
     #
-  Scenario: Test "create" data capture event
+  Scenario: "Create" data capture event
 
     When God starts reading message from NATS topic ">"
     And God makes graph query in context "<context>"
@@ -50,7 +50,7 @@ Feature: MindWM kafka_cdc function test
      | context  | username   | host      | 
      | blue     | garmr      | helheim   | 
 
-  Scenario: Test "update" data capture event
+  Scenario: "Update" data capture event
     When God makes graph query in context "<context>"
       """
       MATCH (n:User)
@@ -66,7 +66,7 @@ Feature: MindWM kafka_cdc function test
      | context  | username   | host      | 
      | blue     | garmr      | helheim   | 
 
-  Scenario: Test "delete" data capture event
+  Scenario: "Delete" data capture event
     When God makes graph query in context "<context>"
       """
       MATCH (n:User)

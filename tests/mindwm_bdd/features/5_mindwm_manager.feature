@@ -5,7 +5,7 @@ Feature: MindWM manager integration test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: Prepare environment for mindwm-manager integration test
+  Scenario: Prepare environment, context: <context>, username: <username>, host: <host>
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
 

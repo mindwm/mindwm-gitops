@@ -5,7 +5,7 @@ Feature: MindWM two users one context function test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: Create context <context>
+  Scenario: Prepare environment, context: <context>
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
 

@@ -5,7 +5,7 @@ Feature: MindWM io context function test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: io context <context>
+  Scenario: Create context <context>, user <username>, host: <host>
 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
@@ -17,11 +17,17 @@ Feature: MindWM io context function test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
+
+    Examples:
+     | context | username   | host      | 
+     | red     | kitty      | tablet    | 
+
     # When God makes graph query in context "<context>"
     #   """
     #   MATCH (N) DETACH DELETE N;
     #   """
 
+  Scenario: Send cloudevent to "broker-ingress.knative-eventing/context-<context>/context-broker"
     When God creates a new cloudevent
       And sets cloudevent header "ce-id" to "<cloudevent_id>"
       And sets cloudevent header "traceparent" to "<traceparent>"

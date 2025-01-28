@@ -5,7 +5,7 @@ Feature: MindWM two hosts one user function test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: Create context <context> and user <username>
+  Scenario: Prepare environment, context: <context>, username: <username>
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
     And the following resources of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace

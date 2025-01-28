@@ -6,7 +6,7 @@ Feature: MindWM Custom kubernetes resources
     Given a MindWM environment
     Then all nodes in Kubernetes are ready
     
-  Scenario: Create Context and check k8s resources
+  Scenario: Prepare environment, context: cyan
     When God creates a MindWM context with the name "cyan"
     Then the context should be ready and operable
     And namespace "context-cyan" should exist 
@@ -29,7 +29,7 @@ Feature: MindWM Custom kubernetes resources
     And resource "context-cyan-cdc" of type "topics.cluster.redpanda.com/v1alpha2" has a status "Ready" equal "True" in "redpanda" namespace
     And resource "context-cyan-cdc-kafkasource" of type "kafkasources.sources.knative.dev/v1beta1" has a status "Ready" equal "True" in "context-cyan" namespace
 
-  Scenario: Create User and check k8s resources
+  Scenario: Create User bob
     When God creates a MindWM user resource with the name "bob" and connects it to the context "cyan"
     Then the user resource should be ready and operable
     And namespace "user-bob" should exist 
@@ -39,7 +39,7 @@ Feature: MindWM Custom kubernetes resources
     And resource "context-cyan-to-user-bob" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "context-cyan" namespace
     And resource "user-bob-to-context-cyan" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
 
-  Scenario: Create Host and check k8s resources
+  Scenario: Create Host workstation
     When God creates a MindWM host resource with the name "workstation" and connects it to the user "bob"
     Then the host resource should be ready and operable
     And resource "workstation-host-broker-kne-trigger" of type "natsjetstreamchannels.messaging.knative.dev/v1alpha1" has a status "Ready" equal "True" in "user-bob" namespace

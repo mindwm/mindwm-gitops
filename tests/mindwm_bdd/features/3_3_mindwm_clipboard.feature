@@ -5,7 +5,7 @@ Feature: MindWM clipboard EDA test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: Prepare environment for ping tests 
+  Scenario: Prepare environment, context: <context>, username: <username>, host: <host>
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
     And resource "clipboard" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
@@ -24,7 +24,7 @@ Feature: MindWM clipboard EDA test
      | context | username   | host      |
      | philadelphia   | flukeman   | the-host  | 
 
-  Scenario: Send clipboard to knative ping service
+  Scenario: Send clipboard cloudevent to knative ping service 
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "clipboard"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.clipboard"
@@ -86,7 +86,7 @@ Feature: MindWM clipboard EDA test
      | philadelphia   | flukeman   | the-host  | broker-ingress.knative-eventing/user-flukeman/user-broker | 00-6df93f3577b34da6a3ce929d0e0e4742-00f067aa0ba902b7-00 |
 
 
-  Scenario: Send ping via nats
+  Scenario: Send ping via nats topic "org.mindwm.<username>.<host>.clipboard"
     When God creates a new cloudevent 
       And sets cloudevent header "ce-id" to "<uuid>"
       And sets cloudevent header "ce-subject" to "clipboard"
