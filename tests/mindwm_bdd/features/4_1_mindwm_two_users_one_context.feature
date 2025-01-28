@@ -9,11 +9,14 @@ Feature: MindWM two users one context function test
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
 
-    Then the following knative services are in a ready state in the "context-<context>" namespace
+    And the following resources of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
       | Knative service name |
+      | dead-letter          |
+      | clipboard            |
       | iocontext            |
-      | pong                 |
       | kafka-cdc            |
+      | pong                 |
+
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
     Examples:
     | context | 
