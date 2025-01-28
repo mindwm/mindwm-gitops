@@ -575,6 +575,7 @@ def deployment_ready(kube, step, namespace):
                     deployment.wait_until_ready(180)
                 except Exception as e:
                     utils.execute_and_attach_log(f"kubectl -n {namespace} get deployment")
+                    utils.execute_and_attach_log(f"kubectl -n {namespace} get pods")
                     raise e
 
 @then("graph have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
