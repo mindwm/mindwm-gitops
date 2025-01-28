@@ -78,6 +78,7 @@ def pytest_bdd_before_scenario(feature, scenario):
     #logging.info(feature.name)
     allure.dynamic.title(scenario.name)
     allure.dynamic.feature(feature.name)
+    allure.dynamic.suite(feature.name)
 
 @pytest.fixture 
 def ctx():
