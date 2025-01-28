@@ -293,8 +293,6 @@ def following_resource_status_equal(kube, resource_type, status_name, status, na
         resource_name = row.cells[0].value
         resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step) 
 
-
-
 @then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
 def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step):
 
@@ -309,7 +307,7 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
             resource_name,
             status_name,
             status,
-            120
+            90
             )
         pass
 
@@ -656,42 +654,17 @@ def graph_query(kube, context_name, step):
 @when("sends cloudevent to nats topic \"{nats_topic_name}\"")
 @async_to_sync
 async def cloudevent_to_nats_topic(step, kube, nats_topic_name, cloudevent):
-    payload = step.doc_string.content
-    ingress_host = utils.get_lb(kube)
-    nats_url = f"nats://root:r00tpass@{ingress_host}:4222"
-    await utils.nats_send(nats_url, nats_topic_name, cloudevent['headers'], str.encode(payload))
+    with allure.step(f"when {step.text}"):
+        payload = step.doc_string.content
+        ingress_host = utils.get_lb(kube)
+        nats_url = f"nats://root:r00tpass@{ingress_host}:4222"
+        await utils.nats_send(nats_url, nats_topic_name, cloudevent['headers'], str.encode(payload))
  
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
      # XXX workaround
      for item in items:
          item.add_marker(pytest.mark.namespace(create = False, name = "default"))
  
-@then('istio-gateway "{istio_gateway_name}" exists in "{namespace_name}" namespace')
-def istio_gateway(kube, istio_gateway_name, namespace_name, step):
-    utils.custom_object_exists(
-        kube,
-        namespace_name,
-        'networking.istio.io',
-        "v1beta1",
-        "gateways",
-        istio_gateway_name,
-        60
-    )
-
-@then('the following istio-virtualservice exists in the "{namespace_name}" namespace')
-def istio_gateway(kube, istio_gateway_name, namespace_name, step):
-    title_row, *rows = step.data_table.rows
-    for row in rows:
-        virtualservice_name = row.cells[0].value 
-        virtualservice = utils.custom_object_exists(
-            kube,
-            namespace_name,
-            'networking.istio.io',
-            "v1",
-            "virtualservices",
-            virtualservice_name,
-            60
-        )
 @then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should contain "{log_regex}" regex')
 def pod_container_shoult_contain_regex(kube, namespace, pod_name_regex, container_name, log_regex, step):
     pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex)
