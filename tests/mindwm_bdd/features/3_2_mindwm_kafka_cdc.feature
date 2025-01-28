@@ -5,13 +5,11 @@ Feature: MindWM kafka_cdc function test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: io context <context>
+  Scenario: Kafka Change Data Capture test
 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    Then the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | kafka-cdc            |
+    And resource "kafka-cdc" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
@@ -20,10 +18,16 @@ Feature: MindWM kafka_cdc function test
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
 
+    Examples:
+     | context  | username   | host      | 
+     | blue     | garmr      | helheim   | 
+
     # When God makes graph query in context "<context>"
     #   """
     #   MATCH (N) DETACH DELETE N;
     #   """
+    #
+  Scenario: Test "create" data capture event
 
     When God starts reading message from NATS topic ">"
     And God makes graph query in context "<context>"
@@ -37,33 +41,40 @@ Feature: MindWM kafka_cdc function test
       RETURN n;
       """
 
-    Then the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | kafka-cdc            |
+    Then the following deployments are in a ready state in the "context-<context>" namespace
+      | Deployment name       |
+      | kafka-cdc-00001-deployment |
     And a cloudevent with type == "org.mindwm.v1.graph.created" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
+    Examples:
+     | context  | username   | host      | 
+     | blue     | garmr      | helheim   | 
 
+  Scenario: Test "update" data capture event
     When God makes graph query in context "<context>"
       """
       MATCH (n:User)
       SET n.username = 'xxx'
       RETURN n;
       """
-    Then the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | kafka-cdc            |
+    Then the following deployments are in a ready state in the "context-<context>" namespace
+      | Deployment name       |
+      | kafka-cdc-00001-deployment |
     And a cloudevent with type == "org.mindwm.v1.graph.updated" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
+    Examples:
+     | context  | username   | host      | 
+     | blue     | garmr      | helheim   | 
 
-
+  Scenario: Test "delete" data capture event
     When God makes graph query in context "<context>"
       """
       MATCH (n:User)
       DELETE n;
       """
-    Then the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | kafka-cdc            |
+    Then the following deployments are in a ready state in the "context-<context>" namespace
+      | Deployment name       |
+      | kafka-cdc-00001-deployment |
     And a cloudevent with type == "org.mindwm.v1.graph.deleted" should have been received from the NATS topic "user-<username>.<host>-host-broker-kne-trigger._knative"
     And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "context-<context>" should not contain "Traceback \(most recent call last\):" regex
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
@@ -82,4 +93,3 @@ Feature: MindWM kafka_cdc function test
     Examples:
     | context | username | host      | 
     | blue    | garmr    | helheim   | 
-
