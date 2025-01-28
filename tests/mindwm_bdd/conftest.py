@@ -716,12 +716,12 @@ def git_clone_repo(repo, branch, commit, work_dir):
     pass
 
 @then("the directory '{dir_path}' should exist")
-def dir_exists(dir_path):
+def dir_exists(ctx, dir_path):
     if os.path.isdir(dir_path):
         logging.debug(f"Directory '{dir_path}' exists.")
     else:
         raise FileNotFoundError(f"Directory '{dir_path}' does not exist.")
-    pass
+    ctx['work_dir'] = dir_path
 
 @when("God runs the command '{cmd}' inside the '{work_dir}' directory")
 def execute_cmd(cmd, work_dir):
@@ -729,8 +729,8 @@ def execute_cmd(cmd, work_dir):
     pass
 
 @when("God creates a tmux session named '{tmux_session}' with a window named '{tmux_window_name}'")
-def tmux_create_sesion(tmux_session, tmux_window_name):
-    r = create_tmux_session(tmux_session, tmux_window_name, work_dir)
+def tmux_create_sesion(ctx, tmux_session, tmux_window_name):
+    r = create_tmux_session(tmux_session, tmux_window_name, ctx['work_dir'])
     if (r is None):
         assert RuntimeError
     pass
