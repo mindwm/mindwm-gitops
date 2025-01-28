@@ -569,13 +569,16 @@ def deployment_ready(kube, step, namespace):
     for row in rows:
         deployment_name = row.cells[0].value 
         with allure.step(f"then {step.text} {deployment_name}"):
-            deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
+            try:
+                deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
+            except Exception as e:
+                raise e
             with allure.step(f"waiting for {deployment_name} is ready"):
                 try:
                     deployment.wait_until_ready(180)
                 except Exception as e:
-                    utils.execute_and_attach_log(f"kubectl -n {namespace} get deployment")
                     utils.execute_and_attach_log(f"kubectl -n {namespace} get pods")
+                    utils.execute_and_attach_log(f"kubectl -n {namespace} get deployment")
                     raise e
 
 @then("graph have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
