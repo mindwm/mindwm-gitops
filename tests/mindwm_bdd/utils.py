@@ -503,11 +503,11 @@ def execute_and_attach_log(command):
             #         continue
             #     logger.error(line)
             if len(result.stdout.split("\n")) > 1:
-                allure.attach(result.stdout, name = f"stdout", attachment_type='text/plain')
+                allure.attach(result.stdout, name = f"{command}_sdtout", attachment_type='text/plain')
             if len(result.stderr.split("\n")) > 1:
                 a = len(result.stderr.split("\n"))
                 logger.info(f"stderr {a}")
-                allure.attach(result.stderr, name = f"stderr", attachment_type='text/plain')
+                allure.attach(result.stderr, name = f"{command}_stderr", attachment_type='text/plain')
             return result
         except subprocess.CalledProcessError as e:
             logger.error(f"Command failed with exit code {e.returncode}: {e.stderr.strip()}")
