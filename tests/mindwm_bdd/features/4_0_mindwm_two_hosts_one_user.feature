@@ -8,16 +8,17 @@ Feature: MindWM two hosts one user function test
   Scenario: Create context <context> and user <username>
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    Then the following knative services are in a ready state in the "context-<context>" namespace
+    And the following resources of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
       | Knative service name |
+      | dead-letter          |
+      | clipboard            |
       | iocontext            |
-      | pong                 |
       | kafka-cdc            |
+      | pong                 |
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
     Then the user resource should be ready and operable
-
 
     Examples:
     | context  | username |
