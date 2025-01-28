@@ -383,7 +383,7 @@ def parse_resourceSpan(resourceSpan):
         # context broker
     }
 def deployment_wait_for(kube, deployment_name, namespace):
-    timeout = 180
+    timeout = 20
     def exists():
         try:
             deployment = kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
@@ -404,6 +404,7 @@ def deployment_wait_for(kube, deployment_name, namespace):
                 interval=5
             )
         except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get pods")
             execute_and_attach_log(f"kubectl -n {namespace} get deployment")
 
             raise e
@@ -505,8 +506,6 @@ def execute_and_attach_log(command):
             if len(result.stdout.split("\n")) > 1:
                 allure.attach(result.stdout, name = f"{command}_sdtout", attachment_type='text/plain')
             if len(result.stderr.split("\n")) > 1:
-                a = len(result.stderr.split("\n"))
-                logger.info(f"stderr {a}")
                 allure.attach(result.stderr, name = f"{command}_stderr", attachment_type='text/plain')
             return result
         except subprocess.CalledProcessError as e:
