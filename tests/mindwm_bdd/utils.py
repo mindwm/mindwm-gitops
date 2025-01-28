@@ -52,6 +52,7 @@ def helm_release_is_ready(kube, release_name, namespace):
             info = helm_release_info(kube, release_name, namespace)
             return info['status'] == "deployed"
         except Exception as e:
+            logger.error(e)
             return False
 
     condition_name = f"wait for helm release {release_name} has status and info in {namespace}, timeout"
@@ -149,7 +150,7 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
                 name = name
             )
             try:
-                a = resource['status']
+                # a = resource['status']
                 return True
             except:
                 return False
@@ -388,9 +389,9 @@ def ksvc_url(kube, namespace, knative_service_name):
     return ksvc
 
 async def nats_send(nats_url, nats_topic_name, event_headers, body):
+    logger.info(f"Send {body} with headers {event_headers} to {nats_topic_name} on the {nats_url} server")
     nc = await nats.connect(nats_url)
 
-    
     headers = {
         **{
             "datacontenttype": "application/json",
@@ -438,6 +439,7 @@ def custom_object_exists(kube, namespace, group, version, plural, name, timeout)
     
 def run_cmd(cmd, cwd):
     try:
+        logger.debug(f"Execute command {cmd} in directory '{cwd}'")
         result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd=cwd)
         #print("Command Output:", result.stdout)
         if len(result.stdout.split("\n")) > 1:
