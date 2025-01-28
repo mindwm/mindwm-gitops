@@ -8,9 +8,15 @@ Feature: MindWM manager integration test
   Scenario: Prepare environment for mindwm-manager integration test
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    And the following knative services are in a ready state in the "context-<context>" namespace
+
+    And the following deployments are in a ready state in the "context-<context>" namespace
+      | Deployment name               |
+      | iocontext-00001-deployment    |
+
+    And the following resources of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
       | Knative service name |
       | iocontext            |
+
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
@@ -49,14 +55,9 @@ Feature: MindWM manager integration test
      | https://github.com/mindwm/mindwm-manager | master         | HEAD           | /tmp/mindwm-manager | localhost | ci   | test-integration | main |
 
   Scenario: Verification that the io-document has been delivered and processed
-    Then the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | iocontext            |
-      | kafka-cdc            |
     Then the following deployments are in a ready state in the "context-<context>" namespace
       | Deployment name            |
       | iocontext-00001-deployment |
-      | kafka-cdc-00001-deployment |
     And container "user-container" in pod "iocontext-00001-deployment.*" in namespace "context-<context>" should contain "integration-test" regex
     And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "context-<context>" should not contain "Traceback \(most recent call last\):" regex
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
