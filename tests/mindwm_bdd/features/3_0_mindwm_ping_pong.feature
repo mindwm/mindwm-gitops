@@ -25,7 +25,7 @@ Feature: MindWM Ping-pong EDA test
      | context | username   | host      |
      | green4   | amanda4   | pi6-host  | 
 
-  Scenario: Send pind to knative ping service
+  Scenario: Send pind to knative ping service, context: <context>, username: <username>, host: <host>
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "#ping"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
@@ -49,7 +49,7 @@ Feature: MindWM Ping-pong EDA test
      | context | username   | host      |
      | green4   | amanda4   | pi6-host  | 
 
-  Scenario: Send ping via <endpoint>
+  Scenario: Send ping cloudevent to endpoint <endpoint>, username: <username>, host: <host>, traceparent: <traceparent>
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "#ping"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
