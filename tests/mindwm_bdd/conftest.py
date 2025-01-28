@@ -349,10 +349,9 @@ def mindwm_repo(ctx, repo_dir):
     pass
 
 @when("God executes \"make {target_name}\"")
-def run_make(ctx, target_name):
+def run_make(ctx, target_name, step):
     with allure.step(f"make {target_name}"):
-        pass
-    utils.run_cmd(f"make {target_name}", ctx['repo_dir'])
+        utils.run_cmd(f"make {target_name}", ctx['repo_dir'])
 
 @then("helm release \"{helm_release}\" is deployed in \"{namespace}\" namespace" )
 def helm_release_deployed(kube, helm_release, namespace, step):
@@ -384,9 +383,8 @@ def argocd_applications_check(kube, step):
 
     for row in rows:
         application_name = row.cells[0].value
-        argocd_application_in_progress(kube, application_name, "argocd")
         with allure.step(f"Argocd application '{application_name}' is healty"):
-            pass
+            argocd_application_in_progress(kube, application_name, "argocd", step)
 
 @then("the following roles should exist:")
 def role_exist(kube, step):
