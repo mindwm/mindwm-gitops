@@ -8,9 +8,7 @@ Feature: MindWM clipboard EDA test
   Scenario: Prepare environment for ping tests 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    And the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | clipboard            |
+    And resource "clipboard" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
@@ -18,7 +16,7 @@ Feature: MindWM clipboard EDA test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
-    And NatsJetStreamChannel "<host>-host-broker-kne-trigger" is ready in "user-<username>" namespace
+    And resource "<host>-host-broker-kne-trigger" of type "natsjetstreamchannels.messaging.knative.dev/v1alpha1" has a status "Ready" equal "True" in "user-<username>" namespace
 
     When God starts reading message from NATS topic ">"
 
