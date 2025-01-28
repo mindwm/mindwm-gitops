@@ -107,8 +107,8 @@ Feature: Mindwm event driven architecture
     And statefulset "loki" in namespace "monitoring" is in ready state
     And statefulset "tempo" in namespace "monitoring" is in ready state
     And statefulset "vmalertmanager-vm-aio-victoria-metrics-k8s-stack" in namespace "monitoring" is in ready state
-    And istio-gateway "monitoring-gateway" exists in "monitoring" namespace
-    And the following istio-virtualservice exists in the "monitoring" namespace
+    And resource "monitoring-gateway" of type "gateways.networking.istio.io/v1" exists in "monitoring" namespace
+    And the following resources of type "virtualservices.networking.istio.io/v1" exists in "monitoring" namespace
       | Istio virtual service name | Host                 | # host not checked
       | grafana-vs                 | grafana.mindwm.local |
       | loki-vs                    | loki.mindwm.local    |

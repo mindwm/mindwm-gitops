@@ -75,7 +75,6 @@ def pytest_runtest_teardown():
         yield
 
 def pytest_bdd_before_scenario(feature, scenario):
-    #logging.info(feature.name)
     allure.dynamic.title(scenario.name)
     allure.dynamic.feature(feature.name)
     allure.dynamic.suite(feature.name)
@@ -286,6 +285,28 @@ def mindwm_context_deleted(kube, context_name):
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
 
+@then('the following resources of type "{resource_type}" exists in "{namespace}" namespace')
+def following_resource_exists(kube, resource_type, namespace, step):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        resource_name = row.cells[0].value
+        resource_exists(kube, resource_name, resource_type, namespace, step)
+
+@then('resource "{resource_name}" of type "{resource_type}" exists in "{namespace}" namespace')
+def resource_exists(kube, resource_name, resource_type, namespace, step):
+    with allure.step(f'then {step.text}'):
+        plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
+        utils.custom_object_wait_for(
+            kube,
+            namespace,
+            group,
+            version,
+            plural,
+            resource_name,
+            90
+            )
+        pass
+
 @then('the following resources of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
 def following_resource_status_equal(kube, resource_type, status_name, status, namespace, step):
     title_row, *rows = step.data_table.rows
@@ -340,21 +361,21 @@ def helm_release_deployed(kube, helm_release, namespace, step):
         assert(info['status'] == "deployed")
 
 @then("the argocd \"{application_name}\" application appears in \"{namespace}\" namespace")
-def argocd_application(kube, application_name, namespace):
-    utils.argocd_application(kube, application_name, namespace)
-    with allure.step(f"Argocd application '{application_name}' exist"):
-        pass
+def argocd_application(kube, application_name, namespace, step):
+    with allure.step(f"then {step.text}"):
+        utils.argocd_application(kube, application_name, namespace)
 
 @then("the argocd \"{application_name}\" application is {namespace} namespace in a progressing status")
-def argocd_application_in_progress(kube, application_name, namespace):
-    utils.argocd_application_wait_status(kube, application_name, namespace)
-    argocd_app = utils.argocd_application(kube, application_name, namespace)
-    health_status = argocd_app['status']['health']['status']
-    with allure.step(f"Argocd application '{application_name}' is {health_status}"):
-        pass
-    logging.info(f"{application_name} {health_status}")
-    # @metacoma(TODO) Progressing only
-    assert(health_status == 'Progressing' or health_status == "Healthy") or health_status == "Missing"
+def argocd_application_in_progress(kube, application_name, namespace, step):
+    with allure.step(f"then {step.text}"):
+        utils.argocd_application_wait_status(kube, application_name, namespace)
+        argocd_app = utils.argocd_application(kube, application_name, namespace)
+        health_status = argocd_app['status']['health']['status']
+        with allure.step(f"Argocd application '{application_name}' is {health_status}"):
+            pass
+        logging.info(f"{application_name} {health_status}")
+        # @metacoma(TODO) Progressing only
+        assert(health_status == 'Progressing' or health_status == "Healthy") or health_status == "Missing"
 
 
 @then("all argocd applications are in a healthy state")
@@ -418,28 +439,6 @@ def statefulset_is_ready(kube, statefulset_name, namespace, step):
             except Exception as e:
                 utils.execute_and_attach_log(f"kubectl -n {namespace} get statefulset")
                 raise e
-
-@then("the following knative services are in a ready state in the \"{namespace}\" namespace")
-def knative_service_exist(kube, step, namespace):
-    title_row, *rows = step.data_table.rows
-    for row in rows:
-        service_name = row.cells[0].value 
-        service = utils.knative_service_wait_for(kube, service_name, namespace)
-        is_ready = utils.resource_get_condition(service['status'], 'Ready')
-        with allure.step(f"Knative service '{namespace}'/'{service_name}' ready state is {is_ready}"):
-            pass
-        assert(is_ready), f"Knative service '{namespace}'/{service_name} is not ready"
-
-@then("the following knative triggers are in a ready state in the \"{namespace}\" namespace")
-def knative_trigger_exist(kube, step, namespace):
-    title_row, *rows = step.data_table.rows
-    for row in rows:
-        trigger_name = row.cells[0].value 
-        trigger = utils.knative_trigger_wait_for(kube, trigger_name, namespace)
-        is_ready = utils.resource_get_condition(trigger['status'], 'Ready')
-        with allure.step(f"Knative trigger '{trigger_name}' ready state is {is_ready}"):
-            pass
-        assert(is_ready == 'True')
 
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
 def event_send_ping(kube, step, cloudevent, broker_name, namespace):
