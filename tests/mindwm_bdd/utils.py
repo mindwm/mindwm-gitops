@@ -165,13 +165,19 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
                 interval=5
             )
         except Exception as e:
-            resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
-                    group=group,
-                    version=version,
-                    plural=plural,
-                    namespace = namespace,
-                    name = name
-            )
+            try:
+                resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                        group=group,
+                        version=version,
+                        plural=plural,
+                        namespace = namespace,
+                        name = name
+                )
+                allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            except Exception as resource_e:
+                logging.error(resource_e)
+                pass
+            execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group}")
             raise e
         return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
                     group=group,
@@ -219,14 +225,18 @@ def custom_object_status_waiting_for(kube, namespace, group, version, plural, na
                 interval=5
             )
         except Exception as e:
-            resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
-                    group=group,
-                    version=version,
-                    plural=plural,
-                    namespace = namespace,
-                    name = name
-            )
-            allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            try:
+                resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                        group=group,
+                        version=version,
+                        plural=plural,
+                        namespace = namespace,
+                        name = name
+                )
+                allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            except Exception as resource_e:
+                logging.error(resource_e)
+                pass
             execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group} {name}")
             raise e
     return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
@@ -236,61 +246,6 @@ def custom_object_status_waiting_for(kube, namespace, group, version, plural, na
             namespace = namespace,
             name = name
     )
-
-def knative_trigger_wait_for(kube, knative_trigger_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'eventing.knative.dev',
-            "v1",
-            "triggers",
-            knative_trigger_name,
-            60
-            )
-
-def knative_broker_wait_for(kube, knative_broker_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'eventing.knative.dev',
-            "v1",
-            "brokers",
-            knative_broker_name,
-            60
-            )
-
-def kafka_topic_wait_for(kube, kafka_topic_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'cluster.redpanda.com',
-            "v1alpha2",
-            "topics",
-            kafka_topic_name,
-            180
-            )
-
-def kafka_source_wait_for(kube, kafka_source_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'sources.knative.dev',
-            "v1beta1",
-            "kafkasources",
-            kafka_source_name,
-            180
-            )
-
-def nats_stream_wait_for(kube, nats_stream_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'messaging.knative.dev',
-            "v1alpha1",
-            "natsjetstreamchannels",
-            nats_stream_name,
-            180
-            )
 
 def nats_stream_wait_for_ready(kube, nats_stream_name, namespace):
     def is_ready():
