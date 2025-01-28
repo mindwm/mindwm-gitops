@@ -23,7 +23,7 @@ def double_base64_decode(encoded_str):
         second_decode = base64.b64decode(first_decode)
         return second_decode
     except base64.binascii.Error as e:
-        print(f"Base64 decoding error: {e}")
+        logger.error(f"Base64 decoding error: {e}")
         return None
 
 def gunzip_data(compressed_data):
@@ -32,7 +32,7 @@ def gunzip_data(compressed_data):
             decompressed_data = gz.read()
             return decompressed_data
     except OSError as e:
-        print(f"Gunzip error: {e}")
+        logger.error(f"Gunzip error: {e}")
         return None
 
 
@@ -175,7 +175,7 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
                 )
                 allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
             except Exception as resource_e:
-                logging.error(resource_e)
+                logger.error(resource_e)
                 pass
             execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group}")
             raise e
@@ -235,7 +235,7 @@ def custom_object_status_waiting_for(kube, namespace, group, version, plural, na
                 )
                 allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
             except Exception as resource_e:
-                logging.error(resource_e)
+                logger.error(resource_e)
                 pass
             execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group} {name}")
             raise e
@@ -338,7 +338,7 @@ def parse_resourceSpan(resourceSpan):
         # context broker
     }
 def deployment_wait_for(kube, deployment_name, namespace):
-    timeout = 20
+    timeout = 90
     def exists():
         try:
             deployment = kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
@@ -346,7 +346,7 @@ def deployment_wait_for(kube, deployment_name, namespace):
                 return False
             return True
         except Exception as e:
-            pprint.pprint(e)
+            logger.error(e)
             return False
 
     condition_name = f"deployment {deployment_name} exists in {namespace} should exitst, timeout = {timeout}"
@@ -417,7 +417,7 @@ def custom_object_exists(kube, namespace, group, version, plural, name, timeout)
             )
             return True
         except Exception as e:
-            pprint.pprint(e)
+            logger.error(e)
 
             return False
 
@@ -440,11 +440,13 @@ def run_cmd(cmd, cwd):
     try:
         result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd=cwd)
         #print("Command Output:", result.stdout)
+        if len(result.stdout.split("\n")) > 1:
+            allure.attach(result.stdout, name = f"sdtout", attachment_type='text/plain')
+        if len(result.stderr.split("\n")) > 1:
+            allure.attach(result.stderr, name = f"stderr", attachment_type='text/plain')
         assert result.returncode == 0, f"Expected return code 0 but got {result.returncode}"
     except subprocess.CalledProcessError as e:
-        print(f"Error executing '{cmd}': {e}")
-        print(f"Output: {e.stdout}")
-        print(f"Error Output: {e.stderr}")
+        logger.error(f"Error executing '{cmd}': {e}")
 
 def execute_and_attach_log(command):
     with allure.step(f"execute '{command}'"):

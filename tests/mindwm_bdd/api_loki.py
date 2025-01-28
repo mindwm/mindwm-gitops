@@ -1,5 +1,6 @@
 import json
 import pprint
+import logging
 
 from kubetest import condition
 from kubetest import utils as kubetest_utils
@@ -8,6 +9,9 @@ from grafana_loki_client import Client
 from grafana_loki_client.api.query_range import get_loki_api_v1_query_range
 from datetime import datetime, timedelta
 import re
+
+logger = logging.getLogger(__name__)
+logging.getLogger("requests").setLevel(logging.ERROR)
 
 
 def loki_pod_logs_range(namespace, pod_name_regex, duration_min):
@@ -46,11 +50,8 @@ def loki_logs_contain_regex(namespace, pod_name_regex, container_name, match_reg
     loki_logs = loki_pod_logs_range(namespace, pod_name_regex, duration_min)
     for pod_name in loki_logs:
         if re.search(pod_name_regex, pod_name):
-            #print(f"find {match_regex} in {pod_name}/{container_name}")
             assert(container_name in loki_logs[pod_name])
-            #pprint.pprint(loki_logs[pod_name][container_name])
             if re.search(match_regex, loki_logs[pod_name][container_name], re.DOTALL):
-                #print(f"found {match_regex} in {pod_name}/{container_name}")
                 return True
 
     assert(False)
@@ -62,7 +63,7 @@ def _pod_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex
             r = loki_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex)
             return r != None
         except Exception as e:
-            #pprint.pprint(e)
+            logger.error(e)
             return False
 
     kubetest_utils.wait_for_condition(
