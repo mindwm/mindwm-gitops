@@ -286,8 +286,18 @@ def mindwm_context_deleted(kube, context_name):
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
 
+@then('the following resources of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
+def following_resource_status_equal(kube, resource_type, status_name, status, namespace, step):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        resource_name = row.cells[0].value
+        resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step) 
+
+
+
 @then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
 def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step):
+
     with allure.step(f'then {step.text}'):
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
         utils.custom_object_status_waiting_for(
@@ -302,7 +312,6 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
             120
             )
         pass
-    pass
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
 def environment(ctx, ubuntu_version, cpu, mem):
@@ -433,41 +442,6 @@ def knative_trigger_exist(kube, step, namespace):
         with allure.step(f"Knative trigger '{trigger_name}' ready state is {is_ready}"):
             pass
         assert(is_ready == 'True')
-
-@then("the following knative brokers are in a ready state in the \"{namespace}\" namespace")
-def knative_broker_exist(kube, step, namespace):
-    title_row, *rows = step.data_table.rows
-    for row in rows:
-        broker_name = row.cells[0].value 
-        broker = utils.knative_broker_wait_for(kube, broker_name, namespace)
-        is_ready = utils.resource_get_condition(broker['status'], 'Ready')
-        with allure.step(f"Knative broker '{broker_name}' ready state is {is_ready}"):
-            pass
-        assert(is_ready == 'True')
-
-@then("kafka topic \"{kafka_topic_name}\" is in ready state in \"{namespace}\" namespace")
-def kafka_topic_exist(kube, kafka_topic_name, namespace):
-    kafka_topic = utils.kafka_topic_wait_for(kube, kafka_topic_name, namespace)
-    is_ready = utils.resource_get_condition(kafka_topic['status'], 'Ready')
-    with allure.step(f"Kafka topic '{kafka_topic_name}' ready state is {is_ready}"):
-        pass
-    assert(is_ready == 'True')
-
-@then("kafka source \"{kafka_source_name}\" is in ready state in \"{namespace}\" namespace")
-def kafka_source_exist(kube, kafka_source_name, namespace):
-    kafka_source = utils.kafka_source_wait_for(kube, kafka_source_name, namespace)
-    is_ready = utils.resource_get_condition(kafka_source['status'], 'Ready')
-    with allure.step(f"Kafka source '{kafka_source_name}' ready state is {is_ready}"):
-        pass
-    assert(is_ready == 'True')
-
-@then("NatsJetStreamChannel \"{nats_stream_name}\" is ready in \"{namespace}\" namespace")
-def nats_stream_exist(kube, nats_stream_name, namespace):
-    nats_stream = utils.nats_stream_wait_for_ready(kube, nats_stream_name, namespace)
-    is_ready = utils.resource_get_condition(nats_stream['status'], 'Ready')
-    with allure.step(f"Nats stream '{nats_stream}' ready state is {is_ready}"):
-        pass
-    assert(is_ready == 'True')
 
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
 def event_send_ping(kube, step, cloudevent, broker_name, namespace):
