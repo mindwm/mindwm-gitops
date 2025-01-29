@@ -49,6 +49,7 @@ Feature: MindWM manager integration test
     Then God vertically splits the tmux session '<tmux_session>', window '<tmux_window_name>'
     Then God sends the command 'cd <work_dir> && bash ./join.sh' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
     Then God waits for '5' seconds
+    Then God sends the command 'id' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
     Then God sends the command 'echo integration-test' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
     Examples:
      | manager_repo                             | manager_branch | manager_commit | work_dir            | host      | user | tmux_session | tmux_window_name |
