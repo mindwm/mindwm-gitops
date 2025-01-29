@@ -79,9 +79,18 @@ def pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log
 def pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name, log_regex):
     try:
         _pod_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex)
+        loki_logs = loki_pod_logs_range(namespace, pod_name_regex, 10)
+                        
     except TimeoutError as e:
         pass
         return True
+
+    for pod_name in loki_logs:
+        if re.search(pod_name_regex, pod_name):
+            assert(container_name in loki_logs[pod_name])
+            if re.search(log_regex, loki_logs[pod_name][container_name], re.DOTALL):
+                allure.attach(loki_logs[pod_name][container_name], name = f"{pod_name}/{container_name} logs", attachment_type='text/plain')
+
     raise TimeoutError
 
 

@@ -459,7 +459,7 @@ def event_send_ping(kube, step, cloudevent, broker_name, namespace):
         allure.attach(json.dumps(payload, indent=4), name = "payload", attachment_type='application/json')
 
         response = requests.post(url, headers=headers, data=json.dumps(payload))
-        allure.attach(json.dumps(response.text, indent=4), name = "response", attachment_type='text/plain')
+        allure.attach(response.text, name = "response", attachment_type='text/plain')
         logging.info(f"Response status: {response.status_code}")
         assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
 
@@ -691,22 +691,25 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
          item.add_marker(pytest.mark.namespace(create = False, name = "default"))
  
 @then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should contain "{log_regex}" regex')
-def pod_container_shoult_contain_regex(kube, namespace, pod_name_regex, container_name, log_regex, step):
-    pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex)
+def pod_container_shoult_contain_regex(step, namespace, pod_name_regex, container_name, log_regex):
+    with allure.step(f"then {step.text}"):
+        pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex)
 
 
 @then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should not contain "{log_regex}" regex')
-def pod_container_should_not_contain_regex(kube, namespace, pod_name_regex, container_name, log_regex, step):
-    pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name, log_regex)
+def pod_container_should_not_contain_regex(step, namespace, pod_name_regex, container_name, log_regex, ):
+    with allure.step(f"then {step.text}"):
+        pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name, log_regex)
 
 @then('file "{file_path}" contain "{match_regex}" regex')
-def file_contains_regex(file_path, match_regex):
-    with open(file_path, 'r') as file:
-            content = file.read()
-            if re.search(match_regex, content):
-                return True
-            else:
-                raise ValueError
+def file_contains_regex(step, file_path, match_regex):
+    with allure.step(f"then {step.text}"):
+        with open(file_path, 'r') as file:
+                content = file.read()
+                if re.search(match_regex, content):
+                    return True
+                else:
+                    raise ValueError
 
 @when("God clones the repository '{repo}' with branch '{branch}' and commit '{commit}' to '{work_dir}'")
 def git_clone_repo(step, repo, branch, commit, work_dir):
