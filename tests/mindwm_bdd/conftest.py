@@ -440,86 +440,93 @@ def statefulset_is_ready(kube, statefulset_name, namespace, step):
 
 @when("sends cloudevent to \"{broker_name}\" in \"{namespace}\" namespace")
 def event_send_ping(kube, step, cloudevent, broker_name, namespace):
-    payload = json.loads(step.doc_string.content)
+    with allure.step(f"when {step.text}"):
+        payload = json.loads(step.doc_string.content)
 
-    ingress_host = utils.get_lb(kube)
-    url = f"http://{ingress_host}/{namespace}/{broker_name}"
+        ingress_host = utils.get_lb(kube)
+        url = f"http://{ingress_host}/{namespace}/{broker_name}"
+        logging.info(f"Broker url: {url}")
 
-    headers = {
-        **{
-            "Content-Type": "application/json",
-            "Ce-specversion": "1.0",
-        }, 
-        **cloudevent['headers']
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
-    assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
+        headers = {
+            **{
+                "Content-Type": "application/json",
+                "Ce-specversion": "1.0",
+            },
+            **cloudevent['headers']
+        }
 
-    pass
+        allure.attach(json.dumps(headers, indent=4), name = "headers", attachment_type='application/json')
+        allure.attach(json.dumps(payload, indent=4), name = "payload", attachment_type='application/json')
+
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        allure.attach(json.dumps(response.text, indent=4), name = "response", attachment_type='text/plain')
+        logging.info(f"Response status: {response.status_code}")
+        assert response.status_code == 202, f"Unexpected status code: {response.status_code}"
+
 
 @then("the trace with \"{traceparent}\" should appear in TraceQL")
-def tracesql_get_trace(kube, traceparent, trace_data):
-    ingress_host = utils.get_lb(kube)
-    trace_id = utils.extract_trace_id(traceparent) 
-    url = f"http://{ingress_host}/api/traces/{trace_id}"
-    headers = {
-        "Host": "tempo.mindwm.local"
-    }
-    time.sleep(10)
-    response = requests.get(url, headers = headers)
-    assert response.status_code == 200, f"Response code {response.status_code} != 200"
-    tempo_reply = json.loads(response.text)
-    trace_resourceSpans = {
-                "resourceSpans": tempo_reply['batches']
-    }
-    allure.attach(json.dumps(tempo_reply), name = "Tempo reply", attachment_type='application/json')
-    trace_data['data'] = ParseDict(trace_resourceSpans, trace_pb2.TracesData())
+def tracesql_get_trace(step, kube, traceparent, trace_data):
+    with allure.step(f"then {step.text}"):
+        ingress_host = utils.get_lb(kube)
+        trace_id = utils.extract_trace_id(traceparent)
+        url = f"http://{ingress_host}/api/traces/{trace_id}"
+        logging.info(f"Url: {url}")
+        logging.info(f"Trace id: {trace_id}")
+        headers = {
+            "Host": "tempo.mindwm.local"
+        }
+        time.sleep(10)
+        response = requests.get(url, headers = headers)
+        logging.info(f"Response code: {response.status_code}")
+        assert response.status_code == 200, f"Response code {response.status_code} != 200"
+        tempo_reply = json.loads(response.text)
+        trace_resourceSpans = {
+                    "resourceSpans": tempo_reply['batches']
+        }
+        allure.attach(json.dumps(tempo_reply), name = "Tempo reply", attachment_type='application/json')
+        trace_data['data'] = ParseDict(trace_resourceSpans, trace_pb2.TracesData())
 
 @then("the trace should contains")
 def trace_should_contains(step, trace_data):
-    logging.debug(f"TRACE DATA = {trace_data['data']}")
-    title_row, *rows = step.data_table.rows
-    for row in rows:
-        service_name = row.cells[0].value 
-        #http_code = row.cells[1].value 
-        #http_path = row.cells[2].value 
-        #logging.debug(f"{service_name} {http_code} {http_path}")
-        scope_span = utils.span_by_service_name(trace_data['data'], service_name)
-        logging.debug(f"Scope span {service_name} not found in trace data")
-        assert(scope_span is not None), f"Scope span {service_name} not found in trace data"
-        span = utils.parse_resourceSpan(scope_span)
-        logging.debug(f"Span {service_name} not found in trace data")
-        assert(span is not None), f"Span {service_name} not found in trace data"
-        assert(span['service_name'] == service_name) 
-        # assert(span['http_code'] == http_code) 
-        # assert(span['http_path'] == http_path) 
-    pass
+    with allure.step(f"then {step.text}"):
+        logging.debug(f"TRACE DATA = {trace_data['data']}")
+        title_row, *rows = step.data_table.rows
+        for row in rows:
+            service_name = row.cells[0].value
+            scope_span = utils.span_by_service_name(trace_data['data'], service_name)
+            logging.debug(f"Scope span {service_name} not found in trace data")
+            assert(scope_span is not None), f"Scope span {service_name} not found in trace data"
+            span = utils.parse_resourceSpan(scope_span)
+            assert(span is not None), f"Span {service_name} not found in trace data"
+            assert(span['service_name'] == service_name)
+            logging.info(f"{service_name} exists in trace")
 
 @then("a cloudevent with type == \"{cloudevent_type}\" should have been received from the NATS topic \"{topic_name}\"")
-def cloudvent_check(cloudevent_type, topic_name):
-    time.sleep(10)
-    message_queue = nats_reader.message_queue
-    # copy data from message_queue to nats_queue
+def cloudevent_check(step, cloudevent_type, topic_name):
+    with allure.step(f"then {step.text}"):
+        time.sleep(10)
+        message_queue = nats_reader.message_queue
+        # copy data from message_queue to nats_queue
 
-    while True:
-        try:
-            message = message_queue.get(timeout=1)
-            nats_messages.append(message)
-            message_queue.task_done()
-        except Empty:
-            break
-        
-    for msg in nats_messages:
-        subject = msg['subject']
-        data = msg['data']
-        if (subject == topic_name):
-            event = json.loads(data) 
-            if (event['type'] == cloudevent_type):
-                with allure.step(f"{cloudevent_type} exist in nats topic {topic_name}"):
-                    pass
-                return True
+        while True:
+            try:
+                message = message_queue.get(timeout=1)
+                nats_messages.append(message)
+                message_queue.task_done()
+            except Empty:
+                break
+        for msg in nats_messages:
+            subject = msg['subject']
+            data = msg['data']
+            if (subject == topic_name):
+                event = json.loads(data)
+                if (event['type'] == cloudevent_type):
+                    allure.attach(json.dumps(event, indent=4), name = "event", attachment_type='application/json')
+                    with allure.step(f"{cloudevent_type} exist in nats topic {topic_name}"):
+                        pass
+                    return True
 
-    assert False, f"There is no {cloudevent_type} in nats topic in {topic_name}"
+        assert False, f"There is no {cloudevent_type} in nats topic in {topic_name}"
 
 @then("cleanup nats messages")
 def nats_messages_cleanup():
@@ -591,46 +598,60 @@ def cloudevent_header_set(cloudevent, header_name, value):
 
 @when("sends cloudevent to knative service \"{knative_service_name}\" in \"{namespace}\" namespace")
 def cloudevent_send_to_ksvc(step, http_response, kube, cloudevent, knative_service_name, namespace):
-    cloudevent['data'] = json.loads(step.doc_string.content)
-    ksvc = utils.ksvc_url(kube, namespace, knative_service_name)
-    url = ksvc['status']['url']
+    with allure.step(f"when {step.text}"):
+        cloudevent['data'] = json.loads(step.doc_string.content)
+        ksvc = utils.ksvc_url(kube, namespace, knative_service_name)
+        url = ksvc['status']['url']
+        logging.info(f"Ingress endpoint {url}")
 
-    headers = {
-        **{
-            "Content-Type": "application/json",
-            "Ce-specversion": "1.0",
-        }, 
-        **cloudevent['headers']
-    }
+        headers = {
+            **{
+                "Content-Type": "application/json",
+                "Ce-specversion": "1.0",
+            },
+            **cloudevent['headers']
+        }
 
-    http_response['answer'] = requests.post(url, headers=headers, data=json.dumps(cloudevent['data']))
+        allure.attach(json.dumps(headers, indent=4), name = "headers", attachment_type='application/json')
+        allure.attach(json.dumps(cloudevent['data'], indent=4), name = "cloudevent", attachment_type='application/json')
+
+        http_response['answer'] = requests.post(url, headers=headers, data=json.dumps(cloudevent['data']))
+        allure.attach(json.dumps(http_response['answer'].text, indent=4), name = "response", attachment_type='text/plain')
 
 @then("the response http code should be \"{code}\"")
-def http_response_code_check(http_response, code):
-    status_code = str(http_response['answer'].status_code)
-    assert status_code == code, f"HTTP status code {status_code} != {code}"
+def http_response_code_check(step, http_response, code):
+    with allure.step(f"then {step.text}"): 
+        status_code = str(http_response['answer'].status_code)
+        logging.info(f"status code = {status_code}")
+        assert status_code == code, f"HTTP status code {status_code} != {code}"
 
 @when("sends cloudevent to \"{endpoint}\"")
 def cloudevent_send(step, kube, http_response, cloudevent, endpoint):
-    cloudevent['data'] = json.loads(step.doc_string.content)
-    (host, path) = endpoint.split("/", 1)
-    assert host is not None, f"Host in {endpoint} is None"
-    assert path is not None, f"Path in {endpoint} is None"
-    
-    ingress_host = utils.get_lb(kube)
-    url = f"http://{ingress_host}/{path}"
+    with allure.step(f"when {step.text}"):
+        cloudevent['data'] = json.loads(step.doc_string.content)
+        (host, path) = endpoint.split("/", 1)
+        assert host is not None, f"Host in {endpoint} is None"
+        assert path is not None, f"Path in {endpoint} is None"
+        ingress_host = utils.get_lb(kube)
+        url = f"http://{ingress_host}/{path}"
+        logging.info(f"URL: {url}")
 
-    headers = {
-        **{
-            "Host": f"{host}.svc.cluster.local",
-            "Content-Type": "application/json",
-            "Ce-specversion": "1.0",
-            "Ce-id": str(uuid.uuid4()),
-        }, 
-        **cloudevent['headers']
-    }
+        headers = {
+            **{
+                "Host": f"{host}.svc.cluster.local",
+                "Content-Type": "application/json",
+                "Ce-specversion": "1.0",
+                "Ce-id": str(uuid.uuid4()),
+            },
+            **cloudevent['headers']
+        }
 
-    http_response['answer'] = requests.post(url, headers=headers, data=json.dumps(cloudevent['data']))
+        allure.attach(json.dumps(headers, indent=4), name = "headers", attachment_type='application/json')
+        allure.attach(json.dumps(cloudevent['data'], indent=4), name = "cloudevent", attachment_type='application/json')
+
+        http_response['answer'] = requests.post(url, headers=headers, data=json.dumps(cloudevent['data']))
+
+        allure.attach(json.dumps(http_response['answer'].text, indent=4), name = "response", attachment_type='text/plain')
 
 
 @when("God makes graph query in context \"{context_name}\"")
@@ -653,7 +674,9 @@ def graph_query(kube, context_name, step):
 async def cloudevent_to_nats_topic(step, kube, nats_topic_name, cloudevent):
     with allure.step(f"when {step.text}"):
         payload = step.doc_string.content
+        allure.attach(json.dumps(payload, indent=4), name = "payload", attachment_type='application/json')
         ingress_host = utils.get_lb(kube)
+        logging.info(f"Ingress host: {ingress_host}")
         nats_url = f"nats://root:r00tpass@{ingress_host}:4222"
         await utils.nats_send(nats_url, nats_topic_name, cloudevent['headers'], str.encode(payload))
  
