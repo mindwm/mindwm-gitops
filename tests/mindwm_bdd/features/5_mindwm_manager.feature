@@ -53,7 +53,7 @@ Feature: MindWM manager integration test
     Then God sends the command 'echo integration-test' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
     Examples:
      | manager_repo                             | manager_branch | manager_commit | work_dir            | host      | user | tmux_session | tmux_window_name |
-     | https://github.com/mindwm/mindwm-manager | fix/chunk_raw_usage | HEAD           | /tmp/mindwm-manager | localhost | ci   | test-integration | main |
+     | https://github.com/mindwm/mindwm-manager | master         | HEAD           | /tmp/mindwm-manager | localhost | ci   | test-integration | main |
 
   Scenario: Verification that the io-document has been delivered and processed
     Then the following deployments are in a ready state in the "context-<context>" namespace
