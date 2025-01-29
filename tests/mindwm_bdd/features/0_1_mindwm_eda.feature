@@ -115,6 +115,9 @@ Feature: Mindwm event driven architecture
       | tempo-vs                   | tempo.mindwm.local    |
       | vm-vs                      | vm.mindwm.local    |
 
+  Scenario: Crossplane
+    And namespace "crossplane" should exist
+
   Scenario: Tekton-pipelines
     And namespace "tekton-pipelines" should exist
     And namespace "tekton-pipelines-resolvers" should exist
