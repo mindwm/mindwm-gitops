@@ -192,7 +192,21 @@ mindwm_app = ArgoCdOrder.make({
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             }), {
-              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ]
+              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ],
+              spec.ignoreDifferences = [
+                  {
+                      group = ""
+                      kind = "Secret"
+                      name = config.monitoring.victoria_metrics.release_name + "-validation",
+                      jsonPointers = ["/data"]
+                  },
+                  {
+                      group = "admissionregistration.k8s.io"
+                      kind = "ValidatingWebhookConfiguration"
+                      name = config.monitoring.victoria_metrics.release_name + "-admission",
+                      jsonPointers = [".webhooks[]?.clientConfig.caBundle"]
+                  }
+              ]
             })
 
             argocdSchema.argoHelmRelease({
