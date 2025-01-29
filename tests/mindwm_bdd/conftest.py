@@ -558,31 +558,33 @@ def deployment_ready(kube, step, namespace):
                     raise e
 
 @then("graph have node \"{node_type}\" with property \"{prop}\" = \"{value}\" in context \"{context_name}\"")
-def graph_check_node(kube, node_type, prop, value, cloudevent, context_name):
-    ingress_host = utils.get_lb(kube)
-    bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
-    assert bolt_port is not None, f"No node_port for neo4j bolt service"
-    uri = f"bolt://{ingress_host}:{bolt_port}"
-    auth = ("neo4j", "password")
+def graph_check_node(kube, step, node_type, prop, value, cloudevent, context_name):
+    with allure.step(f"then {step.text}"):
+        ingress_host = utils.get_lb(kube)
+        bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
+        assert bolt_port is not None, f"No node_port for neo4j bolt service"
+        uri = f"bolt://{ingress_host}:{bolt_port}"
+        auth = ("neo4j", "password")
 
-    traceparent_id = utils.extract_trace_id(cloudevent['headers']['traceparent'])
+        traceparent_id = utils.extract_trace_id(cloudevent['headers']['traceparent'])
 
-    with GraphDatabase.driver(uri, auth=auth) as driver:
-        driver.verify_connectivity()
-        records, summary, keys = driver.execute_query(f"""
-            MATCH (n:{node_type})
-            WHERE n.traceparent CONTAINS "-{traceparent_id}-"
-            RETURN n
-            """,
-            database_="neo4j",
-        )
-        assert len(records) == 1
+        with GraphDatabase.driver(uri, auth=auth) as driver:
+            driver.verify_connectivity()
+            q = f"""
+                MATCH (n:{node_type})
+                WHERE n.traceparent CONTAINS "-{traceparent_id}-"
+                RETURN n
+            """
+            allure.attach(q, name = "query", attachment_type='text/plain')
+            
+            records, summary, keys = driver.execute_query(q, database_="neo4j")
+            assert len(records) == 1
 
-        for node in records:
-            logging.debug(node)
-            assert node['n'][prop] == value
-            with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
-                pass
+            for node in records:
+                logging.debug(node)
+                assert node['n'][prop] == value
+                with allure.step(f"Node '{node_type}' has property {prop} == {value} in {context_name}"):
+                    pass
 
 @when("God creates a new cloudevent")
 def cloudevent_create_cloudevent(step, cloudevent):
@@ -656,18 +658,21 @@ def cloudevent_send(step, kube, http_response, cloudevent, endpoint):
 
 @when("God makes graph query in context \"{context_name}\"")
 def graph_query(kube, context_name, step):
-    q = step.doc_string.content
+    with allure.step(f"when {step.text}"):
+        q = step.doc_string.content
+        allure.attach(q, name = "query", attachment_type='text/plain')
 
-    ingress_host = utils.get_lb(kube)
-    bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
-    assert bolt_port is not None, f"No node_port for neo4j bolt service"
+        ingress_host = utils.get_lb(kube)
+        bolt_port = utils.neo4j_get_bolt_node_port(kube, context_name)
+        assert bolt_port is not None, f"No node_port for neo4j bolt service"
 
-    uri = f"bolt://{ingress_host}:{bolt_port}"
-    auth = ("neo4j", "password")
+        uri = f"bolt://{ingress_host}:{bolt_port}"
+        auth = ("neo4j", "password")
 
-    with GraphDatabase.driver(uri, auth=auth) as driver:
-        driver.verify_connectivity()
-        records, summary, keys = driver.execute_query(q, database_="neo4j")
+
+        with GraphDatabase.driver(uri, auth=auth) as driver:
+            driver.verify_connectivity()
+            records, summary, keys = driver.execute_query(q, database_="neo4j")
  
 @when("sends cloudevent to nats topic \"{nats_topic_name}\"")
 @async_to_sync
