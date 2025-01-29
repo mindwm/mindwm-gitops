@@ -449,6 +449,7 @@ def run_cmd(cmd, cwd):
         assert result.returncode == 0, f"Expected return code 0 but got {result.returncode}"
     except subprocess.CalledProcessError as e:
         logger.error(f"Error executing '{cmd}': {e}")
+        raise e
 
 def execute_and_attach_log(command):
     with allure.step(f"execute '{command}'"):

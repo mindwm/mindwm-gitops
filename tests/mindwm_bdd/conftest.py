@@ -709,52 +709,53 @@ def file_contains_regex(file_path, match_regex):
                 raise ValueError
 
 @when("God clones the repository '{repo}' with branch '{branch}' and commit '{commit}' to '{work_dir}'")
-def git_clone_repo(repo, branch, commit, work_dir):
-    git_clone(work_dir, repo, branch, commit)
-    pass
+def git_clone_repo(step, repo, branch, commit, work_dir):
+    with allure.step(f"when {step.text}"):
+        git_clone(work_dir, repo, branch, commit)
 
 @then("the directory '{dir_path}' should exist")
-def dir_exists(ctx, dir_path):
-    if os.path.isdir(dir_path):
-        logging.debug(f"Directory '{dir_path}' exists.")
-    else:
-        raise FileNotFoundError(f"Directory '{dir_path}' does not exist.")
-    ctx['work_dir'] = dir_path
+def dir_exists(step, ctx, dir_path):
+    with allure.step(f"when {step.text}"):
+        if os.path.isdir(dir_path):
+            logging.debug(f"Directory '{dir_path}' exists.")
+        else:
+            raise FileNotFoundError(f"Directory '{dir_path}' does not exist.")
+        ctx['work_dir'] = dir_path
 
 @when("God runs the command '{cmd}' inside the '{work_dir}' directory")
-def execute_cmd(cmd, work_dir):
-    utils.run_cmd(cmd, work_dir)
-    pass
+def execute_cmd(step, cmd, work_dir):
+    with allure.step(f"when {step.text}"):
+        utils.run_cmd(cmd, work_dir)
 
 @when("God creates a tmux session named '{tmux_session}' with a window named '{tmux_window_name}'")
-def tmux_create_sesion(ctx, tmux_session, tmux_window_name):
-    r = create_tmux_session(tmux_session, tmux_window_name, ctx['work_dir'])
-    if (r is None):
-        assert RuntimeError
-    pass
+def tmux_create_sesion(step, ctx, tmux_session, tmux_window_name):
+    with allure.step(f"when {step.text}"):
+        r = create_tmux_session(tmux_session, tmux_window_name, ctx['work_dir'])
+        if (r is None):
+            assert RuntimeError
 
 @then("the tmux session '{tmux_session}' should exist")
-def tmux_check_session(tmux_session):
-    r = tmux_session_exists(tmux_session)
-    if (r is not True):
-        raise RuntimeError
-    pass
+def tmux_check_session(step, tmux_session):
+    with allure.step(f"when {step.text}"):
+        r = tmux_session_exists(tmux_session)
+        if (r is not True):
+            raise RuntimeError
 
 @then("God sends the command '{cmd}' to the tmux session '{tmux_session}', window '{tmux_window_name}', pane '{tmux_pane_id}'")
-def tmux_send_command(tmux_session, tmux_window_name, tmux_pane_id, cmd):
-    r = send_command_to_pane(tmux_session, tmux_window_name, int(tmux_pane_id), cmd)
-    if (r is None):
-        assert RuntimeError
-    pass
+def tmux_send_command(step, tmux_session, tmux_window_name, tmux_pane_id, cmd):
+    with allure.step(f"when {step.text}"):
+        r = send_command_to_pane(tmux_session, tmux_window_name, int(tmux_pane_id), cmd)
+        if (r is None):
+            assert RuntimeError
 
 @then("God waits for '{n}' seconds")
-def sleep_n_seconds(n):
-    time.sleep(int(n))
-    pass
+def sleep_n_seconds(step, n):
+    with allure.step(f"when {step.text}"):
+        time.sleep(int(n))
 
 @then("God vertically splits the tmux session '{tmux_session}', window '{tmux_window_name}'")
-def tmux_vertically_split(tmux_session, tmux_window_name):
-    r = vertically_split_window(tmux_session, tmux_window_name)
-    if (r is None):
-        assert RuntimeError
-    pass
+def tmux_vertically_split(step, tmux_session, tmux_window_name):
+    with allure.step(f"when {step.text}"):
+        r = vertically_split_window(tmux_session, tmux_window_name)
+        if (r is None):
+            assert RuntimeError
