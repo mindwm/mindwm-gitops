@@ -5,12 +5,10 @@ Feature: MindWM clipboard EDA test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: Prepare environment for ping tests 
+  Scenario: Prepare environment, context: <context>, username: <username>, host: <host>
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    And the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | clipboard            |
+    And resource "clipboard" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
@@ -18,7 +16,7 @@ Feature: MindWM clipboard EDA test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
-    And NatsJetStreamChannel "<host>-host-broker-kne-trigger" is ready in "user-<username>" namespace
+    And resource "<host>-host-broker-kne-trigger" of type "natsjetstreamchannels.messaging.knative.dev/v1alpha1" has a status "Ready" equal "True" in "user-<username>" namespace
 
     When God starts reading message from NATS topic ">"
 
@@ -26,7 +24,7 @@ Feature: MindWM clipboard EDA test
      | context | username   | host      |
      | philadelphia   | flukeman   | the-host  | 
 
-  Scenario: Send clipboard to knative ping service
+  Scenario: Send clipboard cloudevent to knative ping service 
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "clipboard"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.clipboard"
@@ -88,7 +86,7 @@ Feature: MindWM clipboard EDA test
      | philadelphia   | flukeman   | the-host  | broker-ingress.knative-eventing/user-flukeman/user-broker | 00-6df93f3577b34da6a3ce929d0e0e4742-00f067aa0ba902b7-00 |
 
 
-  Scenario: Send ping via nats
+  Scenario: Send ping via nats topic "org.mindwm.<username>.<host>.clipboard"
     When God creates a new cloudevent 
       And sets cloudevent header "ce-id" to "<uuid>"
       And sets cloudevent header "ce-subject" to "clipboard"

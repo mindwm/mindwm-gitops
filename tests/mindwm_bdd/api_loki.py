@@ -1,5 +1,6 @@
+import allure
 import json
-import pprint
+import logging
 
 from kubetest import condition
 from kubetest import utils as kubetest_utils
@@ -9,6 +10,9 @@ from grafana_loki_client.api.query_range import get_loki_api_v1_query_range
 from datetime import datetime, timedelta
 import re
 
+logger = logging.getLogger(__name__)
+logging.getLogger('httpx').setLevel(logging.ERROR)
+logging.getLogger('httpcore').setLevel(logging.ERROR)
 
 def loki_pod_logs_range(namespace, pod_name_regex, duration_min):
     loki_client = Client("http://loki.mindwm.local:80")
@@ -30,7 +34,6 @@ def loki_pod_logs_range(namespace, pod_name_regex, duration_min):
     r = {}
     for result in loki_answer['data']['result']:
         pod_name = result['stream']['pod']
-        #pod_name = result['stream']['app']
         container_name = result['stream']['container']
         if pod_name not in r:
             r[pod_name] = {}
@@ -46,11 +49,8 @@ def loki_logs_contain_regex(namespace, pod_name_regex, container_name, match_reg
     loki_logs = loki_pod_logs_range(namespace, pod_name_regex, duration_min)
     for pod_name in loki_logs:
         if re.search(pod_name_regex, pod_name):
-            #print(f"find {match_regex} in {pod_name}/{container_name}")
             assert(container_name in loki_logs[pod_name])
-            #pprint.pprint(loki_logs[pod_name][container_name])
             if re.search(match_regex, loki_logs[pod_name][container_name], re.DOTALL):
-                #print(f"found {match_regex} in {pod_name}/{container_name}")
                 return True
 
     assert(False)
@@ -62,14 +62,16 @@ def _pod_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex
             r = loki_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex)
             return r != None
         except Exception as e:
-            #pprint.pprint(e)
             return False
 
-    kubetest_utils.wait_for_condition(
-        condition=condition.Condition(f"{pod_name_regex} pod, container {container_name} should contain {log_regex}", log_match_regex),
-        timeout=30,
-        interval=3
-    )
+    condition_name = f"{pod_name_regex} pod, container {container_name} should contain {log_regex}"
+
+    with allure.step(condition_name):
+        kubetest_utils.wait_for_condition(
+            condition=condition.Condition(condition_name, log_match_regex),
+            timeout=30,
+            interval=3
+        )
 
 def pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log_regex):
     _pod_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex)
@@ -77,9 +79,18 @@ def pod_logs_should_contain_regex(namespace, pod_name_regex, container_name, log
 def pod_logs_should_not_contain_regex(namespace, pod_name_regex, container_name, log_regex):
     try:
         _pod_logs_contain_regex(namespace, pod_name_regex, container_name, log_regex)
+        loki_logs = loki_pod_logs_range(namespace, pod_name_regex, 10)
+                        
     except TimeoutError as e:
         pass
-        return
+        return True
+
+    for pod_name in loki_logs:
+        if re.search(pod_name_regex, pod_name):
+            assert(container_name in loki_logs[pod_name])
+            if re.search(log_regex, loki_logs[pod_name][container_name], re.DOTALL):
+                allure.attach(loki_logs[pod_name][container_name], name = f"{pod_name}/{container_name} logs", attachment_type='text/plain')
+
     raise TimeoutError
 
 

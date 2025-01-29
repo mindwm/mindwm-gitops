@@ -5,13 +5,11 @@ Feature: MindWM io context function test
     Given A MindWM environment
     Then all nodes in Kubernetes are ready
 
-  Scenario: io context <context>
+  Scenario: Create context <context>, user <username>, host: <host>
 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    Then the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | iocontext            |
+    And resource "iocontext" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
     And statefulset "<context>-neo4j" in namespace "context-<context>" is in ready state
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
@@ -19,12 +17,18 @@ Feature: MindWM io context function test
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
+
+    Examples:
+     | context | username   | host      | 
+     | red     | kitty      | tablet    | 
+
     # When God makes graph query in context "<context>"
     #   """
     #   MATCH (N) DETACH DELETE N;
     #   """
 
-    When God creates a new cloudevent 
+  Scenario: Send cloudevent to "broker-ingress.knative-eventing/context-<context>/context-broker"
+    When God creates a new cloudevent
       And sets cloudevent header "ce-id" to "<cloudevent_id>"
       And sets cloudevent header "traceparent" to "<traceparent>"
       And sets cloudevent header "ce-subject" to "id"

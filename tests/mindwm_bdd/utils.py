@@ -2,6 +2,8 @@ import pprint
 import base64
 import gzip
 import json
+import allure
+import logging
 from io import BytesIO
 from kubernetes import client, config
 from kubetest import condition
@@ -13,13 +15,15 @@ import asyncio
 import json
 import nats
 
+logger = logging.getLogger(__name__)
+
 def double_base64_decode(encoded_str):
     try:
         first_decode = base64.b64decode(encoded_str)
         second_decode = base64.b64decode(first_decode)
         return second_decode
     except base64.binascii.Error as e:
-        print(f"Base64 decoding error: {e}")
+        logger.error(f"Base64 decoding error: {e}")
         return None
 
 def gunzip_data(compressed_data):
@@ -28,11 +32,12 @@ def gunzip_data(compressed_data):
             decompressed_data = gz.read()
             return decompressed_data
     except OSError as e:
-        print(f"Gunzip error: {e}")
+        logger.error(f"Gunzip error: {e}")
         return None
 
 
 def helm_release_info(kube, release_name, namespace):
+    # with allure.step(f"get helm release info for {release_name} in namespace {namespace}"):
     helm_secret = kube.get_secrets(namespace, labels = {"name": release_name})[f'sh.helm.release.v1.{release_name}.v1']
     #release_str = json.loads(helm_secret.obj.data)
     data_base64 = helm_secret.obj.data['release']
@@ -41,20 +46,26 @@ def helm_release_info(kube, release_name, namespace):
     return data['info']
 
 def helm_release_is_ready(kube, release_name, namespace):
+    timeout = 300
     def is_ready():
         try:
             info = helm_release_info(kube, release_name, namespace)
             return info['status'] == "deployed"
         except Exception as e:
+            logger.error(e)
             return False
 
-    ready_condition = condition.Condition("helm release has status and info", is_ready)
-
-    kubetest_utils.wait_for_condition(
-        condition=ready_condition,
-        timeout=600, # More details in #118 github issue
-        interval=5
-    )
+    condition_name = f"wait for helm release {release_name} has status and info in {namespace}, timeout"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, is_ready),
+                timeout=timeout, # More details in #118 github issue
+                interval=5
+            )
+        except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get helmrelease")
+            raise e
 
 
     return helm_release_info(kube, release_name, namespace)
@@ -92,6 +103,7 @@ def argocd_application_wait_status(kube, application_name, namespace):
     )
 
 def statefulset_wait_for(kube, statefulset_name, namespace):
+    timeout = 60
     def exists():
         try:
             statefulset = kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
@@ -101,13 +113,17 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
         except Exception as e:
             return False
 
-    exists_condition = condition.Condition("statefulset exists", exists)
-
-    kubetest_utils.wait_for_condition(
-        condition=exists_condition,
-        timeout=60,
-        interval=5
-    )
+    condition_name = f"Waiting for statefulset {statefulset_name} in {namespace} namespace, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get statefulset")
+            raise e
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
 
 def knative_service_wait_for(kube, knative_service_name, namespace):
@@ -134,82 +150,103 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
                 name = name
             )
             try:
-                a = resource['status']
+                # a = resource['status']
                 return True
             except:
                 return False
         except Exception as e:
             return False
 
-    exists_condition = condition.Condition(f"Wait for {group}/{version} {plural} {name} exists in namespace {namespace}", exists)
+    condition_name = f"Wait for {group}/{version} {plural} {name} exists in namespace {namespace}, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            try:
+                resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                        group=group,
+                        version=version,
+                        plural=plural,
+                        namespace = namespace,
+                        name = name
+                )
+                allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            except Exception as resource_e:
+                logger.error(resource_e)
+                pass
+            execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group}")
+            raise e
+        return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                    group=group,
+                    version=version,
+                    plural=plural,
+                    namespace = namespace,
+                    name = name
+                )
 
-    kubetest_utils.wait_for_condition(
-        condition=exists_condition,
-        timeout=timeout,
-        interval=5
-    )
-    return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+def custom_object_status_waiting_for(kube, namespace, group, version, plural, name, status_name, status, timeout):
+    def status_equal():
+        r = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
                 group=group,
                 version=version,
                 plural=plural,
                 namespace = namespace,
                 name = name
             )
+        assert (r is not None)
+        if ("status" not in r):
+            return False
+        if ("conditions" not in r['status']):
+            return False
+        for condition in r['status']['conditions']:
+            if condition['type'] == status_name:
+                if condition['status'] == status:
+                    return True
+        return False
 
-def knative_trigger_wait_for(kube, knative_trigger_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'eventing.knative.dev',
-            "v1",
-            "triggers",
-            knative_trigger_name,
-            60
+    resource = custom_object_wait_for(
+        kube,
+        namespace,
+        group,
+        version,
+        plural,
+        name,
+        timeout
+    )
+    condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status}, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, status_equal),
+                timeout=timeout,
+                interval=5
             )
-
-def knative_broker_wait_for(kube, knative_broker_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'eventing.knative.dev',
-            "v1",
-            "brokers",
-            knative_broker_name,
-            60
-            )
-
-def kafka_topic_wait_for(kube, kafka_topic_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'cluster.redpanda.com',
-            "v1alpha2",
-            "topics",
-            kafka_topic_name,
-            180
-            )
-
-def kafka_source_wait_for(kube, kafka_source_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'sources.knative.dev',
-            "v1beta1",
-            "kafkasources",
-            kafka_source_name,
-            180
-            )
-
-def nats_stream_wait_for(kube, nats_stream_name, namespace):
-    return custom_object_wait_for(
-            kube,  
-            namespace,
-            'messaging.knative.dev',
-            "v1alpha1",
-            "natsjetstreamchannels",
-            nats_stream_name,
-            180
-            )
+        except Exception as e:
+            try:
+                resource = client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+                        group=group,
+                        version=version,
+                        plural=plural,
+                        namespace = namespace,
+                        name = name
+                )
+                allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            except Exception as resource_e:
+                logger.error(resource_e)
+                pass
+            execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group} {name}")
+            raise e
+    return client.CustomObjectsApi(kube.api_client).get_namespaced_custom_object(
+            group=group,
+            version=version,
+            plural=plural,
+            namespace = namespace,
+            name = name
+    )
 
 def nats_stream_wait_for_ready(kube, nats_stream_name, namespace):
     def is_ready():
@@ -302,6 +339,7 @@ def parse_resourceSpan(resourceSpan):
         # context broker
     }
 def deployment_wait_for(kube, deployment_name, namespace):
+    timeout = 90
     def exists():
         try:
             deployment = kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
@@ -309,16 +347,23 @@ def deployment_wait_for(kube, deployment_name, namespace):
                 return False
             return True
         except Exception as e:
-            pprint.pprint(e)
+            logger.error(e)
             return False
 
-    exists_condition = condition.Condition(f"deployment {deployment_name} exists", exists)
+    condition_name = f"deployment {deployment_name} exists in {namespace} should exitst, timeout = {timeout}"
 
-    kubetest_utils.wait_for_condition(
-        condition=exists_condition,
-        timeout=180,
-        interval=5
-    )
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get pods")
+            execute_and_attach_log(f"kubectl -n {namespace} get deployment")
+
+            raise e
     return kube.get_deployments(namespace = namespace, fields = {'metadata.name': deployment_name}).get(deployment_name)
 
 def neo4j_get_bolt_node_port(kube, context_name):
@@ -344,9 +389,9 @@ def ksvc_url(kube, namespace, knative_service_name):
     return ksvc
 
 async def nats_send(nats_url, nats_topic_name, event_headers, body):
+    logger.info(f"Send {body} with headers {event_headers} to {nats_topic_name} on the {nats_url} server")
     nc = await nats.connect(nats_url)
 
-    
     headers = {
         **{
             "datacontenttype": "application/json",
@@ -373,7 +418,7 @@ def custom_object_exists(kube, namespace, group, version, plural, name, timeout)
             )
             return True
         except Exception as e:
-            pprint.pprint(e)
+            logger.error(e)
 
             return False
 
@@ -394,10 +439,36 @@ def custom_object_exists(kube, namespace, group, version, plural, name, timeout)
     
 def run_cmd(cmd, cwd):
     try:
+        logger.debug(f"Execute command {cmd} in directory '{cwd}'")
         result = subprocess.run(["sh", "-c", cmd], check=True, text=True, capture_output=True, cwd=cwd)
         #print("Command Output:", result.stdout)
+        if len(result.stdout.split("\n")) > 1:
+            allure.attach(result.stdout, name = f"sdtout", attachment_type='text/plain')
+        if len(result.stderr.split("\n")) > 1:
+            allure.attach(result.stderr, name = f"stderr", attachment_type='text/plain')
         assert result.returncode == 0, f"Expected return code 0 but got {result.returncode}"
     except subprocess.CalledProcessError as e:
-        print(f"Error executing '{cmd}': {e}")
-        print(f"Output: {e.stdout}")
-        print(f"Error Output: {e.stderr}")
+        logger.error(f"Error executing '{cmd}': {e}")
+        raise e
+
+def execute_and_attach_log(command):
+    with allure.step(f"execute '{command}'"):
+        try:
+            result = subprocess.run(command, shell=True, text=True, capture_output=True, check=True)
+            # for line in result.stdout.split("\n"):
+            #     if (line == ""):
+            #         continue
+            #     logger.info(line)
+            # for line in result.stderr.split("\n"):
+            #     if (line == ""):
+            #         continue
+            #     logger.error(line)
+            if len(result.stdout.split("\n")) > 1:
+                allure.attach(result.stdout, name = f"sdtout", attachment_type='text/plain')
+            if len(result.stderr.split("\n")) > 1:
+                allure.attach(result.stderr, name = f"stderr", attachment_type='text/plain')
+            return result
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Command failed with exit code {e.returncode}: {e.stderr.strip()}")
+            return None
+        pass

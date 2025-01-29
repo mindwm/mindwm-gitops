@@ -4,6 +4,9 @@ import sys
 from nats.aio.client import Client as NATS
 from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
 from queue import Queue, Empty
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Configuration
 subscriber_thread = None
@@ -13,12 +16,11 @@ async def subscribe_to_nats(nats_url, topic: str):
     nc = NATS()
 
     try:
-        # Attempt to connect to the NATS server
         await nc.connect(servers=[nats_url])
-        print(f"Connected to NATS server at {nats_url}")
+        logger.info(f"Connected to NATS server at {nats_url}")
 
     except ErrNoServers as e:
-        print(f"Could not connect to NATS server: {e}")
+        logger.error(f"Could not connect to NATS server: {e}")
         return
 
     async def message_handler(msg):
@@ -29,14 +31,14 @@ async def subscribe_to_nats(nats_url, topic: str):
             "subject": subject,
             "data": data
         })
-        #print(f"Received a message on '{subject}': {data}")
+        logger.debug(f"Received a message on '{subject}': {data}")
 
     # Subscribe to the specified topic with the message handler
     try:
-        print(f"Subscribed to topic '{topic}'")
+        logger.info(f"Subscribed to topic '{topic}'")
         await nc.subscribe(topic, cb=message_handler)
     except Exception as e:
-        print(f"Failed to subscribe to topic '{topic}': {e}")
+        logger.error(f"Failed to subscribe to topic '{topic}': {e}")
         await nc.close()
         return
 
@@ -45,10 +47,10 @@ async def subscribe_to_nats(nats_url, topic: str):
         while True:
             await asyncio.sleep(1)
     except asyncio.CancelledError:
-        print("Subscription task cancelled.")
+        logger.error("Subscription task cancelled.")
     finally:
         await nc.close()
-        print("NATS connection closed.")
+        logger.debug("NATS connection closed.")
 
 def run_nats_subscriber(nats_url, topic):
 

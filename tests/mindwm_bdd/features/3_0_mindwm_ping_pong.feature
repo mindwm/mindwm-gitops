@@ -8,16 +8,14 @@ Feature: MindWM Ping-pong EDA test
   Scenario: Prepare environment for ping tests 
     When God creates a MindWM context with the name "<context>"
     Then the context should be ready and operable
-    And the following knative services are in a ready state in the "context-<context>" namespace
-      | Knative service name |
-      | pong                 |
+    And resource "pong" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
 
     When God creates a MindWM user resource with the name "<username>" and connects it to the context "<context>"
     Then the user resource should be ready and operable
 
     When God creates a MindWM host resource with the name "<host>" and connects it to the user "<username>"
     Then the host resource should be ready and operable
-    And NatsJetStreamChannel "<host>-host-broker-kne-trigger" is ready in "user-<username>" namespace
+    And resource "<host>-host-broker-kne-trigger" of type "natsjetstreamchannels.messaging.knative.dev/v1alpha1" has a status "Ready" equal "True" in "user-<username>" namespace
 
     When God starts reading message from NATS topic ">"
 
@@ -25,7 +23,7 @@ Feature: MindWM Ping-pong EDA test
      | context | username   | host      |
      | green4   | amanda4   | pi6-host  | 
 
-  Scenario: Send pind to knative ping service
+  Scenario: Send ping to knative ping service, context: <context>, username: <username>, host: <host>
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "#ping"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
@@ -49,7 +47,7 @@ Feature: MindWM Ping-pong EDA test
      | context | username   | host      |
      | green4   | amanda4   | pi6-host  | 
 
-  Scenario: Send ping via <endpoint>
+  Scenario: Send ping cloudevent to endpoint <endpoint>, username: <username>, host: <host>, traceparent: <traceparent>
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "#ping"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
@@ -83,7 +81,7 @@ Feature: MindWM Ping-pong EDA test
      | green4   | amanda4   | pi6-host  | broker-ingress.knative-eventing/user-amanda4/user-broker | 00-6df93f3577b34da6a3ce929d0e0e4742-00f067aa0ba902b7-00 |
 
 
-  Scenario: Send ping via nats
+  Scenario: Send ping via nats topic "org.mindwm.<username>.<host>.<tmux_socket>.<uuid>.<tmux_window><tmux_pane>.iodocument"
     When God creates a new cloudevent 
       And sets cloudevent header "ce-subject" to "#ping"
       And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
