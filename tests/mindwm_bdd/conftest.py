@@ -790,3 +790,10 @@ def kubernetes_create_resource(step, kube, resource_name, resource_type, namespa
         allure.attach(json.dumps(response, indent=4), name = "api_response", attachment_type='application/json')
         utils.execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group}")
         return response
+
+@then('image "{image_name}" with tag "{image_tag}" should exists in "{registry_url}" registry')
+def registry_image_check(step, image_name, image_tag, registry_url):
+    with allure.step("when {step.text}"):
+        os.environ["DXF_INSECURE"] = "1"
+        os.environ["DXF_SKIPTLSVERIFY"] = "1"
+        utils.check_image_exists(registry_url, image_name, image_tag)
