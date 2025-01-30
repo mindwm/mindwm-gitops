@@ -762,3 +762,49 @@ def tmux_vertically_split(step, tmux_session, tmux_window_name):
         r = vertically_split_window(tmux_session, tmux_window_name)
         if (r is None):
             assert RuntimeError
+
+# CLUSTER scoped resources
+@then('the following resources of type "{resource_type}" exists')
+def following_cluster_resource_exists(kube, resource_type, step):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        resource_name = row.cells[0].value
+        cluster_resource_exists(kube, resource_name, resource_type, step)
+
+@then('resource "{resource_name}" of type "{resource_type}" exists')
+def cluster_resource_exists(kube, resource_name, resource_type, step):
+    with allure.step(f'then {step.text}'):
+        plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
+        utils.cluster_custom_object_wait_for(
+            kube,
+            group,
+            version,
+            plural,
+            resource_name,
+            90
+            )
+        pass
+
+@then('the following resources of type "{resource_type}" has a status "{status_name}" equal "{status}"')
+def following_resource_status_equal(kube, resource_type, status_name, status, step):
+    title_row, *rows = step.data_table.rows
+    for row in rows:
+        resource_name = row.cells[0].value
+        cluster_resource_status_equal(kube, resource_name, resource_type, status_name, status, step)
+
+@then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}"')
+def cluster_resource_status_equal(kube, resource_name, resource_type, status_name, status, step):
+
+    with allure.step(f'then {step.text}'):
+        plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
+        utils.cluster_custom_object_status_waiting_for(
+            kube,
+            group,
+            version,
+            plural,
+            resource_name,
+            status_name,
+            status,
+            90
+            )
+        pass

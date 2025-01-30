@@ -21,24 +21,23 @@ metadata:
     app: "default-domain"
     app.kubernetes.io/component: default-domain-job
     app.kubernetes.io/name: knative-serving
-    app.kubernetes.io/version: "1.14.0"
+    app.kubernetes.io/version: "1.17.0"
 spec:
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/inject: "false"
       labels:
         app: "default-domain"
         app.kubernetes.io/component: default-domain-job
         app.kubernetes.io/name: knative-serving
-        app.kubernetes.io/version: "1.14.0"
+        app.kubernetes.io/version: "1.17.0"
+        sidecar.istio.io/inject: "false"
     spec:
       serviceAccountName: controller
       containers:
         - name: default-domain
           # This is the Go import path for the binary that is containerized
           # and substituted here.
-          image: gcr.io/knative-releases/knative.dev/serving/cmd/default-domain@sha256:649934bce92e4cf734cb39f19305cc46af015e391c9b0f81376d7829df95ca69
+          image: gcr.io/knative-releases/knative.dev/serving/cmd/default-domain@sha256:893e7cefa81636d00bc4d636effedef042d4cc51dab2c369367520ac1bf7572c
           args: ["-magic-dns=nip.io"]
           ports:
             - name: http
@@ -87,7 +86,7 @@ metadata:
     app: default-domain
     app.kubernetes.io/component: default-domain-job
     app.kubernetes.io/name: knative-serving
-    app.kubernetes.io/version: "1.14.0"
+    app.kubernetes.io/version: "1.17.0"
 spec:
   selector:
     app: default-domain
