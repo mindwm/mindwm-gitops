@@ -14,6 +14,7 @@ import re
 import asyncio
 import json
 import nats
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -466,7 +467,21 @@ def execute_and_attach_log(command):
             return result
         except subprocess.CalledProcessError as e:
             logger.error(f"Command failed with exit code {e.returncode}: {e.stderr.strip()}")
-            return None
+        pass
+
+
+def docker_image_exists(registry_url: str, image_name: str, tag: str) -> bool:
+    try:
+        response = requests.get(f"http://{registry_url}/v2/{image_name}/tags/list")
+        answer = response.json()
+        allure.attach(json.dumps(answer, indent=4), name = "registry reploy", attachment_type='application/json')
+        # Fetch available tags
+
+    except Exception as e:
+        logger.error(f"Error checking image: {registry_url}/{image_name}:{tag}, error {e}")
+        raise e
+
+    assert(tag in answer["tags"]), f'No tag "{tag}" in {answer["tags"]}'
 
 def cluster_custom_object_wait_for(kube, group, version, plural, name, timeout):
     def exists():

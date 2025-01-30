@@ -6,6 +6,7 @@ import pprint
 import kubetest
 from kubetest.client import TestClient
 from kubernetes import client
+from kubernetes import utils as kubernetes_utils
 from kubetest.plugin import clusterinfo
 from kubetest.objects.namespace import Namespace
 from pytest_bdd import scenarios, scenario, given, when, then, parsers
@@ -37,6 +38,7 @@ from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_
 
 from git_utils import git_clone
 from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists
+import yaml
 
 nats_messages = []
 
@@ -397,8 +399,8 @@ def role_exist(kube, step):
         with allure.step(f"Role '{role_name}' exist"):
             pass
 
-
-@then("namespace \"{namespace}\" should exist")
+ 
+@then('namespace "{namespace}" should exist')
 def namespace_exist(ctx, kube, namespace, step):
     ctx['namespace'] = namespace
     with allure.step(f"then {step.text}"):
@@ -410,7 +412,7 @@ def namespace_exist(ctx, kube, namespace, step):
             raise e
         pass
 
-@then("namespace \"{namespace}\" should not exist")
+@then('namespace "{namespace}" should not exist')
 def namespace_not_exist(kube, namespace):
     try:
         ns = Namespace.new(namespace)
@@ -763,6 +765,50 @@ def tmux_vertically_split(step, tmux_session, tmux_window_name):
         if (r is None):
             assert RuntimeError
 
+@when('God applies kubernetes manifest in the "{namespace}" namespace')
+def kubernetes_manifesst_apply(step, kube, namespace):
+    with allure.step("when {step.text}"):
+        manifest = yaml.safe_load(step.doc_string.content)
+        allure.attach(yaml.dump(manifest, default_flow_style=False, sort_keys=False, indent=2), name = "manifest", attachment_type='application/yaml')
+        api_client = client.ApiClient()
+        kubernetes_utils.create_from_dict(api_client, manifest, namespace=namespace)
+
+@then('the configmap "{configmap_name}" should exists in namespace "{namespace}"')
+def configmap_exists(step, kube, namespace, configmap_name):
+    #ns.wait_until_ready(timeout=60)
+    pass
+
+@when('God creates "{resource_name}" resource of type "{resource_type}" in the "{namespace}" namespace')
+def kubernetes_create_resource(step, kube, resource_name, resource_type, namespace):
+    with allure.step("when {step.text}"):
+        manifest = yaml.safe_load(step.doc_string.content)
+        api_instance = client.CustomObjectsApi(kube.api_client)
+        plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
+        response = api_instance.create_namespaced_custom_object(
+            group=group, version=version, namespace=namespace, plural=plural, body=manifest
+        )
+        allure.attach(json.dumps(response, indent=4), name = "api_response", attachment_type='application/json')
+        utils.execute_and_attach_log(f"kubectl -n {namespace} get {plural}.{group}")
+        return response
+
+@then('image "{image_name}" with tag "{image_tag}" should exists in "{registry_url}" registry')
+def registry_image_check(step, image_name, image_tag, registry_url):
+    with allure.step("when {step.text}"):
+        utils.docker_image_exists(registry_url, image_name, image_tag)
+
+
+@when('God creates the namespace "{namespace}"')
+def namespace_create(step, namespace):
+    with allure.step("when {step.text}"):
+        ns = Namespace.new(namespace)
+        ns.create(namespace)
+        ns.wait_until_ready(timeout=60)
+@when('God deletes the namespace "{namespace}"')
+def namespace_delete(step, namespace):
+    with allure.step("when {step.text}"):
+       ns = Namespace.new(namespace)
+       ns.delete()
+
 # CLUSTER scoped resources
 @then('the following resources of type "{resource_type}" exists')
 def following_cluster_resource_exists(kube, resource_type, step):
@@ -808,3 +854,4 @@ def cluster_resource_status_equal(kube, resource_name, resource_type, status_nam
             90
             )
         pass
+
