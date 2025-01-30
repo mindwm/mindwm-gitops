@@ -188,11 +188,25 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.victoria_metrics.release_name
                 chart = charts.victoria_metrics
-                version = "0.24.4"
+                version = "0.25.10"
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             }), {
-              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ]
+              spec.syncPolicy.syncOptions = [ "ServerSideApply=true", "CreateNamespace=true" ],
+              spec.ignoreDifferences = [
+                  {
+                      group = ""
+                      kind = "Secret"
+                      name = config.monitoring.victoria_metrics.release_name + "-validation",
+                      jsonPointers = ["/data"]
+                  },
+                  {
+                      group = "admissionregistration.k8s.io"
+                      kind = "ValidatingWebhookConfiguration"
+                      name = config.monitoring.victoria_metrics.release_name + "-admission",
+                      jsonPointers = [".webhooks[]?.clientConfig.caBundle"]
+                  }
+              ]
             })
 
             argocdSchema.argoHelmRelease({
@@ -361,7 +375,7 @@ mindwm_app = ArgoCdOrder.make({
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-channel.yaml"))
         yaml.decode_all(file.read("manifests/knative/eventing-kafka-broker.yaml"))
         yaml.decode_all(file.read("manifests/eventing-jsm.yaml"))
-        yaml.decode_all(file.read("manifests/mdns.yaml"))
+        yaml.decode_all(file.read("manifests/knative/serving-default-domain.yaml"))
 
         [
             p.merge(resource, {

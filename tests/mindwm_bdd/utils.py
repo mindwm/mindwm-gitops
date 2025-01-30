@@ -138,7 +138,6 @@ def knative_service_wait_for(kube, knative_service_name, namespace):
             180
             )
 
-
 def custom_object_wait_for(kube, namespace, group, version, plural, name, timeout):
     def exists():
         try:
@@ -150,12 +149,9 @@ def custom_object_wait_for(kube, namespace, group, version, plural, name, timeou
                 namespace = namespace,
                 name = name
             )
-            try:
-                # a = resource['status']
-                return True
-            except:
-                return False
+            return True
         except Exception as e:
+            logger.error(f"custom_object_wait_for:exists {e}")
             return False
 
     condition_name = f"Wait for {group}/{version} {plural} {name} exists in namespace {namespace}, timeout = {timeout}"
@@ -218,7 +214,7 @@ def custom_object_status_waiting_for(kube, namespace, group, version, plural, na
         name,
         timeout
     )
-    condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status}, timeout = {timeout}"
+    condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status} in namespace {namespace}, timeout = {timeout}"
     with allure.step(condition_name):
         try:
             kubetest_utils.wait_for_condition(
@@ -471,7 +467,6 @@ def execute_and_attach_log(command):
             return result
         except subprocess.CalledProcessError as e:
             logger.error(f"Command failed with exit code {e.returncode}: {e.stderr.strip()}")
-            return None
         pass
 
 
@@ -487,3 +482,103 @@ def docker_image_exists(registry_url: str, image_name: str, tag: str) -> bool:
         raise e
 
     assert(tag in answer["tags"]), f'No tag "{tag}" in {answer["tags"]}'
+
+def cluster_custom_object_wait_for(kube, group, version, plural, name, timeout):
+    def exists():
+        try:
+            api_instance = client.CustomObjectsApi(kube.api_client)
+            api_instance.get_cluster_custom_object(
+                group=group,
+                version=version,
+                plural=plural,
+                name=name
+            )
+            return True
+        except Exception as e:
+            logger.debug(f"cluster_custom_objcet_wait_for exception {e}")
+            return False
+
+    condition_name = f"Wait for {group}/{version} {plural} {name} exists in cluster, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            try:
+                resource = client.CustomObjectsApi(kube.api_client).get_cluster_custom_object(
+                        group=group,
+                        version=version,
+                        plural=plural,
+                        name = name
+                )
+                allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            except Exception as resource_e:
+                logger.error(resource_e)
+                pass
+            execute_and_attach_log(f"kubectl get {plural}.{group}")
+            raise e
+        return client.CustomObjectsApi(kube.api_client).get_cluster_custom_object(
+                    group=group,
+                    version=version,
+                    plural=plural,
+                    name = name
+                )
+
+def cluster_custom_object_status_waiting_for(kube, group, version, plural, name, status_name, status, timeout):
+    def status_equal():
+        r = client.CustomObjectsApi(kube.api_client).get_cluster_custom_object(
+                group=group,
+                version=version,
+                plural=plural,
+                name = name
+            )
+        assert (r is not None)
+        if ("status" not in r):
+            return False
+        if ("conditions" not in r['status']):
+            return False
+        for condition in r['status']['conditions']:
+            if condition['type'] == status_name:
+                if condition['status'] == status:
+                    return True
+        return False
+
+    resource = cluster_custom_object_wait_for(
+        kube,
+        group,
+        version,
+        plural,
+        name,
+        timeout
+    )
+    condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status} in cluster, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, status_equal),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            try:
+                resource = client.CustomObjectsApi(kube.api_client).get_cluster_custom_object(
+                        group=group,
+                        version=version,
+                        plural=plural,
+                        name = name
+                )
+                allure.attach(json.dumps(resource, indent=4), name = f"resource", attachment_type='application/json')
+            except Exception as resource_e:
+                logger.error(resource_e)
+                pass
+            execute_and_attach_log(f"kubectl get {plural}.{group} {name}")
+            raise e
+    return client.CustomObjectsApi(kube.api_client).get_cluster_custom_object(
+            group=group,
+            version=version,
+            plural=plural,
+            name = name
+    )

@@ -9,10 +9,10 @@ TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(
 
 ARTIFACT_DIR := /tmp/artifacts
 
-KUBECTL_RUN_OPTS := -i --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:latest -c
+KUBECTL_RUN_OPTS := -i --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --network=host -v`pwd`:/host -w /host -u root --entrypoint /bin/sh bitnami/kubectl:1.31.1 -c
 KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
 KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS)
-HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:latest -c
+HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:3.17.0 -c
 
 MIN_DOCKER_SERVER_VERSION := 1.46
 DOMAIN := mindwm.local
