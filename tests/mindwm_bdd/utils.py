@@ -475,10 +475,7 @@ def execute_and_attach_log(command):
         pass
 
 
-from dxf import DXF
-import os
-
-def check_image_exists(registry_url: str, image_name: str, tag: str) -> bool:
+def docker_image_exists(registry_url: str, image_name: str, tag: str) -> bool:
     try:
         response = requests.get(f"http://{registry_url}/v2/{image_name}/tags/list")
         answer = response.json()

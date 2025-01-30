@@ -399,8 +399,8 @@ def role_exist(kube, step):
         with allure.step(f"Role '{role_name}' exist"):
             pass
 
-
-@then("namespace \"{namespace}\" should exist")
+ 
+@then('namespace "{namespace}" should exist')
 def namespace_exist(ctx, kube, namespace, step):
     ctx['namespace'] = namespace
     with allure.step(f"then {step.text}"):
@@ -412,7 +412,7 @@ def namespace_exist(ctx, kube, namespace, step):
             raise e
         pass
 
-@then("namespace \"{namespace}\" should not exist")
+@then('namespace "{namespace}" should not exist')
 def namespace_not_exist(kube, namespace):
     try:
         ns = Namespace.new(namespace)
@@ -794,6 +794,18 @@ def kubernetes_create_resource(step, kube, resource_name, resource_type, namespa
 @then('image "{image_name}" with tag "{image_tag}" should exists in "{registry_url}" registry')
 def registry_image_check(step, image_name, image_tag, registry_url):
     with allure.step("when {step.text}"):
-        os.environ["DXF_INSECURE"] = "1"
-        os.environ["DXF_SKIPTLSVERIFY"] = "1"
-        utils.check_image_exists(registry_url, image_name, image_tag)
+        utils.docker_image_exists(registry_url, image_name, image_tag)
+
+
+@when('God creates the namespace "{namespace}"')
+def namespace_create(step, namespace):
+    with allure.step("when {step.text}"):
+        ns = Namespace.new(namespace)
+        ns.create(namespace)
+        ns.wait_until_ready(timeout=60)
+@when('God deletes the namespace "{namespace}"')
+def namespace_delete(step, namespace):
+    with allure.step("when {step.text}"):
+       ns = Namespace.new(namespace)
+       ns.delete()
+
