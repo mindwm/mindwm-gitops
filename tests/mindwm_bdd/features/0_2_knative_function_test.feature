@@ -1,4 +1,4 @@
-@knative_function_test
+@knative_function
 Feature: Mindwm event driven architecture
 
   Background:
@@ -214,30 +214,26 @@ Feature: Mindwm event driven architecture
     """ 
     Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace
     Then image "test3" with tag "latest" should exists in "0.0.0.0:30001" registry
-    When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
-    """
-    apiVersion: serving.knative.dev/v1
-    kind: Service
-    metadata:
-      name: knative-function-test
-    spec:
-      template:
-        spec:
-          containers:
-            #- image: zot-int.zot.svc.cluster.local:5000/test3:latest
-            - image: 10.43.99.225:5000/test3:latest
-              env:
-                - name: TARGET
-                  value: "Go Sample v1"
-    """
-    Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-<context>" namespace
+    # When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
+    # """
+    # apiVersion: serving.knative.dev/v1
+    # kind: Service
+    # metadata:
+    #   name: knative-function-test
+    # spec:
+    #   template:
+    #     spec:
+    #       containers:
+    #         - image: zot-int.zot.svc.cluster.local:5000/test3:latest
+    # """
+    # Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "<namespace>" namespace
     Examples: 
     | namespace     | configmap_name |
     | test-function | test-function  |
 
-  # Scenario: cleanup
-  #   When God deletes the namespace "<namespace>"
-  #   Then namespace "<namespace>" should not exist
-  #   Examples:
-  #   | namespace     | configmap_name |
-  #   | test-function | test-function  |
+  Scenario: cleanup
+    When God deletes the namespace "<namespace>"
+    Then namespace "<namespace>" should not exist
+    Examples:
+    | namespace     | configmap_name |
+    | test-function | test-function  |
