@@ -214,20 +214,47 @@ Feature: Mindwm event driven architecture
     """ 
     Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace
     Then image "test3" with tag "latest" should exists in "0.0.0.0:30001" registry
-    # When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
-    # """
-    # apiVersion: serving.knative.dev/v1
-    # kind: Service
-    # metadata:
-    #   name: knative-function-test
-    # spec:
-    #   template:
-    #     spec:
-    #       containers:
-    #         - image: zot-int.zot.svc.cluster.local:5000/test3:latest
-    # """
-    # Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "<namespace>" namespace
+    When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
+    """
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    metadata:
+      name: knative-function-test
+    spec:
+      template:
+        spec:
+          containers:
+            - image: zot-int.zot.svc.cluster.local:5000/test3:latest
+    """
+    Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "<namespace>" namespace
     Examples: 
+    | namespace     | configmap_name |
+    | test-function | test-function  |
+  Scenario: Send ping message to the service
+    When God creates a new cloudevent
+      And sets cloudevent header "ce-subject" to "#ping"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And sets cloudevent header "ce-source" to "org.mindwm.alice.localhost.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And sends cloudevent to knative service "knative-function-test" in "test-function" namespace
+      """
+      {
+        "input": "#ping",
+        "output": "",
+        "ps1": "❯",
+        "type": "org.mindwm.v1.iodocument"
+      }
+      """
+      Then the response http code should be "200"
+
+    Then the following deployments are in a ready state in the "<namespace>" namespace
+      | Deployment name                        |
+      | knative-function-test-00001-deployment |
+
+    And container "user-container" in pod "knative-function-test-00001-deployment-.*" in namespace "<namespace>" should contain "ping" regex
+
+    And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "<namespace>" should not contain "Traceback \(most recent call last\):" regex
+
+    Examples:
     | namespace     | configmap_name |
     | test-function | test-function  |
 
