@@ -317,7 +317,15 @@ def following_resource_status_equal(kube, resource_type, status_name, status, na
         resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step) 
 
 @then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
-def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step):
+def resource_status_equal_default_timeout(kube, resource_name, resource_type, status_name, status, namespace, step):
+    resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, 90, step)
+
+@then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace, timeout = "{timeout}"')
+def resource_status_equal_with_timeout(kube, resource_name, resource_type, status_name, status, namespace, timeout, step):
+    resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, int(timeout), step)
+
+
+def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, timeout, step):
 
     with allure.step(f'then {step.text}'):
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
@@ -330,7 +338,7 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
             resource_name,
             status_name,
             status,
-            90
+            timeout
             )
         pass
 
