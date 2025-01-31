@@ -374,7 +374,7 @@ def neo4j_get_bolt_node_port(kube, context_name):
     return None
 
 def ksvc_url(kube, namespace, knative_service_name):
-    ksvc = custom_object_wait_for(
+    ksvc = custom_object_exists(
             kube,  
             namespace,
             'serving.knative.dev',
