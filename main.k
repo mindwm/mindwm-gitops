@@ -415,6 +415,34 @@ mindwm_app = ArgoCdOrder.make({
                     }
                 }
             }
+            k8core.Service {
+                metadata = {
+                    name = "dns-expose"
+                    namespace = "kube-system"
+                }
+                spec = {
+                    type = "NodePort"
+                    ports = [
+                      {
+                        name = "dns-tcp"
+                        port = 53
+                        targetPort = 53
+                        protocol = "TCP"
+                        nodePort = 30002
+                      }
+                      {
+                        name = "dns-udp"
+                        port = 53
+                        targetPort = 53
+                        protocol = "UDP"
+                        nodePort = 30002
+                      }
+                    ]
+                    selector = {
+                        "k8s-app" = "kube-dns"
+                    }
+                }
+            }
             istio_gateway.Gateway {
               metadata.name = config.monitoring.gateway_name
               metadata.namespace = config.monitoring.namespace
