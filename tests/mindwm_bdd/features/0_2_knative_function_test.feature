@@ -212,7 +212,8 @@ Feature: Mindwm event driven architecture
         configMap:
           name: test-function
     """ 
-    Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace
+    Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace, timeout = "240"
+    # TODO @(metacoma) use zot-int.zot.svc.clusetr.local:5000
     Then image "test3" with tag "latest" should exists in "0.0.0.0:30001" registry
     When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
     """
