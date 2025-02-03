@@ -321,18 +321,27 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
 
     with allure.step(f'then {step.text}'):
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
-        utils.custom_object_status_waiting_for(
-            kube,
-            namespace,
-            group,
-            version,
-            plural,
-            resource_name,
-            status_name,
-            status,
-            90
-            )
-        pass
+        try:
+            utils.custom_object_status_waiting_for(
+                kube,
+                namespace,
+                group,
+                version,
+                plural,
+                resource_name,
+                status_name,
+                status,
+                90
+                )
+        except Exception as e:
+            if (resource_name == "mindwm-function-build-run"):
+                try:
+                    for pod_name in ["mindwm-function-build-run-buildpack-pod", "mindwm-function-build-run-copy-pod", "mindwm-function-build-run-resolve-host-pod"]:
+                        utils.execute_and_attach_log(f"kubectl -n {namespace} logs {pod_name}")
+                except Exception as e:
+                    logging.error(f"Failed attach logs")
+                    pass
+            raise e
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
 def environment(ctx, ubuntu_version, cpu, mem):
@@ -793,7 +802,7 @@ def kubernetes_create_resource(step, kube, resource_name, resource_type, namespa
 
 @then('image "{image_name}" with tag "{image_tag}" should exists in "{registry_url}" registry')
 def registry_image_check(step, image_name, image_tag, registry_url):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         utils.docker_image_exists(registry_url, image_name, image_tag)
 
 
