@@ -173,7 +173,7 @@ Feature: Mindwm event driven architecture
                     #- --buildpack-registry
                     #- zot.zot:5000
                     - --builder
-                    - heroku/builder:24
+                    - gcr.io/buildpacks/builder:google-22
                     - --workspace
                     - /workspace/build
                     - --docker-host=inherit

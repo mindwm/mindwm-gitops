@@ -15,7 +15,7 @@ def create_tmux_session(session_name, window_name, dir=None):
         session = server.new_session(session_name=session_name, start_directory=dir, attach=False, kill_session=True, window_name=window_name)
 
         default_window = session.attached_window
-        default_window.set_option("automatic-rename", "off")
+        #default_window.set_option("automatic-rename", "off")
 
 
         print(f"Successfully created tmux session: '{session_name}' in directory: '{dir}'")
@@ -31,6 +31,47 @@ def tmux_session_exists(session_name):
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+
+def capture_pane(capture_file : str, session_name : str, window_name : str, pane_index : int):
+    print(f"capture {session_name}:{window_name}:{pane_index} to {capture_file}")
+    assert capture_file is not None
+    try:
+        server = libtmux.Server()
+        session = server.find_where({"session_name": session_name})
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise e
+
+    if not session:
+        print(f"Session '{session_name}' does not exist.")
+        return False
+
+    try:
+        window = session.find_where({"window_name": window_name})
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise e
+
+    if not window:
+        print(f"Window '{window_name}' does not exist in session '{session_name}'.")
+        return False
+
+    try:
+        panes = window.panes
+        if pane_index >= len(panes):
+            print(f"Pane index '{pane_index}' is out of range for window '{window_name}'.")
+            return False
+
+        pane = panes[pane_index]
+        pane.cmd("pipe-pane", f"cat > {capture_file}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise e
+
+    return True
+
+
 
 def send_command_to_pane(session_name, window_name, pane_index, command):
     try:

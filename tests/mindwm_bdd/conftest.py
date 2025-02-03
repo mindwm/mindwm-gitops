@@ -37,7 +37,7 @@ import asyncio
 from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
 from git_utils import git_clone
-from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists
+from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists, capture_pane
 import yaml
 
 nats_messages = []
@@ -329,17 +329,27 @@ def resource_status_equal_with_timeout(kube, resource_name, resource_type, statu
 def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, timeout, step):
     with allure.step(f'then {step.text}'):
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
-        utils.custom_object_status_waiting_for(
-            kube,
-            namespace,
-            group,
-            version,
-            plural,
-            resource_name,
-            status_name,
-            status,
-            timeout
-            )
+        try:
+            utils.custom_object_status_waiting_for(
+                kube,
+                namespace,
+                group,
+                version,
+                plural,
+                resource_name,
+                status_name,
+                status,
+                90
+                )
+        except Exception as e:
+            if (resource_name == "mindwm-function-build-run"):
+                try:
+                    for pod_name in ["mindwm-function-build-run-buildpack-pod", "mindwm-function-build-run-copy-pod", "mindwm-function-build-run-resolve-host-pod"]:
+                        utils.execute_and_attach_log(f"kubectl -n {namespace} logs {pod_name}")
+                except Exception as e:
+                    logging.error(f"Failed attach logs")
+                    pass
+            raise e
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
 def environment(ctx, ubuntu_version, cpu, mem):
@@ -720,6 +730,17 @@ def file_contains_regex(step, file_path, match_regex):
                 else:
                     raise ValueError
 
+@then('file "{file_path}" should not contain "{match_regex}" regex')
+def file_not_contains_regex(step, file_path, match_regex):
+    with allure.step(f"then {step.text}"):
+        with open(file_path, 'r') as file:
+                content = file.read()
+                if re.search(match_regex, content):
+                    utils.execute_and_attach_log(f"cat {file_path}")
+                    raise ValueError
+                else:
+                    return True
+
 @when("God clones the repository '{repo}' with branch '{branch}' and commit '{commit}' to '{work_dir}'")
 def git_clone_repo(step, repo, branch, commit, work_dir):
     with allure.step(f"when {step.text}"):
@@ -771,6 +792,11 @@ def tmux_vertically_split(step, tmux_session, tmux_window_name):
         r = vertically_split_window(tmux_session, tmux_window_name)
         if (r is None):
             assert RuntimeError
+
+@when('God saves pane content of "{pane_index}" in "{tmux_session}", window "{tmux_window_name}" to "{file_path}"')
+def tmux_capture_pane(step, tmux_session, tmux_window_name, pane_index, file_path):
+    with allure.step(f"when {step.text}"):
+        capture_pane(file_path, tmux_session, tmux_window_name, int(pane_index))
 
 @when('God applies kubernetes manifest in the "{namespace}" namespace')
 def kubernetes_manifest_apply(step, kube, namespace):
