@@ -37,7 +37,7 @@ import asyncio
 from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
 from git_utils import git_clone
-from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists
+from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists, capture_pane
 import yaml
 
 nats_messages = []
@@ -722,6 +722,17 @@ def file_contains_regex(step, file_path, match_regex):
                 else:
                     raise ValueError
 
+@then('file "{file_path}" should not contain "{match_regex}" regex')
+def file_not_contains_regex(step, file_path, match_regex):
+    with allure.step(f"then {step.text}"):
+        with open(file_path, 'r') as file:
+                content = file.read()
+                if re.search(match_regex, content):
+                    utils.execute_and_attach_log(f"cat {file_path}")
+                    raise ValueError
+                else:
+                    return True
+
 @when("God clones the repository '{repo}' with branch '{branch}' and commit '{commit}' to '{work_dir}'")
 def git_clone_repo(step, repo, branch, commit, work_dir):
     with allure.step(f"when {step.text}"):
@@ -773,6 +784,11 @@ def tmux_vertically_split(step, tmux_session, tmux_window_name):
         r = vertically_split_window(tmux_session, tmux_window_name)
         if (r is None):
             assert RuntimeError
+
+@when('God saves pane content of "{pane_index}" in "{tmux_session}", window "{tmux_window_name}" to "{file_path}"')
+def tmux_capture_pane(step, tmux_session, tmux_window_name, pane_index, file_path):
+    with allure.step(f"when {step.text}"):
+        capture_pane(file_path, tmux_session, tmux_window_name, int(pane_index))
 
 @when('God applies kubernetes manifest in the "{namespace}" namespace')
 def kubernetes_manifesst_apply(step, kube, namespace):
