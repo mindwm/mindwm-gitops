@@ -767,7 +767,7 @@ def tmux_vertically_split(step, tmux_session, tmux_window_name):
 
 @when('God applies kubernetes manifest in the "{namespace}" namespace')
 def kubernetes_manifesst_apply(step, kube, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         manifest = yaml.safe_load(step.doc_string.content)
         allure.attach(yaml.dump(manifest, default_flow_style=False, sort_keys=False, indent=2), name = "manifest", attachment_type='application/yaml')
         api_client = client.ApiClient()
@@ -780,7 +780,7 @@ def configmap_exists(step, kube, namespace, configmap_name):
 
 @when('God creates "{resource_name}" resource of type "{resource_type}" in the "{namespace}" namespace')
 def kubernetes_create_resource(step, kube, resource_name, resource_type, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         manifest = yaml.safe_load(step.doc_string.content)
         api_instance = client.CustomObjectsApi(kube.api_client)
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
@@ -799,13 +799,13 @@ def registry_image_check(step, image_name, image_tag, registry_url):
 
 @when('God creates the namespace "{namespace}"')
 def namespace_create(step, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         ns = Namespace.new(namespace)
         ns.create(namespace)
         ns.wait_until_ready(timeout=60)
 @when('God deletes the namespace "{namespace}"')
 def namespace_delete(step, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
        ns = Namespace.new(namespace)
        ns.delete()
 
