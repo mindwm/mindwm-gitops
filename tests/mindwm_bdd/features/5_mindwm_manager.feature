@@ -36,6 +36,7 @@ Feature: MindWM manager integration test
     When God runs the command '.venv/bin/pip install -r requirements.txt' inside the '<work_dir>' directory
     When God creates a tmux session named '<tmux_session>' with a window named '<tmux_window_name>'
     Then the tmux session '<tmux_session>' should exist
+    When God saves pane content of "0" in "<tmux_session>", window "<tmux_window_name>" to "/tmp/pane_0"
     Then God sends the command 'cd <work_dir>' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command '. .venv/bin/activate' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command 'export HOST=<host>' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
@@ -46,7 +47,9 @@ Feature: MindWM manager integration test
     Then God sends the command 'export MINDWM_SURREALDB_ENABLED="False"' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command 'python3.11 src/manager.py' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God waits for '5' seconds
+    Then file "/tmp/pane_0" should not contain "Traceback \(most recent call last\):" regex
     Then God vertically splits the tmux session '<tmux_session>', window '<tmux_window_name>'
+    When God saves pane content of "1" in "<tmux_session>", window "<tmux_window_name>" to "/tmp/pane_1"
     Then God sends the command 'cd <work_dir> && bash ./join.sh' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
     Then God waits for '5' seconds
     Then God sends the command 'id' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '1'
