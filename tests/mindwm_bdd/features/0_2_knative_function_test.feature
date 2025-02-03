@@ -134,44 +134,22 @@ Feature: Mindwm event driven architecture
                 workspace: source
               - name: build
                 workspace: build
-
-          - name: resolve-host
-            runAfter:
-              - copy
-            taskSpec:
-              results:
-                - name: host-ip
-                  description: "Resolved IP address of zot-int.zot.svc.cluster.local"
-              steps:
-                - name: get-host-ip
-                  image: nicolaka/netshoot:latest
-                  script: |
-                    #!/bin/sh
-                    echo "Resolving IP for zot-int.zot.svc.cluster.local..."
-                    IP=$(getent hosts zot-int.zot.svc.cluster.local | awk '{ print $1 }')
-                    echo "Resolved IP: $IP"
-                    echo -n "$IP" > $(results.host-ip.path)
-
           - name: buildpack
-            runAfter: 
-              - resolve-host
             params:
-              - name: REGISTRY_IP
-                value: $(tasks.resolve-host.results.host-ip)
+              - name: REGISTRY_ENDPOINT
+                value: zot-int.zot.svc.cluster.local:5000
             taskSpec:
               steps:
                 - name: pack-build
                   env:
                     - name: CNB_INSECURE_REGISTRIES 
-                      value: zot-int.zot;zot.zot.svc.cluster.local
+                      value: zot-int.zot:5000;zot.zot.svc.cluster.local:5000
                   image: buildpacksio/pack:latest
                   workingDir: /workspace/build
                   command: 
                     - pack
                     - build
-                    - $(params.REGISTRY_IP):5000/test3:latest
-                    #- --buildpack-registry
-                    #- zot.zot:5000
+                    - $(params.REGISTRY_ENDPOINT)/test3:latest
                     - --builder
                     - gcr.io/buildpacks/builder:google-22
                     - --workspace
