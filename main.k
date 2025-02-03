@@ -275,16 +275,22 @@ mindwm_app = ArgoCdOrder.make({
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
                 }
                 spec.version = config.knative.serving.version
-                spec.config.tracing = {
-                    backend = "zipkin"
-                    "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
-                    "sample-rate" = "1"
-                    debug = "true"
-                }
-                spec.config.observability = {
-                    "metrics.backend-destination" = "prometheus"
-                    "metrics.request-metrics-backend-destination" = "prometheus"
-                    # "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                spec.config = {
+                    observability = {
+                        "metrics.backend-destination" = "prometheus"
+                        "metrics.request-metrics-backend-destination" = "prometheus"
+                        # "metrics.opencensus-address" = config.monitoring.opencensus_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                    }
+                    tracing = {
+                        backend = "zipkin"
+                        "zipkin-endpoint" = config.monitoring.zipkin_endpoint(config.monitoring.tempo.release_name, config.monitoring.namespace)
+                        "sample-rate" = "1"
+                        debug = "true"
+                    }
+                    # TODO (@metacoma) use config.zot
+                    deployment = {
+                        "registries-skipping-tag-resolving" = "zot-int.zot.svc.cluster.local:5000,zot-int.zot:5000,127.0.0.1:30001"
+                    }
                 }
             }
 
@@ -412,6 +418,34 @@ mindwm_app = ArgoCdOrder.make({
                     selector = {
                         "app.kubernetes.io/instance" = "zot"
                         "app.kubernetes.io/name" =  "zot"
+                    }
+                }
+            }
+            k8core.Service {
+                metadata = {
+                    name = "dns-expose"
+                    namespace = "kube-system"
+                }
+                spec = {
+                    type = "NodePort"
+                    ports = [
+                      {
+                        name = "dns-tcp"
+                        port = 53
+                        targetPort = 53
+                        protocol = "TCP"
+                        nodePort = 30002
+                      }
+                      {
+                        name = "dns-udp"
+                        port = 53
+                        targetPort = 53
+                        protocol = "UDP"
+                        nodePort = 30002
+                      }
+                    ]
+                    selector = {
+                        "k8s-app" = "kube-dns"
                     }
                 }
             }

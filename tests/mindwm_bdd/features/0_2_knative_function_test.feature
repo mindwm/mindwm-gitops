@@ -1,4 +1,4 @@
-@knative_function_test
+@knative_function
 Feature: Mindwm event driven architecture
 
   Background:
@@ -108,7 +108,6 @@ Feature: Mindwm event driven architecture
       name: test-function
     """
     Then the configmap "<configmap_name>" should exists in namespace "<namespace>"
-
     #When God applies kubernetes manifest in the "<namespace>" namespace
     When God creates "mindwm-function-build-run" resource of type "pipelineruns.tekton.dev/v1beta1" in the "<namespace>" namespace
     """ 
@@ -135,44 +134,22 @@ Feature: Mindwm event driven architecture
                 workspace: source
               - name: build
                 workspace: build
-
-          - name: resolve-host
-            runAfter:
-              - copy
-            taskSpec:
-              results:
-                - name: host-ip
-                  description: "Resolved IP address of zot-int.zot.svc.cluster.local"
-              steps:
-                - name: get-host-ip
-                  image: nicolaka/netshoot:latest
-                  script: |
-                    #!/bin/sh
-                    echo "Resolving IP for zot-int.zot.svc.cluster.local..."
-                    IP=$(getent hosts zot-int.zot.svc.cluster.local | awk '{ print $1 }')
-                    echo "Resolved IP: $IP"
-                    echo -n "$IP" > $(results.host-ip.path)
-
           - name: buildpack
-            runAfter: 
-              - resolve-host
             params:
-              - name: REGISTRY_IP
-                value: $(tasks.resolve-host.results.host-ip)
+              - name: REGISTRY_ENDPOINT
+                value: zot-int.zot.svc.cluster.local:5000
             taskSpec:
               steps:
                 - name: pack-build
                   env:
                     - name: CNB_INSECURE_REGISTRIES 
-                      value: zot-int.zot;zot.zot.svc.cluster.local
+                      value: zot-int.zot:5000;zot.zot.svc.cluster.local:5000
                   image: buildpacksio/pack:latest
                   workingDir: /workspace/build
                   command: 
                     - pack
                     - build
-                    - $(params.REGISTRY_IP):5000/test3:latest
-                    #- --buildpack-registry
-                    #- zot.zot:5000
+                    - $(params.REGISTRY_ENDPOINT)/test3:latest
                     - --builder
                     - gcr.io/buildpacks/builder:google-22
                     - --workspace
@@ -212,9 +189,51 @@ Feature: Mindwm event driven architecture
         configMap:
           name: test-function
     """ 
-    Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace
+    Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace, timeout = "180"
+    And container "step-pack-build" in pod "mindwm-function-build-run-buildpack-pod" in namespace "<namespace>" should contain "Successfully built image" regex
+    # TODO @(metacoma) use zot-int.zot.svc.clusetr.local:5000
     Then image "test3" with tag "latest" should exists in "0.0.0.0:30001" registry
+    When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
+    """
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    metadata:
+      name: knative-function-test
+    spec:
+      template:
+        spec:
+          containers:
+            - image: zot-int.zot.svc.cluster.local:5000/test3:latest
+    """
+    Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "<namespace>" namespace
     Examples: 
+    | namespace     | configmap_name |
+    | test-function | test-function  |
+  Scenario: Send ping message to the service
+    When God creates a new cloudevent
+      And sets cloudevent header "ce-subject" to "#ping"
+      And sets cloudevent header "ce-type" to "org.mindwm.v1.iodocument"
+      And sets cloudevent header "ce-source" to "org.mindwm.alice.localhost.L3RtcC90bXV4LTEwMDAvZGVmYXVsdA==.09fb195c-c419-6d62-15e0-51b6ee990922.23.36.iodocument"
+      And sends cloudevent to knative service "knative-function-test" in "test-function" namespace
+      """
+      {
+        "input": "#ping",
+        "output": "",
+        "ps1": "❯",
+        "type": "org.mindwm.v1.iodocument"
+      }
+      """
+      Then the response http code should be "200"
+
+    Then the following deployments are in a ready state in the "<namespace>" namespace
+      | Deployment name                        |
+      | knative-function-test-00001-deployment |
+
+    And container "user-container" in pod "knative-function-test-00001-deployment-.*" in namespace "<namespace>" should contain "ping" regex
+
+    And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "<namespace>" should not contain "Traceback \(most recent call last\):" regex
+
+    Examples:
     | namespace     | configmap_name |
     | test-function | test-function  |
 

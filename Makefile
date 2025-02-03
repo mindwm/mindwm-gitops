@@ -37,7 +37,25 @@ dns_search_domain:
 	EOF
 	exit 1 
 
-precheck: verify_docker_api_server_version dns_search_domain
+
+.ONESHELL: docker_insecure_registry
+docker_insecure_registry:
+	INSECURE_REGISTRY="zot-int.zot.svc.cluster.local:5000"
+	DOCKER_CONFIG="/etc/docker/daemon.json"
+
+	if [[ ! -f "$$DOCKER_CONFIG" ]]; then
+			echo "{}" | sudo tee "$$DOCKER_CONFIG" > /dev/null
+	fi
+	if ! jq -e ".\"insecure-registries\" | index(\"$$INSECURE_REGISTRY\")" "$$DOCKER_CONFIG" > /dev/null; then
+			TMP_FILE=/tmp/daemon.json
+			jq --arg reg "$$INSECURE_REGISTRY" '
+					.["insecure-registries"] += [$$reg] // { "insecure-registries": [$$reg] }
+			' "$$DOCKER_CONFIG" > "$$TMP_FILE" && sudo mv "$$TMP_FILE" "$$DOCKER_CONFIG"
+			echo "Restarting Docker daemon..."
+			sudo systemctl restart docker
+	fi
+
+precheck: verify_docker_api_server_version docker_insecure_registry dns_search_domain
 
 fix_dns_upstream:
 	$(KUBECTL_RUN) '\
@@ -54,6 +72,15 @@ fix_dns_upstream:
 		kubectl delete pod -n kube-system -l k8s-app=kube-dns \
 	'
 
+.ONESHELL: forward_dns_cluster_local
+forward_dns_cluster_local:
+	(test -d /etc/systemd/resolved.conf.d || sudo mkdir -p /etc/systemd/resolved.conf.d)
+	cat<<EOF | sudo tee /etc/systemd/resolved.conf.d/k8s-dns.conf
+	[Resolve]
+	DNS=127.0.0.1:30002
+	Domains=~svc.cluster.local
+	EOF
+	sudo systemctl restart systemd-resolved
 
 crossplane_rolebinding_workaround:
 	$(KUBECTL_RUN) '\
@@ -78,7 +105,7 @@ cluster: deinstall precheck
 	curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.32.0+k3s1 INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
 	test -d ~/.kube || mkdir ~/.kube ;\
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
-	$(MAKE) fix_dns_upstream
+	$(MAKE) fix_dns_upstream forward_dns_cluster_local
 
 
 .PHONY: argocd

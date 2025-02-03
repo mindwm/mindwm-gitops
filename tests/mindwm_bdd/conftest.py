@@ -115,7 +115,6 @@ def kubernetes_cluster(kube, step):
         pass
     pass
 
-@allure.step("Check that all nodes in kubernetes are ready")
 @then("all nodes in kubernetes are ready")
 def kubernetes_nodes(kube):
     with allure.step(f"Check kubernetes nodes"):
@@ -314,11 +313,20 @@ def following_resource_status_equal(kube, resource_type, status_name, status, na
     title_row, *rows = step.data_table.rows
     for row in rows:
         resource_name = row.cells[0].value
-        resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step) 
+        resource_status_equal_default_timeout(kube, resource_name, resource_type, status_name, status, namespace, step) 
 
 @then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
-def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, step):
+def resource_status_equal_default_timeout(kube, resource_name, resource_type, status_name, status, namespace, step):
+    with allure.step(f"then {step.text}"):
+        resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, 90, step)
 
+@then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace, timeout = "{timeout}"')
+def resource_status_equal_with_timeout(kube, resource_name, resource_type, status_name, status, timeout, namespace, step):
+    with allure.step(f"then {step.text}"):
+        resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, int(timeout), step)
+
+
+def resource_status_equal(kube, resource_name, resource_type, status_name, status, namespace, timeout, step):
     with allure.step(f'then {step.text}'):
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
         try:
@@ -791,7 +799,7 @@ def tmux_capture_pane(step, tmux_session, tmux_window_name, pane_index, file_pat
         capture_pane(file_path, tmux_session, tmux_window_name, int(pane_index))
 
 @when('God applies kubernetes manifest in the "{namespace}" namespace')
-def kubernetes_manifesst_apply(step, kube, namespace):
+def kubernetes_manifest_apply(step, kube, namespace):
     with allure.step(f"when {step.text}"):
         manifest = yaml.safe_load(step.doc_string.content)
         allure.attach(yaml.dump(manifest, default_flow_style=False, sort_keys=False, indent=2), name = "manifest", attachment_type='application/yaml')
@@ -823,26 +831,28 @@ def registry_image_check(step, image_name, image_tag, registry_url):
 
 
 @when('God creates the namespace "{namespace}"')
-def namespace_create(step, namespace):
+def namespace_create(kube, step, namespace):
+    logging.error(f"XXX {namespace}")
     with allure.step(f"when {step.text}"):
-        ns = Namespace.new(namespace)
-        ns.create(namespace)
+        ns = Namespace.new(name = namespace)
+        ns.create()
         ns.wait_until_ready(timeout=60)
+
 @when('God deletes the namespace "{namespace}"')
-def namespace_delete(step, namespace):
+def namespace_delete(step, kube, namespace):
     with allure.step(f"when {step.text}"):
        ns = Namespace.new(namespace)
        ns.delete()
 
 # CLUSTER scoped resources
-@then('the following resources of type "{resource_type}" exists')
+@then('the following cluster resources of type "{resource_type}" exists')
 def following_cluster_resource_exists(kube, resource_type, step):
     title_row, *rows = step.data_table.rows
     for row in rows:
         resource_name = row.cells[0].value
         cluster_resource_exists(kube, resource_name, resource_type, step)
 
-@then('resource "{resource_name}" of type "{resource_type}" exists')
+@then('cluster resource "{resource_name}" of type "{resource_type}" exists')
 def cluster_resource_exists(kube, resource_name, resource_type, step):
     with allure.step(f'then {step.text}'):
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
@@ -856,14 +866,14 @@ def cluster_resource_exists(kube, resource_name, resource_type, step):
             )
         pass
 
-@then('the following resources of type "{resource_type}" has a status "{status_name}" equal "{status}"')
-def following_resource_status_equal(kube, resource_type, status_name, status, step):
+@then('the following cluster resources of type "{resource_type}" has a status "{status_name}" equal "{status}"')
+def cluster_following_resource_status_equal(kube, resource_type, status_name, status, step):
     title_row, *rows = step.data_table.rows
     for row in rows:
         resource_name = row.cells[0].value
         cluster_resource_status_equal(kube, resource_name, resource_type, status_name, status, step)
 
-@then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}"')
+@then('cluster resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}"')
 def cluster_resource_status_equal(kube, resource_name, resource_type, status_name, status, step):
 
     with allure.step(f'then {step.text}'):
