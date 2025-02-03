@@ -120,11 +120,11 @@ Feature: Mindwm event driven architecture
       | Deployment name                         |
       | crossplane                              |
       | crossplane-rbac-manager                 |
-    And the following resources of type "providers.pkg.crossplane.io/v1" has a status "Healthy" equal "True"
+    And the following cluster resources of type "providers.pkg.crossplane.io/v1" has a status "Healthy" equal "True"
       | Crossplane function |
       | provider-helm       |
       | provider-kubernetes |
-    And the following resources of type "functions.pkg.crossplane.io/v1" has a status "Healthy" equal "True"
+    And the following cluster resources of type "functions.pkg.crossplane.io/v1" has a status "Healthy" equal "True"
       | Crossplane function |
       | function-auto-ready |
       | function-kcl        |

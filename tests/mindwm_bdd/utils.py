@@ -200,7 +200,9 @@ def custom_object_status_waiting_for(kube, namespace, group, version, plural, na
         if ("conditions" not in r['status']):
             return False
         for condition in r['status']['conditions']:
+            logger.info(f"check condition {condition}, type {condition['type']} == {status_name}")
             if condition['type'] == status_name:
+                logger.info(f"MATCH condition {condition}, type {condition['type']} == {status_name}, status {condition['status']} == '{status}'")
                 if condition['status'] == status:
                     return True
         return False
@@ -214,7 +216,7 @@ def custom_object_status_waiting_for(kube, namespace, group, version, plural, na
         name,
         timeout
     )
-    condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status} in namespace {namespace}, timeout = {timeout}"
+    condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status} in namespace {namespace}, timeout = '{timeout}'"
     with allure.step(condition_name):
         try:
             kubetest_utils.wait_for_condition(
