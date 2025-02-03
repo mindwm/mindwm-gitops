@@ -65,6 +65,8 @@ Feature: MindWM manager integration test
     And container "user-container" in pod "iocontext-00001-deployment.*" in namespace "context-<context>" should contain "integration-test" regex
     And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "context-<context>" should not contain "Traceback \(most recent call last\):" regex
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
+    Then file "/tmp/pane_0" contain "integration-test" regex
+
     Examples:
       | context | username   | host      |
       | tratata | ci         | localhost |
