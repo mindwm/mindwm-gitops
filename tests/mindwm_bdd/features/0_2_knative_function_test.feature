@@ -174,7 +174,7 @@ Feature: Mindwm event driven architecture
                     #- --buildpack-registry
                     #- zot.zot:5000
                     - --builder
-                    - paketobuildpacks/builder-jammy-tiny
+                    - gcr.io/buildpacks/builder:google-22
                     - --workspace
                     - /workspace/build
                     - --docker-host=inherit

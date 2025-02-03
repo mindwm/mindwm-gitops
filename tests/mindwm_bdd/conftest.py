@@ -321,18 +321,27 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
 
     with allure.step(f'then {step.text}'):
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
-        utils.custom_object_status_waiting_for(
-            kube,
-            namespace,
-            group,
-            version,
-            plural,
-            resource_name,
-            status_name,
-            status,
-            90
-            )
-        pass
+        try:
+            utils.custom_object_status_waiting_for(
+                kube,
+                namespace,
+                group,
+                version,
+                plural,
+                resource_name,
+                status_name,
+                status,
+                90
+                )
+        except Exception as e:
+            if (resource_name == "mindwm-function-build-run"):
+                try:
+                    for pod_name in ["mindwm-function-build-run-buildpack-pod", "mindwm-function-build-run-copy-pod", "mindwm-function-build-run-resolve-host-pod"]:
+                        utils.execute_and_attach_log(f"kubectl -n {namespace} logs {pod_name}")
+                except Exception as e:
+                    logging.error(f"Failed attach logs")
+                    pass
+            raise e
 
 @given("an Ubuntu {ubuntu_version} system with {cpu:d} CPUs and {mem:d} GB of RAM")
 def environment(ctx, ubuntu_version, cpu, mem):
@@ -767,7 +776,7 @@ def tmux_vertically_split(step, tmux_session, tmux_window_name):
 
 @when('God applies kubernetes manifest in the "{namespace}" namespace')
 def kubernetes_manifesst_apply(step, kube, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         manifest = yaml.safe_load(step.doc_string.content)
         allure.attach(yaml.dump(manifest, default_flow_style=False, sort_keys=False, indent=2), name = "manifest", attachment_type='application/yaml')
         api_client = client.ApiClient()
@@ -780,7 +789,7 @@ def configmap_exists(step, kube, namespace, configmap_name):
 
 @when('God creates "{resource_name}" resource of type "{resource_type}" in the "{namespace}" namespace')
 def kubernetes_create_resource(step, kube, resource_name, resource_type, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         manifest = yaml.safe_load(step.doc_string.content)
         api_instance = client.CustomObjectsApi(kube.api_client)
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
@@ -793,19 +802,19 @@ def kubernetes_create_resource(step, kube, resource_name, resource_type, namespa
 
 @then('image "{image_name}" with tag "{image_tag}" should exists in "{registry_url}" registry')
 def registry_image_check(step, image_name, image_tag, registry_url):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         utils.docker_image_exists(registry_url, image_name, image_tag)
 
 
 @when('God creates the namespace "{namespace}"')
 def namespace_create(step, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
         ns = Namespace.new(namespace)
         ns.create(namespace)
         ns.wait_until_ready(timeout=60)
 @when('God deletes the namespace "{namespace}"')
 def namespace_delete(step, namespace):
-    with allure.step("when {step.text}"):
+    with allure.step(f"when {step.text}"):
        ns = Namespace.new(namespace)
        ns.delete()
 
