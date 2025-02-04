@@ -116,16 +116,7 @@ jobs:
         ref: main
         path: gh-pages
 
-    # - name: Build test report
-    #   uses: simple-elf/allure-report-action@v1.7
-    #   if: always()
-    #   with:
-    #     gh_pages: gh-pages/mindwm-gitops-master
-    #     allure_history: allure-history
-    #     allure_report: allure-report
-    #     allure_results: artifacts/allure-results
     - name: Allure Report Action
-      #uses: mgrybyk-org/allure-report-branch-action@v1
       uses: mgrybyk-org/allure-report-branch-js-action@v1
       if: always()
       continue-on-error: true
@@ -152,7 +143,7 @@ jobs:
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: allure-action
+        target-directory: mindwm-gitops/allure-action
 
     - name: prepare env variable for report.md
       run: | 
