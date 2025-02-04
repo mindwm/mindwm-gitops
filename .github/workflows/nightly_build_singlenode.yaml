@@ -74,17 +74,17 @@ jobs:
         key: ${{ secrets.CI_SSH_KEY }}
         command_timeout: 60m
         script: |
-          test -d ${{ env.TV_VAR_artifact_dir }} &&  rm -rfv ${{ env.TV_VAR_artifact_dir }}
-          mkdir -p ${{ env.TV_VAR_artifact_dir }}
-          echo 0 > ${{ env.TV_VAR_artifact_dir }}/exit_code
+          test -d ${{ env.TF_VAR_artifact_dir }} &&  rm -rfv ${{ env.TF_VAR_artifact_dir }}
+          mkdir -p ${{ env.TF_VAR_artifact_dir }}
+          echo 0 > ${{ env.TF_VAR_artifact_dir }}/exit_code
           test -d ~/.kube || mkdir ~/.kube
           test -d mindwm-gitops && rm -rf mindwm-gitops
           git clone -b master https://github.com/mindwm/mindwm-gitops
           cd mindwm-gitops 
           export KUBECONFIG=${HOME}/.kube/config
           make mindwm_test 
-          echo $? > ${{ env.TV_VAR_artifact_dir }}/exit_code
-          cd ${{ env.TV_VAR_artifact_dir }}
+          echo $? > ${{ env.TF_VAR_artifact_dir }}/exit_code
+          cd ${{ env.TF_VAR_artifact_dir }}
           tar cvf /tmp/artifacts.tar . 
 
 
