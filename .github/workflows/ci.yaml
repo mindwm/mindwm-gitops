@@ -24,6 +24,7 @@ env:
   TF_VAR_artifact_dir: "/tmp/artifacts"
   TF_VAR_run_number: ${{ github.run_number }}
   TF_VAR_run_attempt: ${{ github.run_attempt }}
+  TF_VAR_node_name: "mindwm-${{ github.sha }}"
 
 jobs:
   ci:

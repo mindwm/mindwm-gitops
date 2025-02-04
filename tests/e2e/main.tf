@@ -45,6 +45,11 @@ variable run_attempt {
     sensitive = false
 }
 
+variable node_name {
+    description = "vm node name"
+    sensitive = false
+}
+
 variable artifact_dir {
     description = "artifact dir"
     sensitive = false
@@ -58,7 +63,8 @@ provider "linode" {
 
 
 resource "linode_instance" "ci" {
-  label           = "mindwm-ci-${var.git_commit_sha}-${var.run_number}-${var.run_attempt}"
+  label           = "${var.node_name}"
+  #label           = "mindwm-ci-${var.git_commit_sha}-${var.run_number}-${var.run_attempt}"
   image           = "linode/ubuntu24.04"
   region          = "nl-ams"
   type            = "g6-standard-6"
