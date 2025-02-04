@@ -40,6 +40,11 @@ variable run_number {
     sensitive = false
 }
 
+variable run_attempt {
+    description = "github job run attempt"
+    sensitive = false
+}
+
 variable artifact_dir {
     description = "artifact dir"
     sensitive = false
@@ -53,7 +58,7 @@ provider "linode" {
 
 
 resource "linode_instance" "ci" {
-  label           = "mindwm-ci-${var.git_commit_sha}-${var.run_number}"
+  label           = "mindwm-ci-${var.git_commit_sha}-${var.run_number}-${var.run_attempt}"
   image           = "linode/ubuntu24.04"
   region          = "nl-ams"
   type            = "g6-standard-6"
