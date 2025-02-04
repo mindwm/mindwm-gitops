@@ -3,21 +3,8 @@ title: "[nightly-build] fails"
 assignees: metacoma
 labels: nightly-build, need-triage, github-actions, tests
 ---
-Someone just pushed, oh no! Here's who did it: {{ payload.sender.login }}.
 
-junit:
-
-total = {{ env.JUNIT_TOTAL }}
-
-passed = {{ env.JUNIT_PASSED }}
-
-skipped = {{ env.JUNIT_SKIPPED }}
-
-retried = {{ env.JUNIT_RETRIED }}
-
-failed = {{ env.JUNIT_FAILED }}
-
-####
+{{ env.ALLURE_TEST_RESULT_ICON }} [Allure report]({{ env.ALLURE_REPORT_URL }})
 
 summary
 
