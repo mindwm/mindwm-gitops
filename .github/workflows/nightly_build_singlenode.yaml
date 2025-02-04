@@ -133,7 +133,7 @@ jobs:
         list_dirs: true
         report_id: 'self-test'
         gh_pages: 'gh-pages'
-        report_dir: 'allure-results'
+        report_dir: 'artifacts/allure-results'
 
     - name: git commit workaround
       run: |
