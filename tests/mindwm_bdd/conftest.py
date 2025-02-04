@@ -2,6 +2,7 @@ import allure
 import logging
 import pytest
 import re
+from datetime import datetime, timezone
 import pprint
 import kubetest
 from kubetest.client import TestClient
@@ -41,6 +42,8 @@ from tmux import create_tmux_session, send_command_to_pane, vertically_split_win
 import yaml
 
 nats_messages = []
+
+logger = logging.getLogger(__name__)
 
 # configure allure logging
 class AllureLoggingHandler(logging.Handler):
@@ -890,3 +893,22 @@ def cluster_resource_status_equal(kube, resource_name, resource_type, status_nam
             )
         pass
 
+
+@then('pods matching the label "{label}" in "{namespace}" namespace, have an age greater than {age}')
+def pod_age_greater(step, kube, namespace, label, age):
+    with allure.step("then f{step.text}"):
+        api_client = client.ApiClient()
+        pods = client.CoreV1Api(api_client=api_client).list_namespaced_pod(
+            namespace=namespace, label_selector=label
+        )
+        assert(len(pods.items) > 0), f"No pods found with label {label} in namespace {namespace}"
+
+        current_time = datetime.now(timezone.utc)
+        age = int(age)  # Ensure age is treated as an integer
+
+        for pod in pods.items:
+            pod_creation_time = pod.metadata.creation_timestamp
+            pod_age_seconds = (current_time - pod_creation_time.replace(tzinfo=timezone.utc)).total_seconds()
+            logging.info(f"Pod {pod.metadata.name} has age {pod_age_seconds} seconds")
+            assert pod_age_seconds > age, f"Pod {pod.metadata.name} is not older than {age} seconds"
+        pass
