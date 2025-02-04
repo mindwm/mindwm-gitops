@@ -120,14 +120,14 @@ jobs:
       uses: simple-elf/allure-report-action@v1.7
       if: always()
       with:
-        gh_pages: gh-pages/mindwm-gitops
+        gh_pages: gh-pages/mindwm-gitops-master
         allure_history: allure-history
         allure_report: allure-report
         allure_results: artifacts/allure-results
 
     - name: git commit workaround
       run: |
-        sudo rm -rf mindwm-gitops/allure-history/.git
+        sudo rm -rf mindwm-gitops-master/allure-history/.git
 
     - name: Update mindwm.github.io
       id: update_mindwm_github_io
@@ -146,7 +146,7 @@ jobs:
     - name: prepare env variable for report.md
       run: | 
         echo "REPORT_MD<<EOF" >> $GITHUB_ENV
-        echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})"  >> $GITHUB_ENV
+        echo "[allure report](https://mindwm.github.io/mindwm-gitops-master/${{ github.run_number }})"  >> $GITHUB_ENV
         echo '<details>' >> $GITHUB_ENV
         echo '<summary>gherkin outptut</summary>' >> $GITHUB_ENV
         grep -vE '^features' artifacts/report.md  >> $GITHUB_ENV
