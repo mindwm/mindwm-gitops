@@ -183,9 +183,11 @@ jobs:
         JUNIT_FLAKY_SUMMARY: ${{ steps.junit.outputs.flaky }}
         ALLURE_TEST_RESULT_ICON: ${{ steps.allure.outputs.test_result_icon }}
         ALLURE_REPORT_URL: ${{ steps.allure.outputs.report_url }}
+        GITHUB_FAILED_JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       with:
         update_existing: true
         search_existing: open
+        filename: .github/NIGHTLY_JOB_TEMPLATE.md
 
 
     - name: terraform destroy
