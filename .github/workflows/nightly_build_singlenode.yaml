@@ -132,7 +132,7 @@ jobs:
       id: allure # used in comment to PR
       with:
         list_dirs: true
-        report_id: 'self-test'
+        report_id: 'ci'
         gh_pages: 'gh-pages'
         report_dir: 'artifacts/allure-results'
 
