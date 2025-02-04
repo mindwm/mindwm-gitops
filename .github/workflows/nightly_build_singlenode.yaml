@@ -116,18 +116,28 @@ jobs:
         ref: main
         path: gh-pages
 
-    - name: Build test report
-      uses: simple-elf/allure-report-action@v1.7
+    # - name: Build test report
+    #   uses: simple-elf/allure-report-action@v1.7
+    #   if: always()
+    #   with:
+    #     gh_pages: gh-pages/mindwm-gitops-master
+    #     allure_history: allure-history
+    #     allure_report: allure-report
+    #     allure_results: artifacts/allure-results
+    - name: Allure Report Action
+      uses: mgrybyk-org/allure-report-branch-action@v1
       if: always()
+      continue-on-error: true
+      id: allure # used in comment to PR
       with:
-        gh_pages: gh-pages/mindwm-gitops-master
-        allure_history: allure-history
-        allure_report: allure-report
-        allure_results: artifacts/allure-results
+        list_dirs: true
+        report_id: 'self-test'
+        gh_pages: 'gh-pages'
+        report_dir: 'allure-results'
 
     - name: git commit workaround
       run: |
-        sudo rm -rf mindwm-gitops-master/allure-history/.git
+        sudo rm -rf mindwm-gitops/allure-history/.git
 
     - name: Update mindwm.github.io
       id: update_mindwm_github_io
@@ -135,13 +145,13 @@ jobs:
       env:
         SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
       with:
-        source-directory: allure-history
+        source-directory: allure-results
         destination-github-username: 'mindwm'
         destination-repository-name: 'mindwm.github.io'
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: /mindwm-gitops-master/
+        target-directory: allure-results
 
     - name: prepare env variable for report.md
       run: | 
