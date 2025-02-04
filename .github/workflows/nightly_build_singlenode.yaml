@@ -127,10 +127,6 @@ jobs:
         gh_pages: 'gh-pages'
         report_dir: 'artifacts/allure-results'
 
-    - name: git commit workaround
-      run: |
-        sudo rm -rf mindwm-gitops/allure-history/.git
-
     - name: Update mindwm.github.io
       id: update_mindwm_github_io
       uses: cpina/github-action-push-to-another-repository@target-branch
@@ -144,17 +140,6 @@ jobs:
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
         target-directory: mindwm-gitops/allure-action
-
-    - name: prepare env variable for report.md
-      run: | 
-        echo "REPORT_MD<<EOF" >> $GITHUB_ENV
-        echo "[allure report](https://mindwm.github.io/mindwm-gitops-master/${{ github.run_number }})"  >> $GITHUB_ENV
-        echo '<details>' >> $GITHUB_ENV
-        echo '<summary>gherkin outptut</summary>' >> $GITHUB_ENV
-        grep -vE '^features' artifacts/report.md  >> $GITHUB_ENV
-        echo '</details>' >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
 
     - name: return exit code
       run: | 
