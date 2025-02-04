@@ -153,10 +153,17 @@ jobs:
       run: | 
         exit `cat artifacts/exit_code`
 
+    - name: set JUNIT_FAILED_TEST_TITLE variable
+      if: failure()
+      run: |
+        echo "JUNIT_FAILED_TEST_TITLE="$(cat artifacts/failed_test_title)" >> $GITHUB_ENV
+
+
     - name: "Create an issue"
       uses: JasonEtco/create-an-issue@v2
       if: failure()
       env:
+        ISSUE_TITLE: ${{ env.JUNIT_FAILED_TEST_TITLE }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         JUNIT_TOTAL: ${{ steps.junit.outputs.total }}
         JUNIT_PASSED: ${{ steps.junit.outputs.passed }}
