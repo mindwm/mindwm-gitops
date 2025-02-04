@@ -168,6 +168,9 @@ jobs:
         JUNIT_FLAKY_SUMMARY: ${{ steps.junit.outputs.flaky }}
         ALLURE_TEST_RESULT_ICON: ${{ steps.allure.outputs.test_result_icon }}
         ALLURE_REPORT_URL: ${{ steps.allure.outputs.report_url }}
+      with:
+        update_existing: true
+        search_existing: open
 
 
     - name: terraform destroy
