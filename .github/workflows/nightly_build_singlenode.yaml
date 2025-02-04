@@ -141,7 +141,7 @@ jobs:
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: /mindwm-gitops
+        target-directory: /mindwm-gitops/master/
 
     - name: prepare env variable for report.md
       run: | 
