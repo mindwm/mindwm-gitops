@@ -1,5 +1,5 @@
 ---
-title: [nightly-build] fails
+title: "[nightly-build] fails"
 assignees: metacoma
 labels: nightly-build, need-triage, github-actions, test
 ---
