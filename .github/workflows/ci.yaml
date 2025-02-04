@@ -142,6 +142,7 @@ jobs:
         target-branch: main
         target-directory: mindwm-gitops/allure-action
 
+
     - name: Comment PR with Allure Report link
       if: ${{ always() && github.event_name == 'pull_request' && steps.allure.outputs.report_url }}
       continue-on-error: true
@@ -151,6 +152,12 @@ jobs:
           ${{ steps.allure.outputs.test_result_icon }} [Allure Report](${{ steps.allure.outputs.report_url }}) | [History](${{ steps.allure.outputs.report_history_url }})
         comment_tag: allure_report
         mode: recreate
+
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v5
+      if: success() || failure() # always run even if the previous step fails
+      with:
+        report_paths: 'artifacts/report.xml'
 
 
     - name: return exit code
