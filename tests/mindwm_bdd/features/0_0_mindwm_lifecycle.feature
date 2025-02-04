@@ -1,5 +1,5 @@
 @mindwm_lifecycle
-@mindem_test
+@mindwm_test
 Feature: Mindwm Lifecycle Management
 
   Background:
