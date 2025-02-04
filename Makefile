@@ -263,7 +263,7 @@ mindwm_test:
 	pytest -s -x -m "fake_test" --no-header --junit-xml=$(ARTIFACT_DIR)/report.xml --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . | tee $(ARTIFACT_DIR)/report.md
 	exit_code=$${PIPESTATUS[0]}
 	echo $${exit_code} > $(ARTIFACT_DIR)/exit_code
-	xmlstarlet sel -t -m "//testcase[failure2]" -v "concat(@classname,' ', @name)" -n $(ARTIFACT_DIR)/report.xml > $(ARTIFACT_DIR)/failed_test_title
+	xmlstarlet sel -t -m "//testcase[failure2]" -v "concat(@classname,' ', @name)" -n $(ARTIFACT_DIR)/report.xml | tee $(ARTIFACT_DIR)/failed_test_title
 	exit $${exit_code}
 
 
