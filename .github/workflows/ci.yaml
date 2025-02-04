@@ -117,26 +117,16 @@ jobs:
         ref: main
         path: gh-pages
 
-#    - name: List 1
-#      run: |
-#        find .
-
-    - name: Build test report
-      uses: simple-elf/allure-report-action@v1.7
+    - name: Allure Report Action
+      uses: mgrybyk-org/allure-report-branch-js-action@v1
       if: always()
+      continue-on-error: true
+      id: allure # used in comment to PR
       with:
-        gh_pages: gh-pages/mindwm-gitops
-        allure_history: allure-history
-        allure_report: allure-report
-        allure_results: artifacts/allure-results
-
-#    - name: List 2
-#      run: |
-#        find .
-
-    - name: git commit workaround
-      run: |
-        sudo rm -rf mindwm-gitops/allure-history/.git
+        list_dirs: true
+        report_id: 'ci'
+        gh_pages: 'gh-pages'
+        report_dir: 'artifacts/allure-results'
 
     - name: Update mindwm.github.io
       id: update_mindwm_github_io
@@ -144,36 +134,24 @@ jobs:
       env:
         SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
       with:
-        source-directory: allure-history
+        source-directory: gh-pages/allure-action
         destination-github-username: 'mindwm'
         destination-repository-name: 'mindwm.github.io'
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: /mindwm-gitops
+        target-directory: allure-action
 
-    - name: prepare env variable for report.md
-      run: | 
-        echo "REPORT_MD<<EOF" >> $GITHUB_ENV
-        echo "[allure report](https://mindwm.github.io/mindwm-gitops/${{ github.run_number }})"  >> $GITHUB_ENV
-        echo '<details>' >> $GITHUB_ENV
-        echo '<summary>gherkin outptut</summary>' >> $GITHUB_ENV
-        grep -vE '^features' artifacts/report.md  >> $GITHUB_ENV
-        echo '</details>' >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
-
-    - uses: actions/github-script@v7
-      env:
-        COMMENT_BODY: ${{env.REPORT_MD}}
+    - name: Comment PR with Allure Report link
+      if: ${{ always() && github.event_name == 'pull_request' && steps.allure.outputs.report_url }}
+      continue-on-error: true
+      uses: thollander/actions-comment-pull-request@v2
       with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: process.env.COMMENT_BODY
-          })
+        message: |
+          ${{ steps.allure.outputs.test_result_icon }} [Allure Report](${{ steps.allure.outputs.report_url }}) | [History](${{ steps.allure.outputs.report_history_url }})
+        comment_tag: allure_report
+        mode: recreate
+
 
     - name: return exit code
       run: | 
