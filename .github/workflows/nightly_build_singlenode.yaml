@@ -162,6 +162,8 @@ jobs:
       if: failure() && steps.have_artifacts.outcome == 'success'
       run: |
         echo 'JUNIT_FAILED_TEST_TITLE="'$(cat artifacts/failed_test_title)'"' >> $GITHUB_ENV
+        ls -ltr artifacts/failed_test_title
+        cat artifacts/failed_test_title
         echo 'JUNIT_FAILED_TEST_TITLE="'$(cat artifacts/failed_test_title)'"' 
 
 
