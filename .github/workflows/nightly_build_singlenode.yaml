@@ -146,7 +146,7 @@ jobs:
       env:
         SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
       with:
-        source-directory: allure-action
+        source-directory: gh-pages/allure-action
         destination-github-username: 'mindwm'
         destination-repository-name: 'mindwm.github.io'
         user-email: github-actions@github.com
