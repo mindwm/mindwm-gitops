@@ -1,4 +1,5 @@
-@eda
+@mindwm_eda
+@mindwm_test
 Feature: Mindwm event driven architecture
 
   Background:

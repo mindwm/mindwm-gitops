@@ -1,4 +1,5 @@
-@knative_function
+@mindwm_knative_function
+@mindwm_test
 Feature: Mindwm event driven architecture
 
   Background:
