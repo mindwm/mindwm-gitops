@@ -35,12 +35,12 @@ mindwm_app = ArgoCdOrder.make({
             k8core.Namespace {
                 metadata.name = config.istio.gateway.namespace
             }
-            #k8core.Namespace {
-            #    metadata.name = config.knative.serving.namespace
-            #    metadata.labels = {
-            #        "istio-injection" = "enabled"
-            #    }
-            #}
+            k8core.Namespace {
+                metadata.name = config.knative.serving.namespace
+                metadata.labels = {
+                    "istio-injection" = "enabled"
+                }
+            }
             k8core.Namespace {
                 metadata.name = config.knative.eventing.namespace
             }
@@ -293,7 +293,7 @@ mindwm_app = ArgoCdOrder.make({
                     }
                 }
                 spec.namespace.labels = {
-                  "istio-injection" = "true"
+                  "istio-injection" = "enabled"
                 }
             }
 
