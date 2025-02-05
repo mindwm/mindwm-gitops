@@ -269,7 +269,7 @@ mindwm_app = ArgoCdOrder.make({
 
             RedPandaSchema.makeKafkaCluster(config.kafka.cluster_name)
             knative.KnativeServing {
-                metadata.name = "knative-serving"
+                metadata.name = "knative-operator"
                 metadata.namespace = config.knative.serving.namespace
                 metadata.annotations = {
                     "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
