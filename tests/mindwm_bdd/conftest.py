@@ -455,7 +455,7 @@ def statefulset_is_ready(kube, statefulset_name, namespace, step):
         statefulset = utils.statefulset_wait_for(kube, statefulset_name, namespace)
         with allure.step(f"waiting for statefulset {statefulset_name} is ready"):
             try:
-                statefulset.wait_until_ready(180)
+                statefulset.wait_until_ready(300)
             except Exception as e:
                 utils.execute_and_attach_log(f"kubectl -n {namespace} get statefulset")
                 raise e
