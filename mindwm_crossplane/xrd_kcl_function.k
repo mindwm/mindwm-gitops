@@ -695,7 +695,7 @@ makeUserXR = lambda {
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
-                knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.1.0" }
+                knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "1.17.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 """
                 spec.source = template.execute("""\
@@ -871,7 +871,7 @@ makeHostXR = lambda {
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
-                knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.1.0" }
+                knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "1.17.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 """
                 spec.source = template.execute("""\
