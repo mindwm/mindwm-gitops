@@ -1,3 +1,4 @@
+# Issue https://github.com/mindwm/mindwm-gitops/issues/100
 @mindwm_crd
 @mindwm_test
 Feature: MindWM Custom Resource Definition

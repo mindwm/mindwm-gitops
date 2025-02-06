@@ -19,6 +19,7 @@ import util
 #import argoproj.v1alpha1 as argoproj
 import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
 import istio.v1alpha3.networking_istio_io_v1alpha3_virtual_service as istio_virtual_service
+import istio.v1beta1.security_istio_io_v1beta1_peer_authentication as istio_security
 import crossplane.v1 as crossplane
 
 
@@ -268,6 +269,16 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             RedPandaSchema.makeKafkaCluster(config.kafka.cluster_name)
+            istio_security.PeerAuthentication {
+              metadata = {
+                namespace = config.knative.serving.namespace
+                name = "default" # TODO(@metacoma) name = knative-serving?
+                annotations = {
+                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+                }
+              }
+              spec.mtls.mode = "PERMISSIVE"
+            }
             knative.KnativeServing {
                 metadata.name = "knative-serving"
                 metadata.namespace = config.knative.serving.namespace
@@ -291,6 +302,9 @@ mindwm_app = ArgoCdOrder.make({
                     deployment = {
                         "registries-skipping-tag-resolving" = "zot-int.zot.svc.cluster.local:5000,zot-int.zot:5000,127.0.0.1:30001"
                     }
+                }
+                spec.namespace.labels = {
+                  "istio-injection" = "enabled"
                 }
             }
 
@@ -346,16 +360,16 @@ mindwm_app = ArgoCdOrder.make({
             })
         ]
         CrossPlaneProvider.makeCrossPlaneProviderHelm(CrossPlaneProvider.helm)
-        [
-            p.merge(resource, {
-                metadata.annotations = {
-                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-                }
-            })
-            for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
-
-
-        ]
+        #[
+        #    p.merge(resource, {
+        #        metadata.annotations = {
+        #            "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+        #        }
+        #    })
+        #    for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
+        #
+        #
+        #]
         [
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
