@@ -87,7 +87,7 @@ makeContextXR = lambda {
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
                 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.16.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
-                knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "1.17.2" }
+                knative-operator = { oci = "oci://ghcr.io/metacoma/knative-operator", tag = "1.17.2" }
                 knative = { oci = "oci://ghcr.io/metacoma/knative", tag = "1.17.0" }
                 istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.21.3" }
                 json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.0" }
