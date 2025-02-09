@@ -74,7 +74,7 @@ jobs:
         host: ${{ env.CI_INSTANCE_IP }}
         username: ci
         key: ${{ secrets.CI_SSH_KEY }}
-        command_timeout: 90m
+        command_timeout: 70m
         script: |
           test -d ${{ env.TF_VAR_artifact_dir }} &&  rm -rfv ${{ env.TV_VAR_artifact_dir }}
           mkdir -p ${{ env.TF_VAR_artifact_dir }}
