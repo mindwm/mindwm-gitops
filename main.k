@@ -273,9 +273,6 @@ mindwm_app = ArgoCdOrder.make({
               metadata = {
                 namespace = config.knative.serving.namespace
                 name = "default" # TODO(@metacoma) name = knative-serving?
-                annotations = {
-                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-                }
               }
               spec.mtls.mode = "PERMISSIVE"
             }
