@@ -896,6 +896,29 @@ def istio_virtualservices_check(step, kube, namespace):
 
 @then('the VirtualService "{virtual_service_name}" in the "{namespace}" namespace should return HTTP status code "{code} for the "{uri}" URI')
 def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri, code):
+
+    api_client = client.ApiClient()
+    api_instance = client.CustomObjectsApi(kube.api_client)
+
+    try:
+        # Fetch the Istio VirtualService
+        virtual_service = api_instance.get_namespaced_custom_object(
+            group="networking.istio.io",
+            version="v1",
+            namespace=namespace,
+            plural="virtualservices",
+            name=virtual_service_name
+        )
+        
+        # Extract hostnames from the spec
+        hosts = virtual_service.get("spec", {}).get("hosts", [])
+        
+        print(f"VirtualService '{virtual_service_name}' in namespace '{namespace}' has hosts:")
+        for host in hosts:
+            print(f"  - {host}")
+        
+    except client.ApiException as e:
+        print(f"Error retrieving VirtualService: {e}")
     pass
 
 
