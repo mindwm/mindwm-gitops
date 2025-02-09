@@ -37,9 +37,6 @@ mindwm_app = ArgoCdOrder.make({
             }
             k8core.Namespace {
                 metadata.name = config.knative.serving.namespace
-                #metadata.labels = {
-                #    "istio-injection" = "enabled"
-                #}
             }
             k8core.Namespace {
                 metadata.name = config.knative.eventing.namespace
@@ -292,9 +289,6 @@ mindwm_app = ArgoCdOrder.make({
                         "registries-skipping-tag-resolving" = "zot-int.zot.svc.cluster.local:5000,zot-int.zot:5000,127.0.0.1:30001"
                     }
                 }
-                #spec.namespace.labels = {
-                #  "istio-injection" = "enabled"
-                #}
             }
 
             knative.KnativeEventing {
