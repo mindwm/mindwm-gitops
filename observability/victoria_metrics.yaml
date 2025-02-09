@@ -840,7 +840,8 @@ grafana:
   # Enabling VictoriaMetrics Datasource in Grafana. See more details here: https://github.com/VictoriaMetrics/grafana-datasource/blob/main/README.md#victoriametrics-datasource-for-grafana
   # Note that Grafana will need internet access to install the datasource plugin.
   # Uncomment the block below, if you want to enable VictoriaMetrics Datasource in Grafana:
-  #plugins:
+  plugins:
+    - https://github.com/grafana/grafana-image-renderer/releases/download/v3.12.0/plugin-linux-x64-glibc-no-chromium.zip;grafana-image-render
   #  - "https://github.com/VictoriaMetrics/grafana-datasource/releases/download/v0.5.0/victoriametrics-datasource-v0.5.0.zip;victoriametrics-datasource"
   #grafana.ini:
   #  plugins:
