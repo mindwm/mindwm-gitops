@@ -892,33 +892,39 @@ def cluster_resource_status_equal(kube, resource_name, resource_type, status_nam
 
 @then('the following VirtualServices in the "{namespace}" namespace should return the correct HTTP codes.')
 def istio_virtualservices_check(step, kube, namespace):
-    pass
+    with allure.step(f'then {step.text}'):
+        title_row, *rows = step.data_table.rows
+        for row in rows:
+            virtual_service_name = row.cells[0].value
+            uri = row.cells[1].value
+            http_code = row.cells[2].value
+            istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri, http_code)
 
-@then('the VirtualService "{virtual_service_name}" in the "{namespace}" namespace should return HTTP status code "{code} for the "{uri}" URI')
-def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri, code):
+@then('the VirtualService "{virtual_service_name}" in the "{namespace}" namespace should return HTTP status code "{http_code}" for the "{uri}" URI')
+def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri, http_code):
 
-    api_client = client.ApiClient()
-    api_instance = client.CustomObjectsApi(kube.api_client)
+    with allure.step(f'then {step.text}'):
+        api_client = client.ApiClient()
+        api_instance = client.CustomObjectsApi(api_client)
 
-    try:
-        # Fetch the Istio VirtualService
-        virtual_service = api_instance.get_namespaced_custom_object(
-            group="networking.istio.io",
-            version="v1",
-            namespace=namespace,
-            plural="virtualservices",
-            name=virtual_service_name
-        )
-        
-        # Extract hostnames from the spec
-        hosts = virtual_service.get("spec", {}).get("hosts", [])
-        
-        print(f"VirtualService '{virtual_service_name}' in namespace '{namespace}' has hosts:")
-        for host in hosts:
-            print(f"  - {host}")
-        
-    except client.ApiException as e:
-        print(f"Error retrieving VirtualService: {e}")
-    pass
+        try:
+            virtual_service = api_instance.get_namespaced_custom_object(
+                group="networking.istio.io",
+                version="v1",
+                namespace=namespace,
+                plural="virtualservices",
+                name=virtual_service_name
+            )
+
+            hosts = virtual_service.get("spec", {}).get("hosts", [])
+            host = hosts[0]
+            print(f"VirtualService '{virtual_service_name}' in namespace '{namespace}' has host: {host}")
+            url = f'http://{host}{uri}'
+            response = requests.get(url)
+            assert response.status_code == int(http_code), f"HTTP code {http_code} != {response.status_code} for url {url}"
+            
+            
+        except client.ApiException as e:
+            print(f"Error retrieving VirtualService: {e}")
 
 
