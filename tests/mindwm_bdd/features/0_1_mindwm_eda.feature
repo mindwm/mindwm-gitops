@@ -66,6 +66,9 @@ Feature: Mindwm event driven architecture
       | istiod                  |
       | istio-ingressgateway    |
 
+  Scenario: ArgoCD
+    Then the VirtualService "argocd-vs" in the "argocd" namespace should return HTTP status code "200" for the "/" URI
+
   Scenario: Redpanda
     And namespace "redpanda" should exist
     And the following deployments are in a ready state in the "redpanda" namespace
@@ -114,6 +117,12 @@ Feature: Mindwm event driven architecture
       | loki-vs                    | loki.mindwm.local    |
       | tempo-vs                   | tempo.mindwm.local    |
       | vm-vs                      | vm.mindwm.local    |
+    And the following VirtualServices in the "monitoring" namespace should return the correct HTTP codes.
+      | Istio virtual service name | URL      | Code |  
+      | grafana-vs                 | /login   | 200  |
+      | loki-vs                    | /        | 200  |
+      | tempo-vs                   | /ready   | 200  |
+      | vm-vs                      | /ready   | 200  | 
 
   Scenario: Crossplane
     And namespace "crossplane-system" should exist

@@ -890,3 +890,12 @@ def cluster_resource_status_equal(kube, resource_name, resource_type, status_nam
             )
         pass
 
+@then('the following VirtualServices in the "{namespace}" namespace should return the correct HTTP codes.')
+def istio_virtualservices_check(step, kube, namespace):
+    pass
+
+@then('the VirtualService "{virtual_service_name}" in the "{namespace}" namespace should return HTTP status code "{code} for the "{uri}" URI')
+def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri, code):
+    pass
+
+
