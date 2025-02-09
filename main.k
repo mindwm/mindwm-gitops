@@ -482,7 +482,7 @@ mindwm_app = ArgoCdOrder.make({
                   match = [{ uri.prefix = "/", port = 80}]
                   route = [{ 
                     destination.host = config.monitoring.grafana.destination()
-                    destination.port.number = 3000 # TODO(@metacoma) hardcode
+                    destination.port.number = 80 # TODO(@metacoma) hardcode
                   }]
 
                 }]

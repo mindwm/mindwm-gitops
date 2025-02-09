@@ -893,6 +893,42 @@ def cluster_resource_status_equal(kube, resource_name, resource_type, status_nam
             )
         pass
 
+@then('the following VirtualServices in the "{namespace}" namespace should return the correct HTTP codes.')
+def istio_virtualservices_check(step, kube, namespace):
+    with allure.step(f'then {step.text}'):
+        title_row, *rows = step.data_table.rows
+        for row in rows:
+            virtual_service_name = row.cells[0].value
+            uri = row.cells[1].value
+            http_code = row.cells[2].value
+            istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri, http_code)
+
+@then('the VirtualService "{virtual_service_name}" in the "{namespace}" namespace should return HTTP status code "{http_code}" for the "{uri}" URI')
+def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri, http_code):
+
+    with allure.step(f'then {step.text}'):
+        api_client = client.ApiClient()
+        api_instance = client.CustomObjectsApi(api_client)
+
+        try:
+            virtual_service = api_instance.get_namespaced_custom_object(
+                group="networking.istio.io",
+                version="v1",
+                namespace=namespace,
+                plural="virtualservices",
+                name=virtual_service_name
+            )
+
+            hosts = virtual_service.get("spec", {}).get("hosts", [])
+            host = hosts[0]
+            logging.info(f"VirtualService '{virtual_service_name}' in namespace '{namespace}' has host: {host}")
+            url = f'http://{host}{uri}'
+            response = requests.get(url)
+            assert response.status_code == int(http_code), f"HTTP code {http_code} != {response.status_code} for url {url}"
+            
+            
+        except client.ApiException as e:
+            logging.error(f"Error retrieving VirtualService: {e}")
 
 @then('pods matching the label "{label}" in "{namespace}" namespace, have an age greater than {age}')
 def pod_age_greater(step, kube, namespace, label, age):
