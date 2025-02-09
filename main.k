@@ -19,7 +19,6 @@ import util
 #import argoproj.v1alpha1 as argoproj
 import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
 import istio.v1alpha3.networking_istio_io_v1alpha3_virtual_service as istio_virtual_service
-import istio.v1beta1.security_istio_io_v1beta1_peer_authentication as istio_security
 import crossplane.v1 as crossplane
 
 
@@ -269,13 +268,6 @@ mindwm_app = ArgoCdOrder.make({
             })
 
             RedPandaSchema.makeKafkaCluster(config.kafka.cluster_name)
-            istio_security.PeerAuthentication {
-              metadata = {
-                namespace = config.knative.serving.namespace
-                name = "default" # TODO(@metacoma) name = knative-serving?
-              }
-              spec.mtls.mode = "PERMISSIVE"
-            }
             knative.KnativeServing {
                 metadata.name = "knative-serving"
                 metadata.namespace = config.knative.serving.namespace
