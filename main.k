@@ -37,9 +37,6 @@ mindwm_app = ArgoCdOrder.make({
             }
             k8core.Namespace {
                 metadata.name = config.knative.serving.namespace
-                metadata.labels = {
-                    "istio-injection" = "enabled"
-                }
             }
             k8core.Namespace {
                 metadata.name = config.knative.eventing.namespace
@@ -346,16 +343,16 @@ mindwm_app = ArgoCdOrder.make({
             })
         ]
         CrossPlaneProvider.makeCrossPlaneProviderHelm(CrossPlaneProvider.helm)
-        [
-            p.merge(resource, {
-                metadata.annotations = {
-                    "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
-                }
-            })
-            for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
-
-
-        ]
+        #[
+        #    p.merge(resource, {
+        #        metadata.annotations = {
+        #            "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+        #        }
+        #    })
+        #    for resource in yaml.decode_all(file.read("manifests/net-istio.yaml"))
+        #
+        #
+        #]
         [
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
