@@ -12,6 +12,11 @@ jobs:
           docker run --rm -v "$(pwd)":/workspace -w /workspace kcllang/kcl:v0.9.7 kcl run -o main.yaml
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@v41.0.12
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_USERNAME: "renovate"
+          RENOVATE_GIT_AUTHOR: "renovate-mindwm <121964725+renovate-mindwm[bot]@users.noreply.github.com>"
+          RENOVATE_PLATFORM_COMMIT: "true"
         with:
           configurationFile: renovate-config.js
           token: ${{ secrets.GITHUB_TOKEN }}
