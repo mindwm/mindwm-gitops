@@ -17,10 +17,12 @@
     name = "crossplane"
     full_name = "crossplane_1.16.0"
     version = "1.16.0"
+    sum = "5xS7SRf897u4R3cO0FWd3AWpoeicjbui1oeX6JyEgG0="
   [dependencies.istio]
     name = "istio"
     full_name = "istio_1.21.2"
     version = "1.21.2"
+    sum = "FtqHLhCwxWFWtREklVT0J/GjT34BUUdUG2uoaOlPwYY="
   [dependencies.json_merge_patch]
     name = "json_merge_patch"
     full_name = "json_merge_patch_0.1.0"
