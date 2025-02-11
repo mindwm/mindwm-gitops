@@ -9,7 +9,6 @@ import .nats as nats
 import knative_operator.v1beta1 as knative
 import json_merge_patch as p
 #import .flux as flux
-import .redpanda.config as redpanda_config
 import .redpanda.schema as RedPandaSchema
 import .mindwm_crossplane.function as CrossPlaneFunction
 import .mindwm_crossplane.provider as CrossPlaneProvider
@@ -27,7 +26,7 @@ mindwm_app = ArgoCdOrder.make({
     Sync = [
         [
             k8core.Namespace {
-                metadata.name = redpanda_config.redpanda.namespace
+                metadata.name = config.redpanda.namespace
             }
             k8core.Namespace {
                 metadata.name = config.istio.system.namespace
@@ -122,17 +121,17 @@ mindwm_app = ArgoCdOrder.make({
         [
 
             argocdSchema.argoHelmRelease({
-                namespace = nats.nats_namespace
-                name = nats.nats_release_name
+                namespace = config.nats.namespace
+                name = config.nats.release_name
                 chart = charts.nats
-                version = "1.2.9"
+                version = config.nats.chart_version
                 values = {
-                    config = nats.config
+                    config = config.nats.config
                     service = {
                         merge.spec.type = "LoadBalancer"
                         port.cluster.enabled = True
-                        port.cluster.targetPort = nats.nats_port
-                        port.cluster.port = nats.nats_port
+                        port.cluster.targetPort = config.nats.port
+                        port.cluster.port = config.nats.port
 
                     }
                 }
@@ -142,7 +141,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.loki.release_name
                 chart = charts.loki
-                version = "6.25.0"
+                version = config.monitoring.loki.chart_version
                 values = util.yaml_file_merge("observability/loki.yaml", {
                 })
             })
@@ -162,7 +161,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.otel_collector.release_name
                 chart = charts.otel_collector
-                version = "0.114.0"
+                version = config.monitoring.otel_collector.chart_version
                 values = util.yaml_file_merge("observability/otel-collector.yaml", {
                     config.exporters.otlphttp.endpoint = config.monitoring.loki_endpoint()
                 })
@@ -172,7 +171,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
-                version = "1.18.1"
+                version = config.monitoring.tempo.chart_version
                 values = {
                     tempo.receivers.zipkin.endpoint = "0.0.0.0:9411"
                     tempo.metricsGenerator = {
@@ -185,7 +184,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.victoria_metrics.release_name
                 chart = charts.victoria_metrics
-                version = "0.25.10"
+                version = config.monitoring.victoria_metrics.chart_version
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             }), {
@@ -210,7 +209,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.promtail.release_name
                 chart = charts.promtail
-                version = "6.16.6"
+                version = config.monitoring.promtail.chart_version
                 values = {
                   config.clients = [{
                     url = "http://${config.monitoring.loki.release_name}.${config.monitoring.namespace}:3100/loki/api/v1/push"
@@ -225,7 +224,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.config.crossplane.namespace
                 name = "crossplane"
                 chart = charts.crossplane
-                version = "1.18.2"
+                version = config.crossplane.chart_version
             })
 
         ]
@@ -255,10 +254,10 @@ mindwm_app = ArgoCdOrder.make({
         + yaml.decode_all(file.read("manifests/tekton-pipelines.yaml"))
         [
             argocdSchema.argoHelmRelease({
-                namespace = redpanda_config.redpanda.namespace
-                name = "redpanda-operator"
+                namespace = config.redpanda.namespace
+                name = config.redpanda.release_name
                 chart = charts.redpanda_operator
-                version = "0.4.39"
+                version = config.redpanda.chart_version
                 values = {
                   image.tag = "v2.2.2-24.2.4"
                 }
@@ -315,7 +314,7 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.namespace = config.knative.eventing.namespace
                 data = {
                    "eventing-nats" = yaml.encode({
-                        url = "nats://${nats.nats_user}:${nats.nats_password}@${nats.nats_release_name}.${nats.nats_namespace}:${nats.nats_port}"
+                        url = "nats://${config.nats.user}:${config.nats.password}@${config.nats.release_name}.${config.nats.namespace}:${config.nats.port}"
                         connOpts = {
                             retryOnFailedConnect = True
                             maxReconnects = 50

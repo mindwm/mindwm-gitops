@@ -1,5 +1,14 @@
 mindwm_domain = "mindwm.local"
+import file
+import yaml
 
+helm_deps = yaml.decode_all(file.read("./helm_requirements.yaml"))[0]['dependencies']
+
+chart_ver = lambda chart_name : str {
+  filter e in helm_deps {
+    e.name == chart_name
+  }[0].version
+}
 
 sources = {
   mindwm_ns = "org.mindwm" 
@@ -19,6 +28,12 @@ kafka = {
         context_name + "-cdc-topic"
     }
 }
+
+redpanda = {
+  namespace = "redpanda"
+  release_name = "redpanda-operator"
+  chart_version = chart_ver("operator")
+} 
 
 argocd = {
   release_name = "argocd"
@@ -145,12 +160,12 @@ knative = {
 }
 
 cert_manager = {
-  helm_chart_version = "1.16.3"
+  helm_chart_version = chart_ver("cert-manager")
   namespace = "cert-manager"
 }
 
 istio = {
-    version = "1.24.2"
+    version = chart_ver("istiod")
     system = {
         namespace = "istio-system"
     }
@@ -167,6 +182,7 @@ kafka_port = 9003
 #neo4j_version = "4.4.33"
 #neo4j_password = "password"
 crossplane = {
+    chart_version = chart_ver("crossplane")
     namespace = "crossplane-system"
 }
 
@@ -175,8 +191,10 @@ monitoring = {
   gateway_name = "${namespace}-gateway"
   otel_collector = {
     release_name = "otel-collector"
+    chart_version = chart_ver("opentelemetry-collector")
   }
   loki = {
+    chart_version = chart_ver("loki")
     url = "loki.${mindwm_domain}"
     release_name = "loki"
     virtual_service = "loki-vs"
@@ -188,6 +206,7 @@ monitoring = {
     url = "tempo.${mindwm_domain}"
     virtual_service = "tempo-vs"
     release_name = "tempo"
+    chart_version = chart_ver("tempo")
     destination = lambda {
       "tempo"
     }
@@ -200,6 +219,7 @@ monitoring = {
     }
   } 
   victoria_metrics = {
+    chart_version = chart_ver("victoria-metrics-k8s-stack")
     release_name = "vm-aio"
     url = "vm.${mindwm_domain}"
     virtual_service = "vm-vs"
@@ -209,6 +229,7 @@ monitoring = {
     }
   }
   promtail = {
+    chart_version = chart_ver("promtail")
     release_name = "promtail"
   }
   zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
@@ -282,7 +303,50 @@ config = {
 }
 
 zot = {
-    chart_version = "0.1.65"
+    chart_version = chart_ver("zot")
     release_name = "zot"
     namespace = "zot"
 }
+
+nats = {
+    user = "root"
+    password = "r00tpass"
+    release_name = "nats"
+    namespace = "nats"
+    port = 4222
+    chart_version = chart_ver("nats")
+    config = {
+      cluster = {
+          merge = {
+              name = "nats-cluster"
+              replicas = 2 # msut be 2 or highr when jetstream is enabled
+          }
+      }
+      jetstream = {
+          enabled = True
+          fileStore.pvc.size = "2Gi"
+      }
+
+      merge = {
+          accounts = {
+              "$SYS" = {
+                  users = [
+                      {
+                          user = "sys"
+                          password = "pass"
+                      }
+                  ]
+              }
+              root = {
+                  jetstream = "enable"
+                  users = [
+                      {
+                          user = user
+                          password = password
+                      }
+                  ]
+              }
+          }
+      }
+  }
+} 
