@@ -184,7 +184,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.victoria_metrics.release_name
                 chart = charts.victoria_metrics
-                version = config.monitoring.chart_version 
+                version = config.monitoring.victoria_metrics.chart_version
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             }), {
