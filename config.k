@@ -167,6 +167,7 @@ kafka_port = 9003
 #neo4j_version = "4.4.33"
 #neo4j_password = "password"
 crossplane = {
+    chart_version = "1.18.2"
     namespace = "crossplane-system"
 }
 
@@ -175,8 +176,10 @@ monitoring = {
   gateway_name = "${namespace}-gateway"
   otel_collector = {
     release_name = "otel-collector"
+    chart_version = "0.114.0"
   }
   loki = {
+    chart_version = "6.25.0"
     url = "loki.${mindwm_domain}"
     release_name = "loki"
     virtual_service = "loki-vs"
@@ -200,6 +203,7 @@ monitoring = {
     }
   } 
   victoria_metrics = {
+    chart_version = "0.25.10"
     release_name = "vm-aio"
     url = "vm.${mindwm_domain}"
     virtual_service = "vm-vs"
@@ -209,6 +213,7 @@ monitoring = {
     }
   }
   promtail = {
+    chart_version = "6.16.6"
     release_name = "promtail"
   }
   zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {

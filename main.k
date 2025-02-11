@@ -142,7 +142,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.loki.release_name
                 chart = charts.loki
-                version = "6.25.0"
+                version = config.monitoring.loki.chart_version
                 values = util.yaml_file_merge("observability/loki.yaml", {
                 })
             })
@@ -162,7 +162,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.otel_collector.release_name
                 chart = charts.otel_collector
-                version = "0.114.0"
+                version = config.monitoring.otel_collector.chart_version
                 values = util.yaml_file_merge("observability/otel-collector.yaml", {
                     config.exporters.otlphttp.endpoint = config.monitoring.loki_endpoint()
                 })
@@ -185,7 +185,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.victoria_metrics.release_name
                 chart = charts.victoria_metrics
-                version = "0.25.10"
+                version = config.monitoring.chart_version 
                 values = util.yaml_file_merge("observability/victoria_metrics.yaml", {
                 })
             }), {
@@ -210,7 +210,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.promtail.release_name
                 chart = charts.promtail
-                version = "6.16.6"
+                version = config.monitoring.promtail.chart_version
                 values = {
                   config.clients = [{
                     url = "http://${config.monitoring.loki.release_name}.${config.monitoring.namespace}:3100/loki/api/v1/push"
@@ -225,7 +225,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.config.crossplane.namespace
                 name = "crossplane"
                 chart = charts.crossplane
-                version = "1.18.2"
+                version = config.crossplane.chart_version
             })
 
         ]
