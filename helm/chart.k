@@ -31,16 +31,6 @@ neo4j : schema.HelmChart = {
     repoURL = "https://helm.neo4j.com/neo4j"
 }
 
-vector : schema.HelmChart = {
-    name = "vector"
-    repoURL = "https://helm.vector.dev"
-}
-
-flux : schema.HelmChart = {
-    name = "flux2" 
-    repoURL = "https://fluxcd-community.github.io/helm-charts"
-}
-
 crossplane : schema.HelmChart = {
     name = "crossplane" 
     repoURL = "https://charts.crossplane.io/stable"
@@ -49,11 +39,6 @@ crossplane : schema.HelmChart = {
 victoria_metrics : schema.HelmChart = {
     name = "victoria-metrics-k8s-stack"
     repoURL ="https://victoriametrics.github.io/helm-charts/"
-} 
-
-grafana : schema.HelmChart = {
-    name = "grafana"
-    repoURL = "https://grafana.github.io/helm-charts"
 } 
 
 loki : schema.HelmChart = {
