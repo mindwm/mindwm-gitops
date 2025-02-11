@@ -122,17 +122,17 @@ mindwm_app = ArgoCdOrder.make({
         [
 
             argocdSchema.argoHelmRelease({
-                namespace = nats.nats_namespace
-                name = nats.nats_release_name
+                namespace = config.nats.namespace
+                name = config.nats.release_name
                 chart = charts.nats
-                version = "1.2.9"
+                version = config.nats.chart_version
                 values = {
-                    config = nats.config
+                    config = config.nats.config
                     service = {
                         merge.spec.type = "LoadBalancer"
                         port.cluster.enabled = True
-                        port.cluster.targetPort = nats.nats_port
-                        port.cluster.port = nats.nats_port
+                        port.cluster.targetPort = config.nats.port
+                        port.cluster.port = config.nats.port
 
                     }
                 }
@@ -315,7 +315,7 @@ mindwm_app = ArgoCdOrder.make({
                 metadata.namespace = config.knative.eventing.namespace
                 data = {
                    "eventing-nats" = yaml.encode({
-                        url = "nats://${nats.nats_user}:${nats.nats_password}@${nats.nats_release_name}.${nats.nats_namespace}:${nats.nats_port}"
+                        url = "nats://${config.nats.user}:${config.nats.password}@${config.nats.release_name}.${config.nats.namespace}:${config.nats.port}"
                         connOpts = {
                             retryOnFailedConnect = True
                             maxReconnects = 50

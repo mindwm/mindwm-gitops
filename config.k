@@ -286,3 +286,46 @@ zot = {
     release_name = "zot"
     namespace = "zot"
 }
+
+nats = {
+    user = "root"
+    password = "r00tpass"
+    release_name = "nats"
+    namespace = "nats"
+    port = 4222
+    chart_version = "1.2.9"
+    config = {
+      cluster = {
+          merge = {
+              name = "nats-cluster"
+              replicas = 2 # msut be 2 or highr when jetstream is enabled
+          }
+      }
+      jetstream = {
+          enabled = True
+          fileStore.pvc.size = "2Gi"
+      }
+
+      merge = {
+          accounts = {
+              "$SYS" = {
+                  users = [
+                      {
+                          user = "sys"
+                          password = "pass"
+                      }
+                  ]
+              }
+              root = {
+                  jetstream = "enable"
+                  users = [
+                      {
+                          user = user
+                          password = password
+                      }
+                  ]
+              }
+          }
+      }
+  }
+} 
