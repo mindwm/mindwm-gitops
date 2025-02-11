@@ -108,11 +108,15 @@ ctx = MindwmContext {
     name.data = "{{ context_name }}"
 } 
 items = [
-  
-  k8core.Namespace {
-    metadata.name = getData(ctx.namespace)
-    metadata.labels = {
-        "istio-injection" = "enabled"
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = crossplaneResourceName(ctx, ctx.namespace) 
+    spec.forProvider.manifest = k8core.Namespace {
+      metadata.name = getData(ctx.namespace)
+      metadata.labels = {
+          "istio-injection" = "enabled"
+      }
     }
   }
   {
@@ -713,10 +717,15 @@ contexts = [
 ]
 user = MindwmUser { name.data = user_name }
 items = [
-  k8core.Namespace {
-    metadata.name = getData(user.namespace)
-    metadata.labels = {
-        "istio-injection" = "enabled"
+  {
+    apiVersion = "kubernetes.crossplane.io/v1alpha2"
+    kind = "Object"
+    metadata.name = crossplaneResourceName(ctx, user.namespace) 
+    spec.forProvider.manifest = k8core.Namespace {
+      metadata.name = getData(user.namespace)
+      metadata.labels = {
+          "istio-injection" = "enabled"
+      }
     }
   }
   # deadLetter service
