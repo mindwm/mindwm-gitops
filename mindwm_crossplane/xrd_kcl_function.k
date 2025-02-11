@@ -720,7 +720,7 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = crossplaneResourceName(ctx, user.namespace) 
+    metadata.name = crossplaneResourceName(user, user.namespace) 
     spec.forProvider.manifest = k8core.Namespace {
       metadata.name = getData(user.namespace)
       metadata.labels = {
