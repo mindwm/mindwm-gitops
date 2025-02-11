@@ -1,5 +1,14 @@
 mindwm_domain = "mindwm.local"
+import file
+import yaml
 
+helm_deps = yaml.decode_all(file.read("./requirements.yaml"))[0]['dependencies']
+
+chart_ver = lambda chart_name : str {
+  filter e in helm_deps {
+    e.name == chart_name
+  }[0].version
+}
 
 sources = {
   mindwm_ns = "org.mindwm" 
@@ -23,7 +32,7 @@ kafka = {
 redpanda = {
   namespace = "redpanda"
   release_name = "redpanda-operator"
-  chart_version = "0.4.39"
+  chart_version = chart_ver("operator")
 } 
 
 argocd = {
@@ -151,12 +160,12 @@ knative = {
 }
 
 cert_manager = {
-  helm_chart_version = "1.16.3"
+  helm_chart_version = chart_ver("cert-manager")
   namespace = "cert-manager"
 }
 
 istio = {
-    version = "1.24.2"
+    version = chart_ver("istiod")
     system = {
         namespace = "istio-system"
     }
@@ -173,7 +182,7 @@ kafka_port = 9003
 #neo4j_version = "4.4.33"
 #neo4j_password = "password"
 crossplane = {
-    chart_version = "1.18.2"
+    chart_version = chart_ver("crossplane")
     namespace = "crossplane-system"
 }
 
@@ -182,10 +191,10 @@ monitoring = {
   gateway_name = "${namespace}-gateway"
   otel_collector = {
     release_name = "otel-collector"
-    chart_version = "0.114.0"
+    chart_version = chart_ver("opentelemetry-collector")
   }
   loki = {
-    chart_version = "6.25.0"
+    chart_version = chart_ver("loki")
     url = "loki.${mindwm_domain}"
     release_name = "loki"
     virtual_service = "loki-vs"
@@ -197,7 +206,7 @@ monitoring = {
     url = "tempo.${mindwm_domain}"
     virtual_service = "tempo-vs"
     release_name = "tempo"
-    chart_version = "1.18.1"
+    chart_version = chart_ver("tempo")
     destination = lambda {
       "tempo"
     }
@@ -210,7 +219,7 @@ monitoring = {
     }
   } 
   victoria_metrics = {
-    chart_version = "0.25.10"
+    chart_version = chart_ver("victoria-metrics-k8s-stack")
     release_name = "vm-aio"
     url = "vm.${mindwm_domain}"
     virtual_service = "vm-vs"
@@ -220,7 +229,7 @@ monitoring = {
     }
   }
   promtail = {
-    chart_version = "6.16.6"
+    chart_version = chart_ver("promtail")
     release_name = "promtail"
   }
   zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
@@ -294,7 +303,7 @@ config = {
 }
 
 zot = {
-    chart_version = "0.1.65"
+    chart_version = chart_ver("zot")
     release_name = "zot"
     namespace = "zot"
 }
@@ -305,7 +314,7 @@ nats = {
     release_name = "nats"
     namespace = "nats"
     port = 4222
-    chart_version = "1.2.9"
+    chart_version = chart_ver("nats")
     config = {
       cluster = {
           merge = {
