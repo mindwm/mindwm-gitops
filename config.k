@@ -2,7 +2,7 @@ mindwm_domain = "mindwm.local"
 import file
 import yaml
 
-helm_deps = yaml.decode_all(file.read("./requirements.yaml"))[0]['dependencies']
+helm_deps = yaml.decode_all(file.read("./helm_requirements.yaml"))[0]['dependencies']
 
 chart_ver = lambda chart_name : str {
   filter e in helm_deps {
