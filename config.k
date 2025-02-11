@@ -20,6 +20,12 @@ kafka = {
     }
 }
 
+redpanda = {
+  namespace = "redpanda"
+  release_name = "redpanda-operator"
+  chart_version = "0.4.39"
+} 
+
 argocd = {
   release_name = "argocd"
   gateway_name = "argocd-gateway"

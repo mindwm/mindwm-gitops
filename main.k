@@ -9,7 +9,6 @@ import .nats as nats
 import knative_operator.v1beta1 as knative
 import json_merge_patch as p
 #import .flux as flux
-import .redpanda.config as redpanda_config
 import .redpanda.schema as RedPandaSchema
 import .mindwm_crossplane.function as CrossPlaneFunction
 import .mindwm_crossplane.provider as CrossPlaneProvider
@@ -27,7 +26,7 @@ mindwm_app = ArgoCdOrder.make({
     Sync = [
         [
             k8core.Namespace {
-                metadata.name = redpanda_config.redpanda.namespace
+                metadata.name = config.redpanda.namespace
             }
             k8core.Namespace {
                 metadata.name = config.istio.system.namespace
@@ -255,10 +254,10 @@ mindwm_app = ArgoCdOrder.make({
         + yaml.decode_all(file.read("manifests/tekton-pipelines.yaml"))
         [
             argocdSchema.argoHelmRelease({
-                namespace = redpanda_config.redpanda.namespace
-                name = "redpanda-operator"
+                namespace = config.redpanda.namespace
+                name = config.redpanda.release_name
                 chart = charts.redpanda_operator
-                version = "0.4.39"
+                version = config.redpanda.chart_version
                 values = {
                   image.tag = "v2.2.2-24.2.4"
                 }
