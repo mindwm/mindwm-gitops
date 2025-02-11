@@ -1,0 +1,53 @@
+dependencies:
+  - name: operator
+    version: "0.4.39"
+    repository: "https://charts.redpanda.com"
+  - name: cert-manager
+    version: "1.16.3"
+    repository: "https://charts.jetstack.io"
+  - name: nats
+    version: "1.2.9"
+    repository: "https://nats-io.github.io/k8s/helm/charts/"
+  - name: base
+    version: "1.24.2"
+    repository: "https://istio-release.storage.googleapis.com/charts"
+  - name: istiod
+    version: "1.24.2"
+    repository: "https://istio-release.storage.googleapis.com/charts"
+  - name: gateway
+    version: "1.24.2"
+    repository: "https://istio-release.storage.googleapis.com/charts"
+  - name: neo4j-standalone
+    version: "4.4.35"
+    repository: "https://helm.neo4j.com/neo4j"
+  - name: vector
+    version: "0.33.0"
+    repository: "https://helm.vector.dev"
+  - name: flux2
+    version: "2.0.0"
+    repository: "https://fluxcd-community.github.io/helm-charts"
+  - name: crossplane
+    version: "1.18.2"
+    repository: "https://charts.crossplane.io/stable"
+  - name: victoria-metrics-k8s-stack
+    version: "0.25.10"
+    repository: "https://victoriametrics.github.io/helm-charts/"
+  - name: grafana
+    version: "10.0.0"
+    repository: "https://grafana.github.io/helm-charts"
+  - name: loki
+    version: "6.25.0"
+    repository: "https://grafana.github.io/helm-charts"
+  - name: tempo
+    version: "1.18.1"
+    repository: "https://grafana.github.io/helm-charts"
+  - name: promtail
+    version: "6.16.6"
+    repository: "https://grafana.github.io/helm-charts"
+  - name: opentelemetry-collector
+    version: "0.114.0"
+    repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+  - name: zot
+    version: "0.1.65"
+    repository: "https://zotregistry.dev/helm-charts/"
+
