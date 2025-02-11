@@ -197,6 +197,7 @@ monitoring = {
     url = "tempo.${mindwm_domain}"
     virtual_service = "tempo-vs"
     release_name = "tempo"
+    chart_version = "1.18.1"
     destination = lambda {
       "tempo"
     }
