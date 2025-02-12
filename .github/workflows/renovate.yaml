@@ -19,7 +19,7 @@ jobs:
         uses: renovatebot/github-action@v41.0.12
         env:
           #RENOVATE_REPOSITORIES: ${{ github.repository }}
-          RENOVATE_REPOSITORIES: "file:///workspace"
+          RENOVATE_REPOSITORIES: "file:///github-action"
           RENOVATE_USERNAME: "renovate"
           RENOVATE_GIT_AUTHOR: "renovate-mindwm <121964725+renovate-mindwm[bot]@users.noreply.github.com>"
           RENOVATE_PLATFORM_COMMIT: "true"
