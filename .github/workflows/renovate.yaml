@@ -10,6 +10,7 @@ jobs:
       - name: Run Hello World in KCL Container
         run: |
           docker run --rm -v "$(pwd)":/workspace -w /workspace kcllang/kcl:v0.9.7 kcl run -o main.yaml
+          git commit -m 'main.yaml' main.yaml
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@v41.0.12
         env:
