@@ -42,7 +42,7 @@ Feature: MindWM manager integration test
     Then God sends the command 'export HOST=<host>' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command 'export NATS_URL=nats://root:r00tpass@nats.mindwm.local:4222' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command 'export MINDWM_EVENT_SUBJECT_PREFIX="org.mindwm.<user>.<host>"' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
-    Then God sends the command 'export MINDWM_FEEDBACK_SUBJECT="user-<user>.<host>-broker-kne-trigger._knative"' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
+    Then God sends the command 'export MINDWM_FEEDBACK_SUBJECT="user-<user>.<host>-host-broker-kne-trigger._knative"' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command 'export MINDWM_SURREALDB_URL="ws://127.0.0.1:8000/mindwm/context_graph"' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command 'export MINDWM_SURREALDB_ENABLED="False"' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
     Then God sends the command 'python3.11 src/manager.py' to the tmux session '<tmux_session>', window '<tmux_window_name>', pane '0'
@@ -65,6 +65,7 @@ Feature: MindWM manager integration test
     And container "user-container" in pod "iocontext-00001-deployment.*" in namespace "context-<context>" should contain "integration-test" regex
     And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "context-<context>" should not contain "Traceback \(most recent call last\):" regex
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
+    Then file "/tmp/pane_0" should not contain "Traceback \(most recent call last\):" regex
     Then file "/tmp/pane_0" contain "integration-test" regex
 
     Examples:
