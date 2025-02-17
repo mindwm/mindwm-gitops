@@ -87,7 +87,7 @@ resource "linode_instance" "ci" {
     inline = [
         "mkdir -p ${var.artifact_dir}",
         "echo 0 > ${var.artifact_dir}/exit_code",
-        "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
+        "timeout 270 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
 #        "echo dir: `basename ${var.git_repository}` checkout ${var.git_commit_sha} TARGET_REVISION=${var.git_ref_name}",
         #"cd `basename ${var.git_repository}` && make mindwm_lifecycle sleep-300 mindwm_test ARTIFACT_DIR=${var.artifact_dir} TARGET_REVISION=${var.git_ref_name} || echo $? > ${var.artifact_dir}/exit_code",
         #"cd ${var.artifact_dir} && tar cvf /tmp/artifacts.tar *"
