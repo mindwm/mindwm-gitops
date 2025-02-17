@@ -13,6 +13,13 @@ packages:
   - tmux
   - ripgrep
   - xmlstarlet
+  # for mindmap-terminal tests
+  - wmctrl
+  - xdotool
+  - fvwm3
+  - xvfb
+  - wget
+  - openjdk-17-jdk
 groups:
   - ci
   - docker
@@ -44,3 +51,4 @@ runcmd:
   - sysctl -w fs.inotify.max_queued_events=2099999999
   - curl -Lo /usr/bin/kubectl https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl
   - chmod +x /usr/bin/kubectl
+  - update-java-alternatives --set java-1.17.0-openjdk-amd64
