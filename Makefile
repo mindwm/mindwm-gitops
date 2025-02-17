@@ -251,7 +251,7 @@ edit_hosts:
 	export INGRESS_NS=istio-system
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	sudo sed -i -e '/$(DOMAIN)/d' /etc/hosts
-	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) loki.$(DOMAIN) | sudo tee -a /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) loki.$(DOMAIN) neo4j.cyan.$(DOMAIN) | sudo tee -a /etc/hosts
 
 .PHONY: mindwm_test
 mindwm_test: 
