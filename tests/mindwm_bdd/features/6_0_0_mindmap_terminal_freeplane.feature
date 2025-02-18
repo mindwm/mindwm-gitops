@@ -105,3 +105,13 @@ Feature: Mindmap terminal integration test
     Examples:
       | context | username   | host      |
       | headwind | ci         | localhost |
+
+  Scenario: Cleanup <username>@<host> in <context>
+    # TODO(@metacoma) cleanup tmux session
+    When God deletes the MindWM host resource "<host>"
+    When God deletes the MindWM user resource "<username>"
+    When God deletes the MindWM context resource "<context>"
+
+    Examples:
+    | context | username | host      |
+    | headwind | ci       | localhost |
