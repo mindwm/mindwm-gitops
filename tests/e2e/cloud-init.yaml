@@ -20,6 +20,7 @@ packages:
   - xvfb
   - wget
   - openjdk-17-jdk
+  - xterm
 groups:
   - ci
   - docker
