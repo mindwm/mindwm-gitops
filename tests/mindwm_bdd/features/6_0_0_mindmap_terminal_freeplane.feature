@@ -36,7 +36,7 @@ Feature: Mindmap terminal integration test
 
     Examples:
      | context | username   | host      |
-     | headwind | bebebeka  | ubuntu-dev | 
+     | headwind | ci  | localhost | 
 
   Scenario: Clone <repo>@<branch> to <clone_dir>
     When God clones the repository '<repo>' with branch '<branch>' and commit '<commit>' to '<clone_dir>'
