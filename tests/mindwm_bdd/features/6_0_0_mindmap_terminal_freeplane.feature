@@ -7,11 +7,11 @@ Feature: Mindmap terminal integration test
     Then all nodes in Kubernetes are ready
 
   Scenario: Install freeplane
-    When God runs the command 'wget -c -O /tmp/freeplane.deb https://sourceforge.net/projects/freeplane/files/freeplane%20stable/freeplane_1.12.9~upstream-1_all.deb/download' inside the '<work_dir>' directory
+    When God runs the command 'wget -c -O /tmp/freeplane.deb https://sourceforge.net/projects/freeplane/files/freeplane%20stable/archive/<freeplane_version>/freeplane_1.12.9~upstream-1_all.deb/download' inside the '<work_dir>' directory
     When God runs the command 'sudo dpkg -i <work_dir>/freeplane.deb' inside the '<work_dir>' directory
     Examples: 
-      | work_dir               | display |
-      | /tmp/                  | 42      |
+      | freeplane_version | work_dir               | display | 
+      | 1.12.9            | /tmp/                  | 42      |
 
 
   Scenario: Prepare environment, context: <context>, username: <username>, host: <host>
@@ -75,6 +75,7 @@ Feature: Mindmap terminal integration test
     When God runs the command 'export DISPLAY=:<display>; make freeplane_start > <work_dir>/log 2>&1 &' inside the '<work_dir>' directory
     Then God waits for '10' seconds
     When God runs the command 'DISPLAY=:<display> wmctrl -l | grep Freeplane' inside the '<work_dir>' directory
+    Then God waits for '20' seconds
     When God runs the command 'DISPLAY=:<display> wmctrl -l | grep -E "mindmap-terminal-[0-9]+-Map[0-9]+?-ID_[0-9]+"' inside the '<work_dir>' directory
 
     Examples: 
@@ -107,11 +108,13 @@ Feature: Mindmap terminal integration test
       | headwind  | ci         | localhost | uptime  |
 
   Scenario: Cleanup <username>@<host> in <context>
-    # TODO(@metacoma) cleanup tmux session
     When God deletes the MindWM host resource "<host>"
-    When God deletes the MindWM user resource "<username>"
-    When God deletes the MindWM context resource "<context>"
-    When God runs the command 'sudo dpkg remove freeplane' inside the '/tmp' directory
+    And God deletes the MindWM user resource "<username>"
+    And God deletes the MindWM context resource "<context>"
+    And God runs the command 'sudo dpkg -r freeplane' inside the '/tmp' directory
+    And God runs the command 'pkill -9 -f Xvfb' inside the '/tmp' directory
+    And God runs the command 'pkill -9 -f fvwm3' inside the '/tmp' directory
+    And God runs the command 'pkill -9 -f xterm' inside the '/tmp' directory
 
     Examples:
     | context | username | host      |
