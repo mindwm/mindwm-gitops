@@ -86,12 +86,12 @@ Feature: Mindmap terminal integration test
     Then God waits for '3' seconds
     When God runs the command 'export DISPLAY=:<display>; xdotool key Escape' inside the '<work_dir>' directory
     Then God waits for '3' seconds
-    When God runs the command 'export DISPLAY=:<display>; xdotool type "uptime"' inside the '<work_dir>' directory
+    When God runs the command 'export DISPLAY=:<display>; xdotool type "<command>"' inside the '<work_dir>' directory
     Then God waits for '3' seconds
     When God runs the command 'export DISPLAY=:<display>; xdotool key Return' inside the '<work_dir>' directory
     Examples: 
-      | work_dir               | display |
-      | /tmp/mindmap-terminal  | 42      |
+      | work_dir               | display | command | 
+      | /tmp/mindmap-terminal  | 42      | uptime  |
   #
   #
   Scenario: Verification that the io-document has been delivered and processed
@@ -103,8 +103,8 @@ Feature: Mindmap terminal integration test
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
 
     Examples:
-      | context | username   | host      |
-      | headwind | ci         | localhost |
+      | context   | username   | host      | command |
+      | headwind  | ci         | localhost | uptime  |
 
   Scenario: Cleanup <username>@<host> in <context>
     # TODO(@metacoma) cleanup tmux session
