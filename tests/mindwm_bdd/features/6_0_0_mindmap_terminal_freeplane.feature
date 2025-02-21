@@ -111,6 +111,7 @@ Feature: Mindmap terminal integration test
     When God deletes the MindWM host resource "<host>"
     When God deletes the MindWM user resource "<username>"
     When God deletes the MindWM context resource "<context>"
+    When God runs the command 'sudo dpkg remove freeplane' inside the '/tmp' directory
 
     Examples:
     | context | username | host      |
