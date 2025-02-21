@@ -37,7 +37,7 @@ Feature: Mindmap terminal integration test
     Examples:
      | context | username   | host      |
      | headwind | ci  | localhost | 
-
+  
   Scenario: Clone <repo>@<branch> to <clone_dir>
     When God clones the repository '<repo>' with branch '<branch>' and commit '<commit>' to '<clone_dir>'
     Then the directory '<clone_dir>' should exist
@@ -60,7 +60,7 @@ Feature: Mindmap terminal integration test
     Examples:
       | work_dir            |
       | /tmp/mindwm-manager | 
-  #
+  
   Scenario: Run xvfb server at :<display> port
     When God runs the command 'nohup Xvfb :<display> -screen 0 1024x768x16 > /tmp/x 2>&1 &' inside the '<work_dir>' directory
     When God runs the command 'nohup fvwm3 -d :<display> >/tmp/y 2>&1 &' inside the '<work_dir>' directory
@@ -70,7 +70,7 @@ Feature: Mindmap terminal integration test
     Examples: 
       | display | work_dir |
       | 42      | /tmp     |
-  #
+
   Scenario: Run freeplane
     When God runs the command 'export DISPLAY=:<display>; make freeplane_start > <work_dir>/log 2>&1 &' inside the '<work_dir>' directory
     Then God waits for '10' seconds
@@ -104,18 +104,25 @@ Feature: Mindmap terminal integration test
     And container "user-container" in pod "^dead-letter-.*" in namespace "context-<context>" should not contain "cloudevents.Event\n" regex
 
     Examples:
-      | context   | username   | host      | command |
-      | headwind  | ci         | localhost | uptime  |
+      | context   | username   | host       | command |
+      | headwind  | ci   | localhost | uptime  |
+
+  Scenario: Cleanup process <proc_mask>
+    When God runs the command 'pgrep -f "<proc_mask>" && (pkill -9 -f "<proc_mask>") || :' inside the '/tmp' directory
+    Examples:
+      | proc_mask                                                   |  
+      | ^Xvfb                                                       |
+      | ^fvwm3                                                      |
+      | ^xterm                                                      |
+      | ^//tmp/mindwm-manager/.venv/bin/python3.11 src/manager.py$  |
+
 
   Scenario: Cleanup <username>@<host> in <context>
-    When God deletes the MindWM host resource "<host>"
+    When God deletes the MindWM context resource "<context>"
+    And God deletes the MindWM host resource "<host>"
     And God deletes the MindWM user resource "<username>"
-    And God deletes the MindWM context resource "<context>"
     And God runs the command 'sudo dpkg -r freeplane' inside the '/tmp' directory
-    And God runs the command 'pkill -9 -f Xvfb' inside the '/tmp' directory
-    And God runs the command 'pkill -9 -f fvwm3' inside the '/tmp' directory
-    And God runs the command 'pkill -9 -f xterm' inside the '/tmp' directory
 
     Examples:
-    | context | username | host      |
-    | headwind | ci       | localhost |
+    | context   | username | host       | 
+    | headwind  | ci | localhost | 
