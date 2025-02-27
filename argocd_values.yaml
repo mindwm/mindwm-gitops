@@ -1,4 +1,8 @@
 global:
+  hostAliases:
+    - ip: 185.199.109.153
+      hostnames:
+        - zotregistry.dev
   image:
     tag: "v2.11.1"
 repoServer:
