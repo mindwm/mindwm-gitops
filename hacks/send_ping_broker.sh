@@ -45,3 +45,16 @@ sleep 5
 #curl -vvv -H 'Host: tempo.mindwm.local' http://${INGRESS_HOST}/api/traces/${TRACE_ID} | jq #| tee /tmp/answer.json
 curl -vvv http://tempo.mindwm.local/api/traces/${TRACE_ID} | jq #| tee /tmp/answer.json
 #curl -vvv tempo.stg1.mindwm.local/api/traces/${TRACE_ID} #| jq #| tee /tmp/answer.json
+
+
+nats_cloudevent() {
+  nats pub --help
+   }
+
+
+FROM_TOPIC=org.mindwm.bebebeka.alice
+payload | nats -s ${NATS_URL} pub ${FROM_TOPIC} \
+  -H "ce-specversion: 1.0" \
+  -H "ce-id: 1234-5678-9012" \
+  -H "ce-type: com.example.someevent" \
+  -H "ce-source: example/source"
