@@ -1,5 +1,5 @@
-image:
-  repository: "otel/opentelemetry-collector-k8s"
+#image:
+#  repository: "otel/opentelemetry-collector-k8s"
 
 mode: deployment
 
