@@ -125,7 +125,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = nats.nats_namespace
                 name = nats.nats_release_name
                 chart = charts.nats
-                version = "1.2.9"
+                version = "1.3.5"
                 values = {
                     config = nats.config
                     service = {
@@ -142,7 +142,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.loki.release_name
                 chart = charts.loki
-                version = "6.25.0"
+                version = "6.29.0"
                 values = util.yaml_file_merge("observability/loki.yaml", {
                 })
             })
@@ -162,7 +162,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.otel_collector.release_name
                 chart = charts.otel_collector
-                version = "0.114.0"
+                version = "0.122.5"
                 values = util.yaml_file_merge("observability/otel-collector.yaml", {
                     config.exporters.otlphttp.endpoint = config.monitoring.loki_endpoint()
                 })
@@ -172,7 +172,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.tempo.release_name
                 chart = charts.tempo
-                version = "1.18.1"
+                version = "1.21.1"
                 values = {
                     tempo.receivers.zipkin.endpoint = "0.0.0.0:9411"
                     tempo.metricsGenerator = {

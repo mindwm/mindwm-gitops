@@ -1,8 +1,8 @@
 SHELL := /bin/bash
 
 ARGOCD_HOST_PORT := 38080
-ARGOCD_HELM_CHART_VERSION := 7.7.16
-ARGOCD_APP_VERSION := 2.13.3
+ARGOCD_HELM_CHART_VERSION := 7.9.1
+ARGOCD_APP_VERSION := 3.0.0
 
 TARGET_REVISION := $(shell git branch ls --show-current)
 TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(.+)/https:\/\/\1\/\2/')
@@ -102,7 +102,7 @@ deinstall:
 	sleep 10 # :)
 
 cluster: deinstall precheck
-	curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.32.0+k3s1 INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
+	curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.32.4+k3s1 INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
 	test -d ~/.kube || mkdir ~/.kube ;\
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
 	$(MAKE) fix_dns_upstream forward_dns_cluster_local
@@ -113,7 +113,7 @@ argocd:
 	$(HELM_RUN) "\
 		helm repo add argocd https://argoproj.github.io/argo-helm && \
 		helm repo update argocd && \
-		helm upgrade --install --version $(ARGOCD_HELM_CHART_VERSION) --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --set server.service.servicePortHttp=$(ARGOCD_HOST_PORT) --set global.image.tag=v$(ARGOCD_APP_VERSION) --wait --timeout 5m \
+		helm upgrade --install --version $(ARGOCD_HELM_CHART_VERSION) --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --set server.service.servicePortHttp=$(ARGOCD_HOST_PORT) --set global.image.tag=v$(ARGOCD_APP_VERSION) --set server.rbac.disableApplicationFineGrainedRBACInheritance=false  --wait --timeout 5m \
 	"
 	$(KUBECTL_RUN) '\
 		kubectl apply -f ./kcl-cmp.yaml && \
