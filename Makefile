@@ -113,7 +113,7 @@ argocd:
 	$(HELM_RUN) "\
 		helm repo add argocd https://argoproj.github.io/argo-helm && \
 		helm repo update argocd && \
-		helm upgrade --install --version $(ARGOCD_HELM_CHART_VERSION) --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --set server.service.servicePortHttp=$(ARGOCD_HOST_PORT) --set global.image.tag=v$(ARGOCD_APP_VERSION) --wait --timeout 5m \
+		helm upgrade --install --version $(ARGOCD_HELM_CHART_VERSION) --namespace argocd --create-namespace argocd argocd/argo-cd -f ./argocd_values.yaml --set server.service.servicePortHttp=$(ARGOCD_HOST_PORT) --set global.image.tag=v$(ARGOCD_APP_VERSION) --set server.rbac.disableApplicationFineGrainedRBACInheritance=false  --wait --timeout 5m \
 	"
 	$(KUBECTL_RUN) '\
 		kubectl apply -f ./kcl-cmp.yaml && \
