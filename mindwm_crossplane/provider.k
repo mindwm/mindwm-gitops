@@ -7,7 +7,7 @@ import ..config as config
 
 kubernetes : CrossPlaneSchema.CrossPlaneProvider = {
     name = "provider-kubernetes"
-    package = "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.15.1"
+    package = "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.18.0"
 } 
 
 
