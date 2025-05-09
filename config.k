@@ -282,7 +282,7 @@ config = {
 }
 
 zot = {
-    chart_version = "0.1.65"
+    chart_version = "0.1.68"
     release_name = "zot"
     namespace = "zot"
 }
