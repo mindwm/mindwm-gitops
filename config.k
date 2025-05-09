@@ -150,7 +150,7 @@ cert_manager = {
 }
 
 istio = {
-    version = "1.24.2"
+    version = "1.26.0"
     system = {
         namespace = "istio-system"
     }
