@@ -13,7 +13,7 @@ kubernetes : CrossPlaneSchema.CrossPlaneProvider = {
 
 helm : CrossPlaneSchema.CrossPlaneProvider = {
     name = "provider-helm"
-    package = "xpkg.upbound.io/crossplane-contrib/provider-helm:v0.19.0"
+    package = "xpkg.upbound.io/crossplane-contrib/provider-helm:v0.20.4"
 } 
 
 makeCrossPlaneProvider = lambda cross_provider : CrossPlaneSchema.CrossPlaneProvider {
