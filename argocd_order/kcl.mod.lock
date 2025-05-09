@@ -1,0 +1,8 @@
+[dependencies]
+  [dependencies.json_merge_patch]
+    name = "json_merge_patch"
+    full_name = "json_merge_patch_0.1.0"
+    version = "0.1.0"
+    reg = "ghcr.io"
+    repo = "kcl-lang/json_merge_patch"
+    oci_tag = "0.1.0"
