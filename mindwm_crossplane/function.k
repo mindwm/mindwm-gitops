@@ -8,7 +8,7 @@ kcl : CrossPlaneSchema.CrossPlaneFunction = {
 
 auto_ready : CrossPlaneSchema.CrossPlaneFunction = {
     name = "function-auto-ready"
-    package = "xpkg.upbound.io/crossplane-contrib/function-auto-ready:v0.4.1"
+    package = "xpkg.upbound.io/crossplane-contrib/function-auto-ready:v0.4.2"
 } 
 
 makeCrossPlaneFunction = lambda cross_func : CrossPlaneSchema.CrossPlaneFunction {
