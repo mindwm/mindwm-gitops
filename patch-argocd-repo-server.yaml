@@ -3,11 +3,7 @@ spec:
     spec:
       containers:
       - name: my-plugin
-        command: [/tini]
-        args:
-          - /var/run/argocd/argocd-cmp-server
-#          - --
-#          - --loglevel=debug
+        command: [/var/run/argocd/argocd-cmp-server]
         image: kcllang/kcl:v0.11.0
         securityContext:
           runAsNonRoot: true
