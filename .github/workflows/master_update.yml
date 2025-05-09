@@ -18,6 +18,6 @@ jobs:
       - name: Trigger dependencies/update_code
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MINDWM_GITHUB_TOKEN }}
           repository: mindwm/dependencies
           event-type: mindwm_gitops_updated
