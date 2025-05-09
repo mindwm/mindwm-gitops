@@ -142,7 +142,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.loki.release_name
                 chart = charts.loki
-                version = "6.25.0"
+                version = "6.29.0"
                 values = util.yaml_file_merge("observability/loki.yaml", {
                 })
             })
