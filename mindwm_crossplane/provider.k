@@ -7,13 +7,13 @@ import ..config as config
 
 kubernetes : CrossPlaneSchema.CrossPlaneProvider = {
     name = "provider-kubernetes"
-    package = "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.15.1"
+    package = "xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.18.0"
 } 
 
 
 helm : CrossPlaneSchema.CrossPlaneProvider = {
     name = "provider-helm"
-    package = "xpkg.upbound.io/crossplane-contrib/provider-helm:v0.19.0"
+    package = "xpkg.upbound.io/crossplane-contrib/provider-helm:v0.20.4"
 } 
 
 makeCrossPlaneProvider = lambda cross_provider : CrossPlaneSchema.CrossPlaneProvider {

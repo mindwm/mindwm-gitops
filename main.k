@@ -225,7 +225,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.config.crossplane.namespace
                 name = "crossplane"
                 chart = charts.crossplane
-                version = "1.18.2"
+                version = "1.19.1"
             })
 
         ]
