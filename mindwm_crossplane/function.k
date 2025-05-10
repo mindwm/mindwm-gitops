@@ -3,7 +3,7 @@ import .schema as CrossPlaneSchema
 
 kcl : CrossPlaneSchema.CrossPlaneFunction = {
     name = "function-kcl"
-    package = "xpkg.upbound.io/crossplane-contrib/function-kcl:v0.9.4"
+    package = "xpkg.upbound.io/crossplane-contrib/function-kcl:v0.11.2"
 }
 
 auto_ready : CrossPlaneSchema.CrossPlaneFunction = {
