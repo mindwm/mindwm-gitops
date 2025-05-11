@@ -84,7 +84,7 @@ makeContextXR = lambda {
                 apiVersion = "krm.kcl.dev/v1alpha1"
                 kind = "KCLInput"
                 spec.dependencies = """\
-                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
+                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
                 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.17.3" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.2" }
                 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.3.0" }
@@ -698,7 +698,7 @@ makeUserXR = lambda {
                 kind = "KCLInput"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.dependencies = """\
-                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
+                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 """
@@ -879,7 +879,7 @@ makeHostXR = lambda {
                 kind = "KCLInput"
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.dependencies = """\
-                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
+                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 """
