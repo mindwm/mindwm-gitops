@@ -23,12 +23,12 @@
     oci_tag = "1.17.3"
   [dependencies.istio]
     name = "istio"
-    full_name = "istio_1.21.2"
-    version = "1.21.2"
-    sum = "FtqHLhCwxWFWtREklVT0J/GjT34BUUdUG2uoaOlPwYY="
+    full_name = "istio_1.21.5"
+    version = "1.21.5"
+    sum = "UJeeW5a6kxlEf9STlV21lnM74RFoAomaWNGeGPjbsNk="
     reg = "ghcr.io"
     repo = "kcl-lang/istio"
-    oci_tag = "1.21.2"
+    oci_tag = "1.21.5"
   [dependencies.json_merge_patch]
     name = "json_merge_patch"
     full_name = "json_merge_patch_0.1.1"
