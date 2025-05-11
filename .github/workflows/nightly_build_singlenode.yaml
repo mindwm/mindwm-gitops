@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Set up JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: zulu
         java-version: 17
@@ -68,7 +68,7 @@ jobs:
         echo $CI_INSTANCE_IP
 
     - name: run pytests
-      uses: appleboy/ssh-action@v1.0.3
+      uses: appleboy/ssh-action@v1.2.2
       with:
         host: ${{ env.CI_INSTANCE_IP }}
         username: ci

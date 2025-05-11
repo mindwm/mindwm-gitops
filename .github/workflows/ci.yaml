@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set up JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: zulu
         java-version: 17
@@ -69,7 +69,7 @@ jobs:
         echo $CI_INSTANCE_IP
 
     - name: run pytests
-      uses: appleboy/ssh-action@v1.0.3
+      uses: appleboy/ssh-action@v1.2.2
       with:
         host: ${{ env.CI_INSTANCE_IP }}
         username: ci
@@ -153,7 +153,7 @@ jobs:
     - name: Comment PR with Allure Report link
       if: ${{ steps.have_artifacts.outcome == 'success' && github.event_name == 'pull_request' && steps.allure.outputs.report_url }}
       continue-on-error: true
-      uses: thollander/actions-comment-pull-request@v2
+      uses: thollander/actions-comment-pull-request@v3
       with:
         message: |
           ${{ steps.allure.outputs.test_result_icon }} [Allure Report](${{ steps.allure.outputs.report_url }}) | [History](${{ steps.allure.outputs.report_history_url }})
