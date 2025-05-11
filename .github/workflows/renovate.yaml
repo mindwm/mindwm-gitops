@@ -16,7 +16,7 @@ jobs:
           # git add main.yaml
           # git commit -m 'main.yaml' main.yaml
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v41.0.12
+        uses: renovatebot/github-action@v41.0.22
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           #RENOVATE_REPOSITORIES: "file:///github-action"
