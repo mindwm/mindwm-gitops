@@ -90,7 +90,7 @@ makeContextXR = lambda {
                 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.3.0" }
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
                 istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.21.3" }
-                json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.0" }
+                json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.1" }
                 """
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.source = template.execute("""\
