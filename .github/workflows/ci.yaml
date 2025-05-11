@@ -147,7 +147,7 @@ jobs:
         user-email: github-actions@github.com
         commit-message: See ORIGIN_COMMIT from $GITHUB_REF
         target-branch: main
-        target-directory: mindwm-gitops/allure-action
+        target-directory: mindwm-gitops-ci/allure-action
 
 
     - name: Comment PR with Allure Report link
