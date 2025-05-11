@@ -85,7 +85,7 @@ makeContextXR = lambda {
                 kind = "KCLInput"
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.29" }
-                crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.16.0" }
+                crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.17.3" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.3.0" }
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
