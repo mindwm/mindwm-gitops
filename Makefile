@@ -1,8 +1,8 @@
 SHELL := /bin/bash
 
 ARGOCD_HOST_PORT := 38080
-ARGOCD_HELM_CHART_VERSION := 7.7.16
-ARGOCD_APP_VERSION := 2.13.3
+ARGOCD_HELM_CHART_VERSION := 7.9.1
+ARGOCD_APP_VERSION := 2.14.11
 
 TARGET_REVISION := $(shell git branch ls --show-current)
 TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(.+)/https:\/\/\1\/\2/')
