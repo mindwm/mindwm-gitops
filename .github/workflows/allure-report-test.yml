@@ -35,6 +35,11 @@ jobs:
           path: sandbox/artifact_dir
 
       - name: Upload terraform manifest 
+        run: |
+          pwd
+          find
+
+      - name: Upload terraform manifest 
         uses: actions/upload-artifact@v4
         with:
           name: mindwm-gitops/tests/e2e/
