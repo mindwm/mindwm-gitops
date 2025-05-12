@@ -12,6 +12,8 @@ on:
     secrets:
       LINODE_TOKEN:
         required: true
+      ROOT_PASSWORD:
+        required: true
 
 env:
   TF_VAR_linode_token: ${{ secrets.LINODE_TOKEN }}
