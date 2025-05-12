@@ -8,6 +8,6 @@ ARTIFACT_DIR=artifact_dir
 
 pytest -s -x -m "$*" --junit-xml=${ARTIFACT_DIR}/report.xml --log-level info --disable-warnings --no-header -vv --gherkin-terminal-reporter --kube-config=${HOME}/.kube/config --alluredir=${ARTIFACT_DIR}/allure-results
 
-allure generate -c artifact_dir/allure-results && allure serve --host 0.0.0.0 --port 8080 allure-report
+#allure generate -c artifact_dir/allure-results && allure serve --host 0.0.0.0 --port 8080 allure-report
 
 # (time ./run_tests.sh eda) && (allure generate -c artifact_dir/allure-results && allure serve --host 0.0.0.0 --port 8080 allure-report)
