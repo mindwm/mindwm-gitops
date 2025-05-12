@@ -1,4 +1,4 @@
-name: Run mindwm tests
+name: Run MindWM tests
 
 on:
   workflow_call:

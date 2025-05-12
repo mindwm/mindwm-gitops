@@ -15,7 +15,7 @@ on:
         required: true
 
 jobs:
-  linode_instance:
+  linode_instance_destroy:
     runs-on: ubuntu-latest
     steps:
 
