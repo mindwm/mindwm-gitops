@@ -21,9 +21,11 @@ jobs:
       - name: set outputs with default values
         id: set-output-defaults
         run: |    
-          echo "::set-output name=terraform_artifact_name::${{ env.terraform_artifact_name }}"
-          echo "::set-output name=terraform_state_artifact_name::${{ env.terraform_state_artifact_name }}"
-          echo "::set-output name=test_artifact_name::${{ env.test_artifact_name }}"
+          cat<<EOF >> ${GITHUB_OUTPUT}
+          terraform_artifact_name=${{ env.terraform_artifact_name }}
+          terraform_state_artifact_name=${{ env.terraform_state_artifact_name }}
+          test_artifact_name=${{ env.test_artifact_name }}
+          EOF
 
       - uses: actions/checkout@v4
         with:
