@@ -151,11 +151,14 @@ jobs:
         REPO_NAME: mindwm.github.io
         REPO_BRANCH: main
       run: |
-        cd gh-pages
-        git status
-          # git config --global user.email "metacoma"
-          # git config --global user.name "ryabin.ss@gmail.com"
-          # git clone -b ${{ env.REPO_BRANCH }} https://${{ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }} ${{ env.REPO_DIR }}
+        cd gh-pages/allure-action
+        git add -A .
+        git config --global user.email "metacoma"
+        git config --global user.name "ryabin.ss@gmail.com"
+        git commit -m 'allure update' .
+        git push origin main
+
+#        git clone -b ${{ env.REPO_BRANCH }} https://${{ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }} ${{ env.REPO_DIR }}
 
 
     # - name: Update mindwm.github.io
