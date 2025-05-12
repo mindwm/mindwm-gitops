@@ -15,7 +15,6 @@ jobs:
     steps:
       - name: Load fake results
         uses: actions/checkout@v4
-        if: steps.have_artifacts.outcome == 'success'
         continue-on-error: true
         with:
           token: ${{ secrets.MINDWM_TOKEN }}
