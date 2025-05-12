@@ -4,6 +4,8 @@ ARGOCD_HOST_PORT := 38080
 ARGOCD_HELM_CHART_VERSION := 7.9.1
 ARGOCD_APP_VERSION := 2.14.11
 
+TEST_NAME := mindwm_test
+
 TARGET_REVISION := $(shell git branch ls --show-current)
 TARGET_REPO := $(shell git config --get remote.origin.url | sed -r 's/git@(.*):(.+)/https:\/\/\1\/\2/')
 
@@ -260,7 +262,7 @@ mindwm_test:
 	python3 -m venv .venv && \
 	source .venv/bin/activate && \
 	pip3 install -r ./requirements.txt && \
-	pytest -s -x -m mindwm_test --no-header --junit-xml=$(ARTIFACT_DIR)/report.xml --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . | tee $(ARTIFACT_DIR)/report.md
+	pytest -s -x -m $(TEST_NAME) --no-header --junit-xml=$(ARTIFACT_DIR)/report.xml --disable-warnings -vv --gherkin-terminal-reporter --kube-config=$${HOME}/.kube/config --alluredir=$(ARTIFACT_DIR)/allure-results . | tee $(ARTIFACT_DIR)/report.md
 	exit_code=$${PIPESTATUS[0]}
 	echo $${exit_code} > $(ARTIFACT_DIR)/exit_code
 	xmlstarlet sel -t -m "//testcase[failure]" -v "concat(@classname,' ', @name)" -n $(ARTIFACT_DIR)/report.xml | tee $(ARTIFACT_DIR)/failed_test_title

@@ -15,6 +15,9 @@ on:
       git_repo: 
         required: true
         type: string
+      artifact_dir:
+        required: true
+        type: string
     secrets:
       SSH_KEY:
         required: true
@@ -34,4 +37,4 @@ jobs:
             export PAGER=cat
             git clone -b "${{ inputs.git_branch }}" https://github.com/"${{ inputs.git_repo }}" mindwm-gitops
             cd mindwm-gitops
-            git show
+            make mindwm_test TEST_NAME=${{ inputs.test_name }} ARTIFACT_DIR=${{ inputs.artifact_dir }}
