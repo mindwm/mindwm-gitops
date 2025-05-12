@@ -122,15 +122,15 @@ jobs:
         ref: main
         path: gh-pages
 
-    - name: Load fake results
-      uses: actions/checkout@v4
-#      if: steps.have_artifacts.outcome == 'success'
-      continue-on-error: true
-      with:
-        token: ${{ secrets.MINDWM_TOKEN }}
-        repository: 'mindwm/sandbox'
-        ref: master
-        path: sandbox
+#     - name: Load fake results
+#       uses: actions/checkout@v4
+# #      if: steps.have_artifacts.outcome == 'success'
+#       continue-on-error: true
+#       with:
+#         token: ${{ secrets.MINDWM_TOKEN }}
+#         repository: 'mindwm/sandbox'
+#         ref: master
+#         path: sandbox
 
     - name: Allure Report Action
       uses: mgrybyk-org/allure-report-branch-js-action@v1
@@ -141,6 +141,7 @@ jobs:
         list_dirs: true
         report_id: 'ci'
         gh_pages: 'gh-pages'
+        reportBaseDir: "gh-pages/mindwm-gitops/allure-action/${{ github.ref_name }}/ci"
         report_dir: 'sandbox/artifact_dir/allure-results'
 
     - name: Update mindwm.github.io
@@ -157,9 +158,6 @@ jobs:
         git config --global user.name "ryabin.ss@gmail.com"
         git commit -m 'allure update' .
         git push origin main
-
-#        git clone -b ${{ env.REPO_BRANCH }} https://${{ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }} ${{ env.REPO_DIR }}
-
 
     # - name: Update mindwm.github.io
     #   id: update_mindwm_github_io
