@@ -152,7 +152,7 @@ jobs:
         REPO_NAME: mindwm.github.io
         REPO_BRANCH: main
       run: |
-        cd gh-pages/allure-action
+        cd gh-pages/mindwm-gitops/allure-action
         git add -A .
         git config --global user.email "metacoma"
         git config --global user.name "ryabin.ss@gmail.com"
