@@ -17,15 +17,17 @@ env:
 jobs:
   set_env:
     runs-on: ubuntu-24.04
+    outputs:
+      terraform_artifact_name: ${{ steps.set.outputs.terraform_artifact_name }}
+      terraform_state_artifact_name: ${{ steps.set.outputs.terraform_state_artifact_name }}
+      test_artifact_name: ${{ steps.set.outputs.test_artifact_name }}
     steps:
       - name: set outputs with default values
-        id: set-output-defaults
+        id: set
         run: |    
-          cat<<EOF >> ${GITHUB_OUTPUT}
-          terraform_artifact_name=${{ env.terraform_artifact_name }}
-          terraform_state_artifact_name=${{ env.terraform_state_artifact_name }}
-          test_artifact_name=${{ env.test_artifact_name }}
-          EOF
+          echo "terraform_artifact_name=${{ env.terraform_artifact_name }}" >> $GITHUB_OUTPUT
+          echo "terraform_state_artifact_name=${{ env.terraform_state_artifact_name }}" >> $GITHUB_OUTPUT
+          echo "test_artifact_name=${{ env.test_artifact_name }}" >> $GITHUB_OUTPUT
 
       - uses: actions/checkout@v4
         with:
