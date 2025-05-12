@@ -9,10 +9,13 @@ on:
       action:
         required: true
         type: string
+    secrets:
+      LINODE_TOKEN:
+        required: true
 
 env:
-  TF_VAR_linode_token: ${{ secrets.CI_LINODE_TOKEN }}
-  TF_VAR_root_password: ${{ secrets.CI_ROOT_PASSWORD }}
+  TF_VAR_linode_token: ${{ secrets.LINODE_TOKEN }}
+  TF_VAR_root_password: ${{ secrets.ROOT_PASSWORD }}
   TF_VAR_node_name: "mindwm-ci-${{ github.run_number }}-${{ github.run_attempt }}"
   TF_DIR: terraform
 

@@ -52,10 +52,9 @@ jobs:
       action: "deploy"
       artifact_name: 'terraform'
     secrets:
-      CI_LINODE_TOKEN:
-        required: true
-      CI_ROOT_PASSWORD:
-        required: true
+      LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
+      ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
+
     
   upload-report:
     needs: compute_deploy
@@ -72,5 +71,5 @@ jobs:
       artifact_name: 'terraform'
       action: "destroy"
     secrets:
-      CI_LINODE_TOKEN:
-        required: true
+      LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
+      ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
