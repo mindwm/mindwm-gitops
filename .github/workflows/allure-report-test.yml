@@ -22,11 +22,17 @@ jobs:
           repository: 'mindwm/sandbox'
           ref: master
           path: sandbox
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: sandbox/artifact_dir
     
   upload-report:
     needs: ci
     uses: ./.github/workflows/allure-report-reusable.yml
     with:
-      artifact_dir: 'sandbox/artifact_dir'
+      artifact_name: 'test-results'
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}

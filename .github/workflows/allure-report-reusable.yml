@@ -3,7 +3,7 @@ name: Upload Allure Report
 on:
   workflow_call:
     inputs:
-      artifact_dir:
+      artifact_name:
         required: true
         type: string
 
@@ -15,6 +15,12 @@ jobs:
   upload_allure_report:
     runs-on: ubuntu-latest
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: artifact_dir
+
       - name: Load report history
         uses: actions/checkout@v4
         continue-on-error: true
@@ -38,7 +44,7 @@ jobs:
           list_dirs: true
           report_id: 'ci'
           gh_pages: 'gh-pages'
-          report_dir: '${{ inputs.artifact_dir }}/allure-results'
+          report_dir: 'artifact_dir/allure-results'
 
       - name: Update mindwm.github.io
         id: update_mindwm_github_io
