@@ -69,5 +69,5 @@ jobs:
         id: extract_node_ip
         working-directory: ${{ inputs.artifact_name }}
         run: |
-          IP_ADDR=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value'))
+          IP_ADDR=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')
           echo "node_ip_addr=$IP_ADDR" >> $GITHUB_OUTPUT
