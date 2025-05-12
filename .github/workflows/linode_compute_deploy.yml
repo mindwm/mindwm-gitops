@@ -17,7 +17,7 @@ on:
     outputs:
       node_ip_addr:
         description: "The IP address of the deployed node"
-        value: ${{ jobs.deploy.outputs.node_ip_addr }}
+        value: ${{ steps.extract_node_ip.outputs.node_ip_addr }}
 
 jobs:
   linode_instance:
