@@ -123,7 +123,6 @@ jobs:
         path: gh-pages
 
     - name: workaround for allure reports
-      uses: actions/checkout@v4
 #      if: steps.have_artifacts.outcome == 'success'
       continue-on-error: false
       run: |
