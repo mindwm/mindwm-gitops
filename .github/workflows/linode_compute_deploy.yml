@@ -14,9 +14,15 @@ on:
         required: true
       ROOT_PASSWORD:
         required: true
+    outputs:
+      node_ip_addr:
+        description: "The IP address of the deployed node"
+        value: ${{ jobs.deploy.outputs.node_ip_addr }}
 
 jobs:
   linode_instance:
+    outputs:
+      node_ip_addr: ${{ steps.extract_node_ip.outputs.node_ip_addr }}
     runs-on: ubuntu-latest
     steps:
       - name: Debug artifact name
@@ -58,3 +64,10 @@ jobs:
         with:
           name: ${{ inputs.artifact_state_name }}
           path: ${{ inputs.artifact_name }}
+
+      - name: extract node ip
+        id: extract_node_ip
+        working-directory: ${{ inputs.artifact_name }}
+        run: |
+          IP_ADDR=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value'))
+          echo "node_ip_addr=$IP_ADDR" >> $GITHUB_OUTPUT
