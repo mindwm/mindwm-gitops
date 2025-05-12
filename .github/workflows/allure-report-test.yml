@@ -58,7 +58,7 @@ jobs:
           path: ./tests/e2e/
 
   compute_deploy:
-    needs: ci
+    needs: environment
     uses: ./.github/workflows/linode_compute_deploy.yml
     with:
       artifact_name: ${{ needs.environment.terraform_artifact_name }}
