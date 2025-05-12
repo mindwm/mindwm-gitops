@@ -52,7 +52,7 @@ jobs:
 
   compute_deploy:
     needs: ci
-    uses: ./.github/workflows/linode/compute/deploy.yml
+    uses: ./.github/workflows/linode_compute_deploy.yml
     with:
       artifact_name: "{{ env.terraform_artifact_name }}"
       artifact_state_name: "{{ env.terraform_state_artifact_name }}"
@@ -72,7 +72,7 @@ jobs:
 
   compute_destroy:
     needs: upload-report
-    uses: ./.github/workflows/linode/compute/destroy.yml
+    uses: ./.github/workflows/linode_compute_destroy.yml
     with:
       artifact_name: "{{ env.terraform_state_artifact_name }}"
     secrets:
