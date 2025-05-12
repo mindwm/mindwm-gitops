@@ -34,7 +34,7 @@ resource "linode_instance" "ci" {
   region          = "nl-ams"
   type            = "g6-standard-6"
   authorized_keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICZu5HNWRwNF05fROu+QjEM1KANXkuDMZAuroU4jzqhx"]
-  root_pass       = var.root_password
+  root_pass       = "r00trootr00tpassXXXaaa"
 
   tags       = ["mindwm-ci"]
   swap_size  = 0
