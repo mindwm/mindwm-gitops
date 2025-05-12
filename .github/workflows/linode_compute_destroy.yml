@@ -33,8 +33,16 @@ jobs:
 
       - name: terraform plan -destroy
         working-directory: ${{ inputs.artifact_name }}
+        env:
+          TF_VAR_linode_token: ${{ secrets.LINODE_TOKEN }}
+          TF_VAR_root_password: ${{ secrets.ROOT_PASSWORD }}
+          TF_VAR_node_name: "mindwm-ci-${{ github.run_number }}-${{ github.run_attempt }}"
         run: terraform plan
 
       - name: terraform destroy -auto-approve
         working-directory: ${{ inputs.artifact_name }}
+        env:
+          TF_VAR_linode_token: ${{ secrets.LINODE_TOKEN }}
+          TF_VAR_root_password: ${{ secrets.ROOT_PASSWORD }}
+          TF_VAR_node_name: "mindwm-ci-${{ github.run_number }}-${{ github.run_attempt }}"
         run: terraform destroy -auto-approve

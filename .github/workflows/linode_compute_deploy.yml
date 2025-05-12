@@ -39,10 +39,18 @@ jobs:
 
       - name: terraform plan
         working-directory: ${{ inputs.artifact_name }}
+        env:
+          TF_VAR_linode_token: ${{ secrets.LINODE_TOKEN }}
+          TF_VAR_root_password: ${{ secrets.ROOT_PASSWORD }}
+          TF_VAR_node_name: "mindwm-ci-${{ github.run_number }}-${{ github.run_attempt }}"
         run: terraform plan
 
       - name: terraform apply
         working-directory: ${{ inputs.artifact_name }}
+        env:
+          TF_VAR_linode_token: ${{ secrets.LINODE_TOKEN }}
+          TF_VAR_root_password: ${{ secrets.ROOT_PASSWORD }}
+          TF_VAR_node_name: "mindwm-ci-${{ github.run_number }}-${{ github.run_attempt }}"
         run: terraform apply -auto-approve
 
       - name: Upload terraform manifest results
