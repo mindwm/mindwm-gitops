@@ -54,8 +54,8 @@ jobs:
     needs: ci
     uses: ./.github/workflows/linode_compute_deploy.yml
     with:
-      artifact_name: "{{ env.terraform_artifact_name }}"
-      artifact_state_name: "{{ env.terraform_state_artifact_name }}"
+      artifact_name: "${{ env.terraform_artifact_name }}"
+      artifact_state_name: "${{ env.terraform_state_artifact_name }}"
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
@@ -74,7 +74,7 @@ jobs:
     needs: upload-report
     uses: ./.github/workflows/linode_compute_destroy.yml
     with:
-      artifact_name: "{{ env.terraform_state_artifact_name }}"
+      artifact_name: "${{ env.terraform_state_artifact_name }}"
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
