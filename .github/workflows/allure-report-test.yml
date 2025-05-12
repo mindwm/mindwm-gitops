@@ -9,7 +9,7 @@ permissions:
   issues: write
   pull-requests: write
 
-env: 
+env: &env
   terraform_artifact_name: "terraform-${{ github.run_number }}-${{ github.run_attempt }}"
   terraform_state_artifact_name: "terraform-state-${{ github.run_number }}-${{ github.run_attempt }}"
   test_artifact_name: "test-${{ github.run_number }}-${{ github.run_attempt }}"
@@ -53,6 +53,7 @@ jobs:
   compute_deploy:
     needs: ci
     uses: ./.github/workflows/linode_compute_deploy.yml
+    env: *env
     with:
       artifact_name: ${{ env.terraform_artifact_name }}
       artifact_state_name: ${{ env.terraform_state_artifact_name }}
@@ -64,6 +65,7 @@ jobs:
   upload-report:
     needs: compute_deploy
     uses: ./.github/workflows/allure-report-reusable.yml
+    env: *env
     with:
       artifact_name: ${{ env.test_artifact_name }}
     secrets:
@@ -73,6 +75,7 @@ jobs:
   compute_destroy:
     needs: upload-report
     uses: ./.github/workflows/linode_compute_destroy.yml
+    env: *env
     with:
       artifact_name: ${{ env.terraform_state_artifact_name }}
     secrets:
