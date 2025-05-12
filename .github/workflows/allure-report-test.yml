@@ -9,15 +9,22 @@ permissions:
   issues: write
   pull-requests: write
 
-env: &env
+env:
   terraform_artifact_name: "terraform-${{ github.run_number }}-${{ github.run_attempt }}"
   terraform_state_artifact_name: "terraform-state-${{ github.run_number }}-${{ github.run_attempt }}"
   test_artifact_name: "test-${{ github.run_number }}-${{ github.run_attempt }}"
 
 jobs:
-  ci:
+  environment:
     runs-on: ubuntu-24.04
     steps:
+      - name: set outputs with default values
+        id: set-output-defaults
+        run: |    
+          echo "::set-output name=terraform_artifact_name::${{ env.terraform_artifact_name }}"
+          echo "::set-output name=terraform_state_artifact_name::${{ env.terraform_state_artifact_name }}"
+          echo "::set-output name=test_artifact_name::${{ env.test_artifact_name }}"
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -53,10 +60,9 @@ jobs:
   compute_deploy:
     needs: ci
     uses: ./.github/workflows/linode_compute_deploy.yml
-    env: *env
     with:
-      artifact_name: ${{ env.terraform_artifact_name }}
-      artifact_state_name: ${{ env.terraform_state_artifact_name }}
+      artifact_name: ${{ needs.environment.terraform_artifact_name }}
+      artifact_state_name: ${{ needs.environment.terraform_state_artifact_name }}
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
@@ -65,9 +71,8 @@ jobs:
   upload-report:
     needs: compute_deploy
     uses: ./.github/workflows/allure-report-reusable.yml
-    env: *env
     with:
-      artifact_name: ${{ env.test_artifact_name }}
+      artifact_name: ${{ needs.environment.test_artifact_name }}
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
@@ -75,9 +80,8 @@ jobs:
   compute_destroy:
     needs: upload-report
     uses: ./.github/workflows/linode_compute_destroy.yml
-    env: *env
     with:
-      artifact_name: ${{ env.terraform_state_artifact_name }}
+      artifact_name: ${{ needs.environment.terraform_state_artifact_name }}
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
