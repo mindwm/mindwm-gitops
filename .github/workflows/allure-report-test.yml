@@ -70,6 +70,7 @@ jobs:
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
+      SSH_KEY: ${{ secrets.CI_SSH_KEY }}
 
   run_tests:
     needs: [set_env, compute_deploy]
@@ -98,3 +99,4 @@ jobs:
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
+      SSH_KEY: ${{ secrets.CI_SSH_KEY }}

@@ -17,10 +17,16 @@ variable root_password {
     sensitive = true
 } 
 
+variable ssh_key {
+    description = "ssh key"
+    sensitive = true
+}
+
 variable node_name {
     description = "vm node name"
     sensitive = false
 }
+
 
 # Configure the Linode Provider
 provider "linode" {
@@ -42,6 +48,19 @@ resource "linode_instance" "ci" {
 
   metadata {
     user_data = base64encode(file("./cloud-init.yaml"))
+  }
+
+  connection {
+    type     = "ssh"
+    user     = "ci"
+    host     = linode_instance.ci.ip_address
+    private_key = var.ssh_key
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "timeout 90 bash -c 'while :; do docker info && break; sleep 1; echo -n .; done'",
+    ]
   }
 
 }
