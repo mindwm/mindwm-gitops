@@ -32,6 +32,6 @@ jobs:
           command_timeout: 90m
           script: |
             export PAGER=cat
-            git clone -b "${{ inputs.git_branch }}" "${{ inputs.git_repo }}" mindwm-gitops
+            git clone -b "${{ inputs.git_branch }}" https://github.com/"${{ inputs.git_repo }}" mindwm-gitops
             cd mindwm-gitops
             git show
