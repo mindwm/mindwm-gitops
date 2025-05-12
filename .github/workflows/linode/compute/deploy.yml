@@ -6,7 +6,7 @@ on:
       artifact_name:
         required: true
         type: string
-      action:
+      artifact_state_name: 
         required: true
         type: string
     secrets:
@@ -41,27 +41,15 @@ jobs:
         run: terraform init
 
       - name: terraform plan
-        if: inputs.action == 'deploy' 
         working-directory: "${{ env.TF_DIR }}"
         run: terraform plan
 
       - name: terraform apply
-        if: inputs.action == 'deploy' 
         working-directory: "${{ env.TF_DIR }}"
         run: terraform apply -auto-approve
-
-      - name: terraform plan -destroy
-        if: inputs.action == 'destroy' 
-        working-directory: "${{ env.TF_DIR }}"
-        run: terraform plan
-
-      - name: terraform destroy -auto-approev
-        if: inputs.action == 'destroy' 
-        working-directory: "${{ env.TF_DIR }}"
-        run: terraform destroy -auto-approve
 
       - name: Upload terraform manifest results
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.artifact_name }}
+          name: ${{ inputs.artifact_state_name }}
           path: ${{ env.TF_DIR }}

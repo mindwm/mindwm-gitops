@@ -9,6 +9,11 @@ permissions:
   issues: write
   pull-requests: write
 
+env: 
+  terraform_artifact_name: "terraform-${{ github.run_number }}-${{ github.run_attempt }}"
+  terraform_state_artifact_name: "terraform-state-${{ github.run_number }}-${{ github.run_attempt }}"
+  test_artifact_name: "test-${{ github.run_number }}-${{ github.run_attempt }}"
+
 jobs:
   ci:
     runs-on: ubuntu-24.04
@@ -31,7 +36,7 @@ jobs:
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: "{{ env.test_artifact_name }}"
           path: sandbox/artifact_dir
 
       - name: Debug
@@ -42,15 +47,15 @@ jobs:
       - name: Upload terraform manifest 
         uses: actions/upload-artifact@v4
         with:
-          name: terraform
+          name: "{{ env.terraform_artifact_name }}"
           path: ./tests/e2e/
 
   compute_deploy:
     needs: ci
-    uses: ./.github/workflows/linode-compute-reusable.yml
+    uses: ./.github/workflows/linode/compute/deploy.yml
     with:
-      action: "deploy"
-      artifact_name: 'terraform'
+      artifact_name: "{{ env.terraform_artifact_name }}"
+      artifact_state_name: "{{ env.terraform_state_artifact_name }}"
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
@@ -64,12 +69,12 @@ jobs:
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
+
   compute_destroy:
-    uses: ./.github/workflows/linode-compute-reusable.yml
     needs: upload-report
+    uses: ./.github/workflows/linode/compute/destroy.yml
     with:
-      artifact_name: 'terraform'
-      action: "destroy"
+      artifact_name: "{{ env.terraform_state_artifact_name }}"
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
