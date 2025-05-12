@@ -35,84 +35,84 @@ jobs:
         distribution: zulu
         java-version: 17
 
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        ref: master
-        repository: mindwm/mindwm-gitops
+    # - uses: actions/checkout@v4
+    #   with:
+    #     fetch-depth: 0
+    #     ref: master
+    #     repository: mindwm/mindwm-gitops
+    #
+    # - uses: hashicorp/setup-terraform@v3
+    #   with:
+    #     terraform_version: "1.10.5"
+    #
+    # - name: terraform init
+    #   working-directory: "${{ env.TF_DIR }}"
+    #   run: terraform init
+    #
+    # - name: terraform plan
+    #   working-directory: "${{ env.TF_DIR }}"
+    #   run: terraform plan
+    #
+    # - name: terraform apply
+    #   working-directory: "${{ env.TF_DIR }}"
+    #   run: terraform apply -auto-approve
+    #
+    # - name: set CI_INSTANCE_IP variable
+    #   working-directory: "${{ env.TF_DIR }}"
+    #   run: |
+    #     echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
+    #
+    #
+    # - name: show CI_INSTANCE_IP
+    #   run: | 
+    #     echo $CI_INSTANCE_IP
+    #
+    # - name: run pytests
+    #   uses: appleboy/ssh-action@v1.2.2
+    #   with:
+    #     host: ${{ env.CI_INSTANCE_IP }}
+    #     username: ci
+    #     key: ${{ secrets.CI_SSH_KEY }}
+    #     command_timeout: 90m
+    #     script: |
+    #       test -d ${{ env.TF_VAR_artifact_dir }} &&  rm -rfv ${{ env.TF_VAR_artifact_dir }}
+    #       mkdir -p ${{ env.TF_VAR_artifact_dir }}
+    #       echo 0 > ${{ env.TF_VAR_artifact_dir }}/exit_code
+    #       test -d ~/.kube || mkdir ~/.kube
+    #       test -d mindwm-gitops && rm -rf mindwm-gitops
+    #       git clone -b master https://github.com/mindwm/mindwm-gitops
+    #       cd mindwm-gitops 
+    #       export KUBECONFIG=${HOME}/.kube/config
+    #       make mindwm_test 
+    #       echo $? > ${{ env.TF_VAR_artifact_dir }}/exit_code
+    #       cd ${{ env.TF_VAR_artifact_dir }}
+    #       tar cvf /tmp/artifacts.tar . 
+    #
+    #
+    # - name: Download artifacts
+    #   uses: nicklasfrahm/scp-action@main
+    #   id: download_artifacts
+    #   if: always()
+    #   continue-on-error: true
+    #   with:
+    #     direction: download
+    #     host: ${{ env.CI_INSTANCE_IP }}
+    #     insecure_ignore_fingerprint: true
+    #     username: ci
+    #     key: ${{ secrets.CI_SSH_KEY }}
+    #     source: /tmp/artifacts.tar
+    #     target: artifacts.tar
+    #
 
-    - uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.10.5"
+    # - name: Unpack artifacts
+    #   id: have_artifacts
+    #   if: steps.download_artifacts.outcome == 'success'
+    #   continue-on-error: true
+    #   run: |
+    #     mkdir artifacts
+    #     tar xvf artifacts.tar -C artifacts
 
-    - name: terraform init
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform init
-
-    - name: terraform plan
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform plan
-
-    - name: terraform apply
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform apply -auto-approve
-
-    - name: set CI_INSTANCE_IP variable
-      working-directory: "${{ env.TF_DIR }}"
-      run: |
-        echo "CI_INSTANCE_IP=$(cat terraform.tfstate | jq -r '.outputs.ci_instance_ip.value')" >> $GITHUB_ENV
-
-
-    - name: show CI_INSTANCE_IP
-      run: | 
-        echo $CI_INSTANCE_IP
-
-    - name: run pytests
-      uses: appleboy/ssh-action@v1.2.2
-      with:
-        host: ${{ env.CI_INSTANCE_IP }}
-        username: ci
-        key: ${{ secrets.CI_SSH_KEY }}
-        command_timeout: 90m
-        script: |
-          test -d ${{ env.TF_VAR_artifact_dir }} &&  rm -rfv ${{ env.TF_VAR_artifact_dir }}
-          mkdir -p ${{ env.TF_VAR_artifact_dir }}
-          echo 0 > ${{ env.TF_VAR_artifact_dir }}/exit_code
-          test -d ~/.kube || mkdir ~/.kube
-          test -d mindwm-gitops && rm -rf mindwm-gitops
-          git clone -b master https://github.com/mindwm/mindwm-gitops
-          cd mindwm-gitops 
-          export KUBECONFIG=${HOME}/.kube/config
-          make mindwm_test 
-          echo $? > ${{ env.TF_VAR_artifact_dir }}/exit_code
-          cd ${{ env.TF_VAR_artifact_dir }}
-          tar cvf /tmp/artifacts.tar . 
-
-
-    - name: Download artifacts
-      uses: nicklasfrahm/scp-action@main
-      id: download_artifacts
-      if: always()
-      continue-on-error: true
-      with:
-        direction: download
-        host: ${{ env.CI_INSTANCE_IP }}
-        insecure_ignore_fingerprint: true
-        username: ci
-        key: ${{ secrets.CI_SSH_KEY }}
-        source: /tmp/artifacts.tar
-        target: artifacts.tar
-
-
-    - name: Unpack artifacts
-      id: have_artifacts
-      if: steps.download_artifacts.outcome == 'success'
-      continue-on-error: true
-      run: |
-        mkdir artifacts
-        tar xvf artifacts.tar -C artifacts
-
-    - name: Load test report history
+    - name: Load report history
       uses: actions/checkout@v4
       if: steps.have_artifacts.outcome == 'success'
       continue-on-error: true
@@ -121,6 +121,16 @@ jobs:
         repository: 'mindwm/mindwm.github.io'
         ref: main
         path: gh-pages
+
+    - name: Load fake results
+      uses: actions/checkout@v4
+      if: steps.have_artifacts.outcome == 'success'
+      continue-on-error: true
+      with:
+        token: ${{ secrets.MINDWM_TOKEN }}
+        repository: 'mindwm/sandbox'
+        ref: master
+        path: sandbox
 
     - name: Allure Report Action
       uses: mgrybyk-org/allure-report-branch-js-action@v1
@@ -131,68 +141,83 @@ jobs:
         list_dirs: true
         report_id: 'ci'
         gh_pages: 'gh-pages'
-        report_dir: 'artifacts/allure-results'
+        report_dir: 'sandbox/artifact_dir/allure-results'
 
     - name: Update mindwm.github.io
       id: update_mindwm_github_io
       if: steps.have_artifacts.outcome == 'success'
-      uses: cpina/github-action-push-to-another-repository@target-branch
       env:
-        SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
-      with:
-        source-directory: gh-pages/allure-action
-        destination-github-username: 'mindwm'
-        destination-repository-name: 'mindwm.github.io'
-        user-email: github-actions@github.com
-        commit-message: See ORIGIN_COMMIT from $GITHUB_REF
-        target-branch: main
-        target-directory: mindwm-gitops-master/allure-action
-
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@v5
-      if: steps.have_artifacts.outcome == 'success'
-      id: junit
-      with:
-        report_paths: 'artifacts/report.xml'
-
-    - name: return exit code
-      run: | 
-        exit `cat artifacts/exit_code`
-
-    - name: set JUNIT_FAILED_TEST_TITLE variable
-      if: failure() && steps.have_artifacts.outcome == 'success'
+        ORG_NAME: mindwm
+        REPO_NAME: mindwm.github.io
+        REPO_BRANCH: main
       run: |
-        echo "JUNIT_FAILED_TEST_TITLE=$(cat artifacts/failed_test_title)" >> $GITHUB_ENV
-        ls -ltr artifacts/failed_test_title
-        cat artifacts/failed_test_title
-        echo 'JUNIT_FAILED_TEST_TITLE="'$(cat artifacts/failed_test_title)'"' 
+        cd gh-pages
+        git status
+          # git config --global user.email "metacoma"
+          # git config --global user.name "ryabin.ss@gmail.com"
+          # git clone -b ${{ env.REPO_BRANCH }} https://${{ env.ORG_NAME }}:${{ secrets.PAT }}@github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }} ${{ env.REPO_DIR }}
 
 
-    - name: "Create an issue"
-      uses: JasonEtco/create-an-issue@v2
-      if: failure() && steps.have_artifacts.outcome == 'success'
-      env:
-        ISSUE_TITLE: ${{ env.JUNIT_FAILED_TEST_TITLE }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        JUNIT_TOTAL: ${{ steps.junit.outputs.total }}
-        JUNIT_PASSED: ${{ steps.junit.outputs.passed }}
-        JUNIT_SKIPPED: ${{ steps.junit.outputs.skipped }}
-        JUNIT_RETRIED: ${{ steps.junit.outputs.retried }}
-        JUNIT_FAILED: ${{ steps.junit.outputs.failed }}
-        JUNIT_SUMMARY: ${{ steps.junit.outputs.summary }}
-        JUNIT_DETAILED_SUMMARY: ${{ steps.junit.outputs.detailed_summary }}
-        JUNIT_FLAKY_SUMMARY: ${{ steps.junit.outputs.flaky }}
-        ALLURE_TEST_RESULT_ICON: ${{ steps.allure.outputs.test_result_icon }}
-        ALLURE_REPORT_URL: ${{ steps.allure.outputs.report_url }}
-        GITHUB_FAILED_JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      with:
-        update_existing: true
-        search_existing: open
-        filename: .github/NIGHTLY_JOB_TEMPLATE.md
+    # - name: Update mindwm.github.io
+    #   id: update_mindwm_github_io
+    #   if: steps.have_artifacts.outcome == 'success'
+    #   uses: cpina/github-action-push-to-another-repository@target-branch
+    #   env:
+    #     SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+    #   with:
+    #     source-directory: gh-pages/allure-action
+    #     destination-github-username: 'mindwm'
+    #     destination-repository-name: 'mindwm.github.io'
+    #     user-email: github-actions@github.com
+    #     commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+    #     target-branch: main
+    #     target-directory: mindwm-gitops-master/allure-action
+    #
+    # - name: Publish Test Report
+    #   uses: mikepenz/action-junit-report@v5
+    #   if: steps.have_artifacts.outcome == 'success'
+    #   id: junit
+    #   with:
+    #     report_paths: 'artifacts/report.xml'
 
-
-    - name: terraform destroy
-      if: always()
-      working-directory: "${{ env.TF_DIR }}"
-      run: terraform destroy -auto-approve
-
+    # - name: return exit code
+    #   run: | 
+    #     exit `cat artifacts/exit_code`
+    #
+    # - name: set JUNIT_FAILED_TEST_TITLE variable
+    #   if: failure() && steps.have_artifacts.outcome == 'success'
+    #   run: |
+    #     echo "JUNIT_FAILED_TEST_TITLE=$(cat artifacts/failed_test_title)" >> $GITHUB_ENV
+    #     ls -ltr artifacts/failed_test_title
+    #     cat artifacts/failed_test_title
+    #     echo 'JUNIT_FAILED_TEST_TITLE="'$(cat artifacts/failed_test_title)'"' 
+    #
+    #
+    # - name: "Create an issue"
+    #   uses: JasonEtco/create-an-issue@v2
+    #   if: failure() && steps.have_artifacts.outcome == 'success'
+    #   env:
+    #     ISSUE_TITLE: ${{ env.JUNIT_FAILED_TEST_TITLE }}
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     JUNIT_TOTAL: ${{ steps.junit.outputs.total }}
+    #     JUNIT_PASSED: ${{ steps.junit.outputs.passed }}
+    #     JUNIT_SKIPPED: ${{ steps.junit.outputs.skipped }}
+    #     JUNIT_RETRIED: ${{ steps.junit.outputs.retried }}
+    #     JUNIT_FAILED: ${{ steps.junit.outputs.failed }}
+    #     JUNIT_SUMMARY: ${{ steps.junit.outputs.summary }}
+    #     JUNIT_DETAILED_SUMMARY: ${{ steps.junit.outputs.detailed_summary }}
+    #     JUNIT_FLAKY_SUMMARY: ${{ steps.junit.outputs.flaky }}
+    #     ALLURE_TEST_RESULT_ICON: ${{ steps.allure.outputs.test_result_icon }}
+    #     ALLURE_REPORT_URL: ${{ steps.allure.outputs.report_url }}
+    #     GITHUB_FAILED_JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    #   with:
+    #     update_existing: true
+    #     search_existing: open
+    #     filename: .github/NIGHTLY_JOB_TEMPLATE.md
+    #
+    #
+    # - name: terraform destroy
+    #   if: always()
+    #   working-directory: "${{ env.TF_DIR }}"
+    #   run: terraform destroy -auto-approve
+    #
