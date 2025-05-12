@@ -78,7 +78,6 @@ jobs:
     secrets:
       SSH_KEY: ${{ secrets.CI_SSH_KEY }}
 
-
   upload-report:
     needs: [set_env, compute_deploy, run_tests, download_test_artifacts]
     uses: ./.github/workflows/allure-report-reusable.yml
@@ -86,7 +85,6 @@ jobs:
       artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
-
 
   compute_destroy:
     if: always()
