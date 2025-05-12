@@ -1,0 +1,44 @@
+name: Download and safe artifacts
+
+on:
+  workflow_call:
+    inputs:
+      node_ip_addr:
+        required: true
+        type: string
+      artifact_dir:
+        required: true
+        type: string
+      artifact_name:
+        required: true
+        type: string
+    secrets:
+      SSH_KEY:
+        required: true
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: nicklasfrahm/scp-action@main
+        id: download_artifacts
+        with:
+          direction: download
+          host: ${{ inputs.node_ip_addr }}
+          insecure_ignore_fingerprint: true
+          username: ci
+          key: ${{ secrets.SSH_KEY }}
+          source: /tmp/artifacts.tar
+          target: artifacts.tar
+      - name: Unpack artifacts
+        run: 
+          mkdir /tmp/artifacts
+          tar xvf artifacts.tar -C /tmp/artifacts
+
+      - name: Upload pytest artifacts to github 
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ inputs.artifact_name }}"
+          path: /tmp/artifacts
+      

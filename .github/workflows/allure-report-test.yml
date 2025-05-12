@@ -50,17 +50,6 @@ jobs:
           name: "${{ steps.set.outputs.test_artifact_name }}"
           path: sandbox/artifact_dir
 
-      - name: Debug
-        run: |
-          pwd
-          find
-
-      - name: Upload terraform manifest 
-        uses: actions/upload-artifact@v4
-        with:
-          name: "${{ steps.set.outputs.terraform_artifact_name }}"
-          path: ./tests/e2e/
-
   compute_deploy:
     needs: set_env
     uses: ./.github/workflows/linode_compute_deploy.yml
@@ -83,6 +72,20 @@ jobs:
       artifact_dir: /tmp/artifacts
     secrets:
       SSH_KEY: ${{ secrets.CI_SSH_KEY }}
+
+  # download artifacts from the remote hosts and safe as github artifact
+  download_test_artifacts:
+    needs: [set_env, compute_deploy, run_tests]
+    uses: ./.github/workflows/download_artifacts.yml
+    with:
+      node_ip_addr: ${{ needs.compute_deploy.outputs.node_ip_addr }}
+      # remote dir
+      artifact_dir: /tmp/artifacts
+      # github artifact name
+      artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
+    secrets:
+      SSH_KEY: ${{ secrets.CI_SSH_KEY }}
+
 
   upload-report:
     needs: [set_env, compute_deploy, run_tests]

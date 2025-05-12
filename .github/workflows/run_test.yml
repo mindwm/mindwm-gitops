@@ -38,3 +38,6 @@ jobs:
             git clone -b "${{ inputs.git_branch }}" https://github.com/"${{ inputs.git_repo }}" mindwm-gitops
             cd mindwm-gitops
             make mindwm_test TEST_NAME=${{ inputs.test_name }} ARTIFACT_DIR=${{ inputs.artifact_dir }}
+            echo $? > ${{ inputs.artifact_dir }}/exit_code 
+            cd ${{ inputs.artifact_dir }}
+            tar cvf /tmp/artifacts.tar .
