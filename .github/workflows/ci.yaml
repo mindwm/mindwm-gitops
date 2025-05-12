@@ -157,7 +157,7 @@ jobs:
       with:
         message: |
           ${{ steps.allure.outputs.test_result_icon }} [Allure Report](${{ steps.allure.outputs.report_url }}) | [History](${{ steps.allure.outputs.report_history_url }})
-        comment_tag: allure_report
+        comment-tag: allure_report
         mode: recreate
 
     - name: Publish Test Report
