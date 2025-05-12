@@ -35,20 +35,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref || 'master' }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
 
-      - name: Load fake results
-        uses: actions/checkout@v4
-        continue-on-error: true
-        with:
-          token: ${{ secrets.MINDWM_TOKEN }}
-          repository: 'mindwm/sandbox'
-          ref: master
-          path: sandbox
-
-      - name: Upload test results
+      - name: Upload terraform manifest 
         uses: actions/upload-artifact@v4
         with:
-          name: "${{ steps.set.outputs.test_artifact_name }}"
-          path: sandbox/artifact_dir
+          name: "${{ steps.set.outputs.terraform_artifact_name }}"
+          path: ./tests/e2e/
+
 
   compute_deploy:
     needs: set_env
