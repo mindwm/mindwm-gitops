@@ -37,7 +37,7 @@ jobs:
       - name: Upload terraform manifest 
         uses: actions/upload-artifact@v4
         with:
-          name: tests/e2e/
+          name: mindwm-gitops/tests/e2e/
           path: terraform
 
   compute_deploy:
