@@ -100,7 +100,7 @@ jobs:
       SSH_KEY: ${{ secrets.CI_SSH_KEY }}
 
   cleanup_artifacts:
-    needs: [set_env, compute_destroy]
+    needs: [set_env, compute_destroy, upload-report]
     runs-on: ubuntu-latest
     steps:
       - uses: geekyeggo/delete-artifact@v5
