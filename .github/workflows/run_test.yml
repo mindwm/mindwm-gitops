@@ -22,7 +22,7 @@ jobs:
         with:
           host: ${{ inputs.node_ip_addr }}
           username: ci
-          key: ${{ inputs.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY }}
           command_timeout: 90m
           script: |
             echo ${{ inputs.test_name }}
