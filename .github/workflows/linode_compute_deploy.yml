@@ -25,31 +25,34 @@ jobs:
   linode_instance:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug artifact name
+        run: |
+          echo "Artifact name: ${{ inputs.artifact_name }}"
 
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: ${{ env.TF_DIR }}
+          path: ${{ inputs.artifact_name }}
 
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.10.5"
 
       - name: terraform init
-        working-directory: "${{ env.TF_DIR }}"
+        working-directory: ${{ inputs.artifact_name }}
         run: terraform init
 
       - name: terraform plan
-        working-directory: "${{ env.TF_DIR }}"
+        working-directory: ${{ inputs.artifact_name }}
         run: terraform plan
 
       - name: terraform apply
-        working-directory: "${{ env.TF_DIR }}"
+        working-directory: ${{ inputs.artifact_name }}
         run: terraform apply -auto-approve
 
       - name: Upload terraform manifest results
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_state_name }}
-          path: ${{ env.TF_DIR }}
+          path: ${{ inputs.artifact_name }}
