@@ -9,6 +9,12 @@ on:
       test_name: 
         required: true
         type: string
+      git_branch: 
+        required: true
+        type: string
+      git_repo: 
+        required: true
+        type: string
     secrets:
       SSH_KEY:
         required: true
@@ -25,4 +31,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           command_timeout: 90m
           script: |
-            echo ${{ inputs.test_name }}
+            export PAGER=cat
+            git clone -b "${{ inputs.git_branch }}" "${{ inputs.git_repo }}" mindwm-gitops
+            cd mindwm-gitops
+            git show

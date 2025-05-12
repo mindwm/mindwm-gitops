@@ -78,6 +78,8 @@ jobs:
     with:
       node_ip_addr: ${{ needs.compute_deploy.outputs.node_ip_addr }}
       test_name: fake_test
+      git_branch: ${{ github.event.pull_request.head.ref || 'master' }}
+      git_repo: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
     secrets:
       SSH_KEY: ${{ secrets.CI_SSH_KEY }}
 
