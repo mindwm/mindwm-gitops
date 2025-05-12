@@ -51,6 +51,11 @@ jobs:
     with:
       action: "deploy"
       artifact_name: 'terraform'
+    secrets:
+      CI_LINODE_TOKEN:
+        required: true
+      CI_ROOT_PASSWORD:
+        required: true
     
   upload-report:
     needs: compute_deploy
@@ -66,3 +71,6 @@ jobs:
     with:
       artifact_name: 'terraform'
       action: "destroy"
+    secrets:
+      CI_LINODE_TOKEN:
+        required: true
