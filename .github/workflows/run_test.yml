@@ -25,4 +25,4 @@ jobs:
           key: ${{ inputs.SSH_KEY }}
           command_timeout: 90m
           script: |
-            echo ${{ input.test_name }}
+            echo ${{ inputs.test_name }}
