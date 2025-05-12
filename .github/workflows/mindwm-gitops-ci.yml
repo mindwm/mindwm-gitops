@@ -98,3 +98,15 @@ jobs:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
       SSH_KEY: ${{ secrets.CI_SSH_KEY }}
+
+  cleanup_artifacts:
+    needs: [set_env, compute_destroy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            ${{ needs.set_env.outputs.terraform_artifact_name }}
+            ${{ needs.set_env.outputs.test_artifact_name }}
+            ${{ needs.set_env.outputs.terraform_state_artifact_name }}
+
