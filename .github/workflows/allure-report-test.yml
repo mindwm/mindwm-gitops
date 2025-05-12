@@ -15,7 +15,7 @@ env:
   test_artifact_name: "test-${{ github.run_number }}-${{ github.run_attempt }}"
 
 jobs:
-  environment:
+  set_env:
     runs-on: ubuntu-24.04
     steps:
       - name: set outputs with default values
@@ -60,11 +60,11 @@ jobs:
           path: ./tests/e2e/
 
   compute_deploy:
-    needs: environment
+    needs: set_env
     uses: ./.github/workflows/linode_compute_deploy.yml
     with:
-      artifact_name: ${{ needs.environment.terraform_artifact_name }}
-      artifact_state_name: ${{ needs.environment.terraform_state_artifact_name }}
+      artifact_name: ${{ needs.set_env.terraform_artifact_name }}
+      artifact_state_name: ${{ needs.set_env.terraform_state_artifact_name }}
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
@@ -74,7 +74,7 @@ jobs:
     needs: compute_deploy
     uses: ./.github/workflows/allure-report-reusable.yml
     with:
-      artifact_name: ${{ needs.environment.test_artifact_name }}
+      artifact_name: ${{ needs.set_env.test_artifact_name }}
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
@@ -83,7 +83,7 @@ jobs:
     needs: upload-report
     uses: ./.github/workflows/linode_compute_destroy.yml
     with:
-      artifact_name: ${{ needs.environment.terraform_state_artifact_name }}
+      artifact_name: ${{ needs.set_env.terraform_state_artifact_name }}
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
