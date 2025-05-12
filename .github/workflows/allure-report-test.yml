@@ -13,6 +13,12 @@ jobs:
   ci:
     runs-on: ubuntu-24.04
     steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.ref || 'master' }}
+        repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
       - name: Load fake results
         uses: actions/checkout@v4
         continue-on-error: true
