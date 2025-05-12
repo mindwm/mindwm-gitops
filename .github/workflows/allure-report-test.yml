@@ -90,7 +90,7 @@ jobs:
 
   compute_destroy:
     if: always()
-    needs: [download_test_artifacts]
+    needs: [set_env, download_test_artifacts]
     uses: ./.github/workflows/linode_compute_destroy.yml
     with:
       artifact_name: ${{ needs.set_env.outputs.terraform_state_artifact_name }}
