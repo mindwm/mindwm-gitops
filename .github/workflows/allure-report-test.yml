@@ -82,6 +82,7 @@ jobs:
 
 
   compute_destroy:
+    if: always()
     needs: [set_env, upload-report]
     uses: ./.github/workflows/linode_compute_destroy.yml
     with:
