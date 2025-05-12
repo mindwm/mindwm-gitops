@@ -47,7 +47,7 @@ jobs:
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: "${{ steps.set_env.outputs.test_artifact_name }}"
+          name: "${{ steps.set.outputs.test_artifact_name }}"
           path: sandbox/artifact_dir
 
       - name: Debug
@@ -58,7 +58,7 @@ jobs:
       - name: Upload terraform manifest 
         uses: actions/upload-artifact@v4
         with:
-          name: "${{ steps.set_env.outputs.terraform_artifact_name }}"
+          name: "${{ steps.set.outputs.terraform_artifact_name }}"
           path: ./tests/e2e/
 
   compute_deploy:
