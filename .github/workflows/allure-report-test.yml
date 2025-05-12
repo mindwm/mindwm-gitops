@@ -1,0 +1,30 @@
+name: allure-test-report
+
+
+permissions:
+  checks: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Load fake results
+        uses: actions/checkout@v4
+        if: steps.have_artifacts.outcome == 'success'
+        continue-on-error: true
+        with:
+          token: ${{ secrets.MINDWM_TOKEN }}
+          repository: 'mindwm/sandbox'
+          ref: master
+          path: sandbox
+    
+  upload-report:
+    needs: ci
+    uses: ./.github/workflows/allure-report-reusable.yml
+    with:
+      artifact_dir: 'sandbox/artifact_dir'
+    secrets:
+      MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
