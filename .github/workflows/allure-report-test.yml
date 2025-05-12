@@ -58,7 +58,7 @@ jobs:
     uses: ./.github/workflows/run_test.yml
     with:
       node_ip_addr: ${{ needs.compute_deploy.outputs.node_ip_addr }}
-      test_name: mindwm_test
+      test_name: fake_test_fail
       git_branch: ${{ github.event.pull_request.head.ref || 'master' }}
       git_repo: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
       artifact_dir: /tmp/artifacts
