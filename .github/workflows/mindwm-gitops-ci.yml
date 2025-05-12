@@ -88,6 +88,13 @@ jobs:
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
+  pr_comment:
+    if: github.event_name == 'pull_request'
+    needs: [set_env, download_test_artifacts]
+    uses: ./.github/workflows/pr_allure_comment.yml
+    with:
+      artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
+
   compute_destroy:
     if: always()
     needs: [set_env, download_test_artifacts]
