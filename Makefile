@@ -4,6 +4,7 @@ ARGOCD_HOST_PORT := 38080
 ARGOCD_HELM_CHART_VERSION := 7.9.1
 ARGOCD_APP_VERSION := 2.14.11
 
+
 TEST_NAME := mindwm_test
 
 TARGET_REVISION := $(shell git branch ls --show-current)
