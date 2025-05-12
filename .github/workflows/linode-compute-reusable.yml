@@ -1,0 +1,62 @@
+name: Run linode instance
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: true
+        type: string
+      action:
+        required: true
+        type: string
+
+env:
+  TF_VAR_linode_token: ${{ secrets.CI_LINODE_TOKEN }}
+  TF_VAR_root_password: ${{ secrets.CI_ROOT_PASSWORD }}
+  TF_VAR_node_name: "mindwm-ci-${{ github.run_number }}-${{ github.run_attempt }}"
+  TF_DIR: terraform
+
+jobs:
+  linode_instance:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ env.TF_DIR }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.5"
+
+      - name: terraform init
+        working-directory: "${{ env.TF_DIR }}"
+        run: terraform init
+
+      - name: terraform plan
+        if: inputs.action == 'deploy' 
+        working-directory: "${{ env.TF_DIR }}"
+        run: terraform plan
+
+      - name: terraform apply
+        if: inputs.action == 'deploy' 
+        working-directory: "${{ env.TF_DIR }}"
+        run: terraform apply -auto-approve
+
+      - name: terraform plan -destroy
+        if: inputs.action == 'destroy' 
+        working-directory: "${{ env.TF_DIR }}"
+        run: terraform plan
+
+      - name: terraform destroy -auto-approev
+        if: inputs.action == 'destroy' 
+        working-directory: "${{ env.TF_DIR }}"
+        run: terraform destroy -auto-approve
+
+      - name: Upload terraform manifest results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.TF_DIR }}
+          path: ${{ inputs.artifact_name }}

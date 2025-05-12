@@ -27,11 +27,31 @@ jobs:
         with:
           name: test-results
           path: sandbox/artifact_dir
+
+      - name: Upload terraform manifest 
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests/e2e/
+          path: terraform
+
+  compute_deploy:
+    needs: ci
+    uses: ./.github/workflows/linode-compute-reusable.yml
+    with:
+      action: "deploy"
+      artifact_name: 'terraform'
     
   upload-report:
-    needs: ci
+    needs: compute_deploy
     uses: ./.github/workflows/allure-report-reusable.yml
     with:
       artifact_name: 'test-results'
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
+
+  compute_destroy:
+    uses: ./.github/workflows/linode-compute-reusable.yml
+    needs: upload-report
+    with:
+      artifact_name: 'terraform'
+      action: "destroy"
