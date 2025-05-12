@@ -1,0 +1,28 @@
+name: Run mindwm tests
+
+on:
+  workflow_call:
+    inputs:
+      node_ip_addr:
+        required: true
+        type: string
+      test_name: 
+        required: true
+        type: string
+    secrets:
+      SSH_KEY:
+        required: true
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: run pytests
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ inputs.node_ip_addr }}
+          username: ci
+          key: ${{ inputs.SSH_KEY }}
+          command_timeout: 90m
+          script: |
+            echo ${{ input.test_name }}
