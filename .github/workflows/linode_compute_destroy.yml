@@ -12,12 +12,6 @@ on:
       ROOT_PASSWORD:
         required: true
 
-env:
-  TF_VAR_linode_token: ${{ secrets.LINODE_TOKEN }}
-  TF_VAR_root_password: ${{ secrets.ROOT_PASSWORD }}
-  TF_VAR_node_name: "mindwm-ci-${{ github.run_number }}-${{ github.run_attempt }}"
-  TF_DIR: terraform
-
 jobs:
   linode_instance:
     runs-on: ubuntu-latest
@@ -27,20 +21,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.artifact_name }}
-          path: ${{ env.TF_DIR }}
+          path: ${{ inputs.artifact_name }}
 
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.10.5"
 
       - name: terraform init
-        working-directory: "${{ env.TF_DIR }}"
+        working-directory: ${{ inputs.artifact_name }}
         run: terraform init
 
       - name: terraform plan -destroy
-        working-directory: "${{ env.TF_DIR }}"
+        working-directory: ${{ inputs.artifact_name }}
         run: terraform plan
 
       - name: terraform destroy -auto-approve
-        working-directory: "${{ env.TF_DIR }}"
+        working-directory: ${{ inputs.artifact_name }}
         run: terraform destroy -auto-approve

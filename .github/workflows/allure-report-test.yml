@@ -76,7 +76,7 @@ jobs:
     needs: compute_deploy
     uses: ./.github/workflows/allure-report-reusable.yml
     with:
-      artifact_name: ${{ needs.set_env.test_artifact_name }}
+      artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
@@ -85,7 +85,7 @@ jobs:
     needs: upload-report
     uses: ./.github/workflows/linode_compute_destroy.yml
     with:
-      artifact_name: ${{ needs.set_env.terraform_state_artifact_name }}
+      artifact_name: ${{ needs.set_env.outputs.terraform_state_artifact_name }}
     secrets:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
