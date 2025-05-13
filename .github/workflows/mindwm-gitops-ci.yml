@@ -132,6 +132,17 @@ jobs:
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
+  upload_badge:
+    needs: [set_env, junit]
+    uses: ./.github/workflows/ci-badge.yml
+    with:
+      junit_total: ${{ needs.junit.outputs.junit_total }}
+      junit_passed: ${{ needs.junit.outputs.junit_passed }}
+      junit_skipped: ${{ needs.junit.outputs.junit_skipped }}
+      junit_failed: ${{ needs.junit.outputs.junit_failed }}
+    secrets:
+      MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
+
   cleanup_artifacts:
     needs: [set_env, compute_destroy, allure_report, junit, test_result]
     if: always()
