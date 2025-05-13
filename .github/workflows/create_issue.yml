@@ -46,6 +46,13 @@ jobs:
   create_issue:
     runs-on: ubuntu-latest
     steps:
+      # checkout for NIGHTLY_JOB_TEMPLATE template
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref || 'master' }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
       - name: "Create an issue"
         uses: JasonEtco/create-an-issue@v2
         env:
