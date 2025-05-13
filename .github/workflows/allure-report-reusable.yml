@@ -62,10 +62,6 @@ jobs:
 
       - name: Update mindwm.github.io
         id: update_mindwm_github_io
-        env:
-          ORG_NAME: mindwm
-          REPO_NAME: mindwm.github.io
-          REPO_BRANCH: main
         run: |
           cd gh-pages/
           mv allure-action mindwm-gitops/

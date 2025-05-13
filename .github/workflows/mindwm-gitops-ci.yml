@@ -12,9 +12,9 @@ permissions:
   pull-requests: write
 
 env:
-  terraform_artifact_name: "terraform-${{ github.run_number }}-${{ github.run_attempt }}"
-  terraform_state_artifact_name: "terraform-state-${{ github.run_number }}-${{ github.run_attempt }}"
-  test_artifact_name: "test-${{ github.run_number }}-${{ github.run_attempt }}"
+  terraform_artifact_name: "terraform-${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}"
+  terraform_state_artifact_name: "terraform-state-${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}"
+  test_artifact_name: "test-${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}"
 
 jobs:
   set_env:
