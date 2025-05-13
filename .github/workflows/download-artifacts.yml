@@ -1,4 +1,4 @@
-name: Download and safe artifacts
+name: 'workflow: Save test artifacts'
 
 on:
   workflow_call:

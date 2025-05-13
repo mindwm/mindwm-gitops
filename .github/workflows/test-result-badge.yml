@@ -1,4 +1,4 @@
-name: ci badge
+name: "workflow: Generate CI badge"
 
 on:
   workflow_call:

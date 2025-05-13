@@ -1,4 +1,4 @@
-name: Test result
+name: "workflow: Test result"
 
 on:
   workflow_call:

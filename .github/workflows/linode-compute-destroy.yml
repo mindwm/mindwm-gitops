@@ -1,4 +1,4 @@
-name: Stop linode instance
+name: "workflow: Destroy Linode compute"
 
 on:
   workflow_call:

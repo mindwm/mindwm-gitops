@@ -1,4 +1,4 @@
-name: Allure Report
+name: 'workflow: Allure Report'
 
 on:
   workflow_call:

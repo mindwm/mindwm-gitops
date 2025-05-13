@@ -57,7 +57,7 @@ jobs:
 
   run_tests:
     needs: [set_env, compute_deploy]
-    uses: ./.github/workflows/run_test.yml
+    uses: ./.github/workflows/run-test.yml
     with:
       node_ip_addr: ${{ needs.compute_deploy.outputs.node_ip_addr }}
       test_name: mindwm_test
@@ -70,7 +70,7 @@ jobs:
   # download artifacts from the remote hosts and safe as github artifact
   download_test_artifacts:
     needs: [set_env, compute_deploy, run_tests]
-    uses: ./.github/workflows/download_artifacts.yml
+    uses: ./.github/workflows/download-artifacts.yml
     with:
       node_ip_addr: ${{ needs.compute_deploy.outputs.node_ip_addr }}
       # remote dir

@@ -1,4 +1,4 @@
-name: Run linode instance
+name: "workflow: Provision Linode compute"
 
 on:
   workflow_call:
