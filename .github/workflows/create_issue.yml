@@ -48,7 +48,6 @@ jobs:
     steps:
       - name: "Create an issue"
         uses: JasonEtco/create-an-issue@v2
-        if: failure() && steps.have_artifacts.outcome == 'success'
         env:
           #ISSUE_TITLE: ${{ env.JUNIT_FAILED_TEST_TITLE }}
           ISSUE_TITLE: test issue
