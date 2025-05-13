@@ -31,8 +31,8 @@ on:
     #     value: ${{ jobs.allure_report.outputs.test_result_icon }}
     #
 env:
-  badge_path: badges/${{ github.repository }}/${{ github.job }}/${{ github.ref_name }}
-  badge_file: badges/${{ github.repository }}/${{ github.job }}/${{ github.ref_name }}/badge.svg
+  badge_path: gh-pages/badges/${{ github.repository }}/${{ github.job }}/${{ github.ref_name }}
+  badge_file: gh-pages/badges/${{ github.repository }}/${{ github.job }}/${{ github.ref_name }}/badge.svg
 
 jobs:
   ci_badge:
@@ -68,7 +68,7 @@ jobs:
         with:
           label: 'Allure report'
           status: "${{ inputs.junit_total }} Total/${{ inputs.junit_passed }} Passed/${{ inputs.junit_skipped }} Skipped/${{ inputs.junit_failed }} ${{ inputs.junit_failed }}"
-          color: 'blue,555,daf'
+          color: 'yellow,green,gray,gray,red'
           path: ${{ env.badge_file }}
 
       - name: Upload badge as artifact
