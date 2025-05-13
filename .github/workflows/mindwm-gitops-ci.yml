@@ -117,6 +117,7 @@ jobs:
     needs: [set_env, junit, allure_report]
     uses: ./.github/workflows/create_issue.yml
     with:
+      artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
       github_job_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       allure_report_url: ${{ needs.allure_report.outputs.test_result_url }}
       allure_test_result_icon: ${{ needs.allure_report.outputs.test_result_icon }}
