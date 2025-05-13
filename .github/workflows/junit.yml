@@ -57,3 +57,14 @@ jobs:
         uses: mikepenz/action-junit-report@v5
         with:
           report_paths: '${{ inputs.artifact_name }}/report.xml'
+
+      - name: debug junit variables
+        run: |
+          echo junit_total: XXX
+          echo junit_passed: ${{ steps.junit.outputs.passed }}
+          echo junit_skipped: ${{ steps.junit.outputs.skipped }}
+          echo junit_retried: ${{ steps.junit.outputs.retried }}
+          echo junit_failed: ${{ steps.junit.outputs.failed }}
+          echo junit_summary: ${{ steps.junit.outputs.summary }}
+          echo junit_detailed_summary: ${{ steps.junit.outputs.detailed_summary }}
+          echo junit_flaky_summary: ${{ steps.junit.outputs.flaky }}
