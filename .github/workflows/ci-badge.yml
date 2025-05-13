@@ -66,8 +66,8 @@ jobs:
         id: badge
         with:
           label: 'Allure report'
-          status: "${{ inputs.junit_total }} Total/${{ inputs.junit_passed }} Passed/${{ inputs.junit_skipped }} Skipped/${{ inputs.junit_failed }} ${{ inputs.junit_failed }}"
-          color: 'yellow,green,gray,gray,red'
+          status: "${{ inputs.junit_total }} Total/${{ inputs.junit_passed }} Passed/${{ inputs.junit_failed }} Failed"
+          color: 'gray,green,red'
           path: ${{ env.badge_file }}
 
       - name: Upload badge as artifact
