@@ -4,9 +4,6 @@ on:
       MINDWM_TOKEN:
         required: true
     inputs:
-      artifact_name:
-        required: true
-        type: string
       junit_total:
         required: true
         type: string
@@ -74,18 +71,3 @@ jobs:
           update_existing: true
           search_existing: open
           filename: .github/NIGHTLY_JOB_TEMPLATE.md
-      # - name: Debug
-      #   run: |
-      #     echo inputs.artifact_name ${{ inputs.artifact_name }}
-      #     echo inputs.junit_total ${{ inputs.junit_total }}
-      #     echo inputs.junit_passed ${{ inputs.junit_passed }}
-      #     echo inputs.junit_skipped ${{ inputs.junit_skipped }}
-      #     echo inputs.junit_retried ${{ inputs.junit_retried }}
-      #     echo inputs.junit_failed ${{ inputs.junit_failed }}
-      #     echo inputs.junit_summary ${{ inputs.junit_summary }}
-      #     echo inputs.junit_detailed_summary ${{ inputs.junit_detailed_summary }}
-      #     echo inputs.junit_flaky_summary ${{ inputs.junit_flaky_summary }}
-      #     echo inputs.allure_report_url ${{ inputs.allure_report_url }}
-      #     echo inputs.allure_test_result_icon ${{ inputs.allure_test_result_icon }}
-      #     echo inputs.github_job_url ${{ inputs.github_job_url }}
-      #
