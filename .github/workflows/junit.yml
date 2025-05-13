@@ -6,6 +6,12 @@ on:
       artifact_name:
         required: true
         type: string
+      allure_report_url:
+        required: true
+        type: string
+      allure_test_result_icon:
+        required: true
+        type: string
 
     outputs:
       junit_total:
@@ -55,7 +61,7 @@ jobs:
 
       - name: Job summary
         run: |
-          echo "Summary: {{ inputs.junit_summary }}" >> $GITHUB_STEP_SUMMARY
+            echo "${{ inputs.allure_test_result_icon }} [Allure Report](${{ inputs.allure_report_url }})"  >> $GITHUB_STEP_SUMMARY
 
       - name: Publish Test Report
         id: junit

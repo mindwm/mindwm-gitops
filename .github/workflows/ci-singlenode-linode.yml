@@ -91,10 +91,12 @@ jobs:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
   junit:
-    needs: [set_env, compute_deploy, run_tests, download_test_artifacts]
+    needs: [set_env, compute_deploy, run_tests, download_test_artifacts, allure_report]
     uses: ./.github/workflows/junit.yml
     with:
       artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
+      allure_report_url: ${{ needs.allure_report.outputs.test_result_url }}
+      allure_test_result_icon: ${{ needs.allure_report.outputs.test_result_icon }}
 
   compute_destroy:
     if: always()
