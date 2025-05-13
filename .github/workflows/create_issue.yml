@@ -40,7 +40,7 @@ on:
 
 
 jobs:
-  create_pr:
+  create_issue:
     runs-on: ubuntu-latest
     steps:
       - name: Debug
