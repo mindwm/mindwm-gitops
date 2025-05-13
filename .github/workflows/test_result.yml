@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: test result
+        env:
+          TEST_RESULT: "${{ inputs.test_result }}"
         run: |
-          echo "Test result was: ${{ inputs.test_result }}"
+          if [ "${TEST_RESULT}" = "FAIL" ]; then
+            echo "Test failed"
+            exit 1
+          fi
 
