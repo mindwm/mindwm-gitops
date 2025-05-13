@@ -8,35 +8,34 @@ on:
     outputs:
       junit_total:
         description: "junit total"
-        value: ${{ jobs.junit.outputs.total }}
+        value: ${{ jobs.junit.outputs.junit_total }}
       junit_passed:
         description: "junit passed"
-        value: ${{ jobs.junit.outputs.passed }}
+        value: ${{ jobs.junit.outputs.junit_passed }}
       junit_skipped:
         description: "junit skipped"
-        value: ${{ jobs.junit.outputs.skipped }}
+        value: ${{ jobs.junit.outputs.junit_skipped }}
       junit_retried:
         description: "junit retried"
-        value: ${{ jobs.junit.outputs.retried }}
+        value: ${{ jobs.junit.outputs.junit_retried }}
       junit_failed:
         description: "junit failed"
-        value: ${{ jobs.junit.outputs.failed }}
+        value: ${{ jobs.junit.outputs.juinit_failed }}
       junit_summary:
         description: "junit summary"
-        value: ${{ jobs.junit.outputs.summary }}
+        value: ${{ jobs.junit.outputs.junit_summary }}
       junit_detailed_summary:
         description: "junit detailed_summary"
-        value: ${{ jobs.junit.outputs.detailed_summary }}
+        value: ${{ jobs.junit.outputs.junit_detailed_summary }}
       junit_flaky_summary:
         description: "junit flaky_summary"
-        value: ${{ jobs.junit.outputs.flaky_summary }}
+        value: ${{ jobs.junit.outputs.junit_flaky_summary }}
 
 
 jobs:
   junit:
     outputs:
-      #junit_total: ${{ steps.junit.outputs.total }}
-      junit_total: XXX
+      junit_total: ${{ steps.junit.outputs.total }}
       junit_passed: ${{ steps.junit.outputs.passed }}
       junit_skipped: ${{ steps.junit.outputs.skipped }}
       junit_retried: ${{ steps.junit.outputs.retried }}
@@ -58,13 +57,13 @@ jobs:
         with:
           report_paths: '${{ inputs.artifact_name }}/report.xml'
 
-      - name: debug junit variables
-        run: |
-          echo junit_total: XXX
-          echo junit_passed: ${{ steps.junit.outputs.passed }}
-          echo junit_skipped: ${{ steps.junit.outputs.skipped }}
-          echo junit_retried: ${{ steps.junit.outputs.retried }}
-          echo junit_failed: ${{ steps.junit.outputs.failed }}
-          echo junit_summary: ${{ steps.junit.outputs.summary }}
-          echo junit_detailed_summary: ${{ steps.junit.outputs.detailed_summary }}
-          echo junit_flaky_summary: ${{ steps.junit.outputs.flaky }}
+      # - name: debug junit variables
+      #   run: |
+      #     echo junit_total: XXX
+      #     echo junit_passed: ${{ steps.junit.outputs.passed }}
+      #     echo junit_skipped: ${{ steps.junit.outputs.skipped }}
+      #     echo junit_retried: ${{ steps.junit.outputs.retried }}
+      #     echo junit_failed: ${{ steps.junit.outputs.failed }}
+      #     echo junit_summary: ${{ steps.junit.outputs.summary }}
+      #     echo junit_detailed_summary: ${{ steps.junit.outputs.detailed_summary }}
+      #     echo junit_flaky_summary: ${{ steps.junit.outputs.flaky }}

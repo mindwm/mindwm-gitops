@@ -7,27 +7,27 @@ on:
       junit_total:
         required: true
         type: string
-      # junit_passed:
-      #   required: true
-      #   type: string
-      # junit_skipped:
-      #   required: true
-      #   type: string
-      # junit_retried:
-      #   required: true
-      #   type: string
-      # junit_failed:
-      #   required: true
-      #   type: string
-      # junit_summary:
-      #   required: true
-      #   type: string
-      # junit_detailed_summary:
-      #   required: true
-      #   type: string
-      # junit_flaky_summary:
-      #   required: true
-      #   type: string
+      junit_passed:
+        required: true
+        type: string
+      junit_skipped:
+        required: true
+        type: string
+      junit_retried:
+        required: true
+        type: string
+      junit_failed:
+        required: true
+        type: string
+      junit_summary:
+        required: true
+        type: string
+      junit_detailed_summary:
+        required: true
+        type: string
+      junit_flaky_summary:
+        required: true
+        type: string
       allure_report_url: 
         required: true
         type: string
@@ -47,13 +47,13 @@ jobs:
         run: |
           echo inputs.artifact_name ${{ inputs.artifact_name }}
           echo inputs.junit_total ${{ inputs.junit_total }}
-          # echo inputs.junit_passed ${{ inputs.junit_passed }}
-          # echo inputs.junit_skipped ${{ inputs.junit_skipped }}
-          # echo inputs.junit_retried ${{ inputs.junit_retried }}
-          # echo inputs.junit_failed ${{ inputs.junit_failed }}
-          # echo inputs.junit_summary ${{ inputs.junit_summary }}
-          # echo inputs.junit_detailed_summary ${{ inputs.junit_detailed_summary }}
-          # echo inputs.junit_flaky_summary ${{ inputs.junit_flaky_summary }}
+          echo inputs.junit_passed ${{ inputs.junit_passed }}
+          echo inputs.junit_skipped ${{ inputs.junit_skipped }}
+          echo inputs.junit_retried ${{ inputs.junit_retried }}
+          echo inputs.junit_failed ${{ inputs.junit_failed }}
+          echo inputs.junit_summary ${{ inputs.junit_summary }}
+          echo inputs.junit_detailed_summary ${{ inputs.junit_detailed_summary }}
+          echo inputs.junit_flaky_summary ${{ inputs.junit_flaky_summary }}
           echo inputs.allure_report_url ${{ inputs.allure_report_url }}
           echo inputs.allure_test_result_icon ${{ inputs.allure_test_result_icon }}
           echo inputs.github_job_url ${{ inputs.github_job_url }}

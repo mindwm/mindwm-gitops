@@ -122,13 +122,13 @@ jobs:
       allure_report_url: "url"
       allure_test_result_icon: "icon"
       junit_total: ${{ needs.junit.outputs.junit_total }}
-      # junit_passed: ${{ needs.junit.outputs.junit_passed }}
-      # junit_skipped: ${{ needs.junit.outputs.junit_skipped }}
-      # junit_retried: ${{ needs.junit.outputs.junit_retried }}
-      # junit_failed: ${{ needs.junit.outputs.junit_failed }}
-      # junit_summary: ${{ needs.junit.outputs.junit_summary }}
-      # junit_detailed_summary: ${{ needs.junit.outputs.junit_detailed_summary }}
-      # junit_flaky_summary: ${{ needs.junit.outputs.junit_flaky_summary }}
+      junit_passed: ${{ needs.junit.outputs.junit_passed }}
+      junit_skipped: ${{ needs.junit.outputs.junit_skipped }}
+      junit_retried: ${{ needs.junit.outputs.junit_retried }}
+      junit_failed: ${{ needs.junit.outputs.junit_failed }}
+      junit_summary: ${{ needs.junit.outputs.junit_summary }}
+      junit_detailed_summary: ${{ needs.junit.outputs.junit_detailed_summary }}
+      junit_flaky_summary: ${{ needs.junit.outputs.junit_flaky_summary }}
 
   cleanup_artifacts:
     needs: [set_env, compute_destroy, allure_report, junit, test_result]
