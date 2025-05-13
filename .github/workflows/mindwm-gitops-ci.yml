@@ -113,7 +113,7 @@ jobs:
       test_result: ${{ needs.allure_report.outputs.test_result }}
 
   cleanup_artifacts:
-    needs: [set_env, compute_destroy, upload-report, junit, test_result]
+    needs: [set_env, compute_destroy, allure_report, junit, test_result]
     if: always()
     runs-on: ubuntu-latest
     steps:
