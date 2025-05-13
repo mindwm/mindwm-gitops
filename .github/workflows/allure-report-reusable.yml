@@ -13,7 +13,7 @@ on:
     outputs:
       test_result:
         description: "Test result"
-        value: ${{ jobs.allure_report.outputs.test_result }}
+        value: ${{ jobs.allure.outputs.test_result }}
 
 jobs:
   allure_report:
