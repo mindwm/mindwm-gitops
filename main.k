@@ -1,4 +1,4 @@
-import .argocd_order as ArgoCdOrder
+import argo_cd_order as ArgoCdOrder
 import .argocd.schema as argocdSchema
 import .helm.chart as charts
 import yaml
