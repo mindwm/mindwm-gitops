@@ -1,3 +1,5 @@
+name: 'workflow: Create Github Issue'
+
 on:
   workflow_call:
     secrets:
@@ -55,7 +57,7 @@ jobs:
       - name: Extract fail test title and name
         id: failed_test_name
         run: |
-          echo name=$(jq -r 'select(has("status") and .status != "passed") | "\(.fullName) \(.name)"' ${{ inputs.artifact_name }}/allure-results/*.json) >> $GITHUB_OUTPUT
+          echo name=$(jq -r 'select(has("status") and .status != "passed") | "\(.fullName) \(.name)"' ${{ inputs.artifact_name }}/allure-results/*.json | head -c230) >> $GITHUB_OUTPUT
 
 
       # checkout for NIGHTLY_JOB_TEMPLATE template
