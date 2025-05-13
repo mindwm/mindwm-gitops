@@ -129,6 +129,8 @@ jobs:
       junit_summary: ${{ needs.junit.outputs.junit_summary }}
       junit_detailed_summary: ${{ needs.junit.outputs.junit_detailed_summary }}
       junit_flaky_summary: ${{ needs.junit.outputs.junit_flaky_summary }}
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
   cleanup_artifacts:
     needs: [set_env, compute_destroy, allure_report, junit, test_result]

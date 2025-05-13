@@ -1,5 +1,8 @@
 on:
   workflow_call:
+    secrets:
+      GITHUB_TOKEN:
+        required: true
     inputs:
       artifact_name:
         required: true
@@ -43,18 +46,42 @@ jobs:
   create_issue:
     runs-on: ubuntu-latest
     steps:
-      - name: Debug
-        run: |
-          echo inputs.artifact_name ${{ inputs.artifact_name }}
-          echo inputs.junit_total ${{ inputs.junit_total }}
-          echo inputs.junit_passed ${{ inputs.junit_passed }}
-          echo inputs.junit_skipped ${{ inputs.junit_skipped }}
-          echo inputs.junit_retried ${{ inputs.junit_retried }}
-          echo inputs.junit_failed ${{ inputs.junit_failed }}
-          echo inputs.junit_summary ${{ inputs.junit_summary }}
-          echo inputs.junit_detailed_summary ${{ inputs.junit_detailed_summary }}
-          echo inputs.junit_flaky_summary ${{ inputs.junit_flaky_summary }}
-          echo inputs.allure_report_url ${{ inputs.allure_report_url }}
-          echo inputs.allure_test_result_icon ${{ inputs.allure_test_result_icon }}
-          echo inputs.github_job_url ${{ inputs.github_job_url }}
-
+      - name: "Create an issue"
+        uses: JasonEtco/create-an-issue@v2
+        if: failure() && steps.have_artifacts.outcome == 'success'
+        env:
+          #ISSUE_TITLE: ${{ env.JUNIT_FAILED_TEST_TITLE }}
+          ISSUE_TITLE: test issue
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JUNIT_TOTAL: ${{ inputs.junit_total }}
+          JUNIT_PASSED: ${{ inputs.junit_passed }}
+          JUNIT_SKIPPED: ${{ inputs.junit_skipped }}
+          JUNIT_RETRIED: ${{ inputs.junit_retried }}
+          JUNIT_FAILED: ${{ inputs.junit_failed }}
+          JUNIT_SUMMARY: ${{ inputs.junit_summary }}
+          JUNIT_DETAILED_SUMMARY: ${{ inputs.junit_detailed_summary }}
+          JUNIT_FLAKY_SUMMARY: ${{ inputs.junit_flaky_summary }}
+          #ALLURE_TEST_RESULT_ICON: ${{ steps.allure.outputs.test_result_icon }}
+          #ALLURE_REPORT_URL: ${{ steps.allure.outputs.report_url }}
+          ALLURE_TEST_RESULT_ICON: fail
+          ALLURE_REPORT_URL: https://github.com/mindwm/mindwm-gitops
+          GITHUB_FAILED_JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          update_existing: true
+          search_existing: open
+          filename: .github/NIGHTLY_JOB_TEMPLATE.md
+      # - name: Debug
+      #   run: |
+      #     echo inputs.artifact_name ${{ inputs.artifact_name }}
+      #     echo inputs.junit_total ${{ inputs.junit_total }}
+      #     echo inputs.junit_passed ${{ inputs.junit_passed }}
+      #     echo inputs.junit_skipped ${{ inputs.junit_skipped }}
+      #     echo inputs.junit_retried ${{ inputs.junit_retried }}
+      #     echo inputs.junit_failed ${{ inputs.junit_failed }}
+      #     echo inputs.junit_summary ${{ inputs.junit_summary }}
+      #     echo inputs.junit_detailed_summary ${{ inputs.junit_detailed_summary }}
+      #     echo inputs.junit_flaky_summary ${{ inputs.junit_flaky_summary }}
+      #     echo inputs.allure_report_url ${{ inputs.allure_report_url }}
+      #     echo inputs.allure_test_result_icon ${{ inputs.allure_test_result_icon }}
+      #     echo inputs.github_job_url ${{ inputs.github_job_url }}
+      #
