@@ -46,6 +46,18 @@ jobs:
   create_issue:
     runs-on: ubuntu-latest
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_name }}
+
+      - name: Extract fail test title and name
+        id: failed_test_name
+        run: |
+          echo name=$(jq -r 'select(has("status") and .status != "passed") | "\(.fullName) \(.name)"' ${{ inputs.artifact_name }}/allure-results/*.json) >> $GITHUB_OUTPUT
+
+
       # checkout for NIGHTLY_JOB_TEMPLATE template
       - uses: actions/checkout@v4
         with:
@@ -57,7 +69,7 @@ jobs:
         uses: JasonEtco/create-an-issue@v2
         env:
           #ISSUE_TITLE: ${{ env.JUNIT_FAILED_TEST_TITLE }}
-          ISSUE_TITLE: test issue
+          ISSUE_TITLE: ${{ steps.failed_test_name.outputs.name }}
           GITHUB_TOKEN: ${{ secrets.MINDWM_TOKEN }}
           JUNIT_TOTAL: ${{ inputs.junit_total }}
           JUNIT_PASSED: ${{ inputs.junit_passed }}
@@ -74,18 +86,3 @@ jobs:
           update_existing: true
           search_existing: open
           filename: .github/NIGHTLY_JOB_TEMPLATE.md
-      # - name: Debug
-      #   run: |
-      #     echo inputs.artifact_name ${{ inputs.artifact_name }}
-      #     echo inputs.junit_total ${{ inputs.junit_total }}
-      #     echo inputs.junit_passed ${{ inputs.junit_passed }}
-      #     echo inputs.junit_skipped ${{ inputs.junit_skipped }}
-      #     echo inputs.junit_retried ${{ inputs.junit_retried }}
-      #     echo inputs.junit_failed ${{ inputs.junit_failed }}
-      #     echo inputs.junit_summary ${{ inputs.junit_summary }}
-      #     echo inputs.junit_detailed_summary ${{ inputs.junit_detailed_summary }}
-      #     echo inputs.junit_flaky_summary ${{ inputs.junit_flaky_summary }}
-      #     echo inputs.allure_report_url ${{ inputs.allure_report_url }}
-      #     echo inputs.allure_test_result_icon ${{ inputs.allure_test_result_icon }}
-      #     echo inputs.github_job_url ${{ inputs.github_job_url }}
-      #
