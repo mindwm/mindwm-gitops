@@ -112,6 +112,24 @@ jobs:
       artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
       test_result: ${{ needs.allure_report.outputs.test_result }}
 
+  create_issue:
+    if: ${{ needs.allure_report.outputs.test_result == 'FAIL' && github.event_name != 'pull_request' }}
+    needs: [set_env, junit, allure_report]
+    uses: ./.github/workflows/create_issue.yml
+    with:
+      artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
+      github_job_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      allure_report_url: ""
+      allure_test_result_icon: ""
+      junit_total: ""
+      junit_passed: ""
+      junit_skipped: ""
+      junit_retried: ""
+      junit_failed: ""
+      junit_summary: ""
+      junit_detailed_summary: ""
+      junit_flaky_summary: ""
+
   cleanup_artifacts:
     needs: [set_env, compute_destroy, allure_report, junit, test_result]
     if: always()

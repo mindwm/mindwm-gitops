@@ -1,0 +1,60 @@
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: true
+        type: string
+      junit_total:
+        required: true
+        type: string
+      junit_passed:
+        required: true
+        type: string
+      junit_skipped:
+        required: true
+        type: string
+      junit_retried:
+        required: true
+        type: string
+      junit_failed:
+        required: true
+        type: string
+      junit_summary:
+        required: true
+        type: string
+      junit_detailed_summary:
+        required: true
+        type: string
+      junit_flaky_summary:
+        required: true
+        type: string
+      allure_report_url: 
+        required: true
+        type: string
+      allure_test_result_icon: 
+        required: true
+        type: string
+      github_job_url: 
+        required: true
+        type: string
+
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug
+        run: |
+          echo inptus.artifact_name ${{ inptus.artifact_name }}
+          echo inptus.junit_total ${{ inptus.junit_total }}
+          echo inptus.junit_passed ${{ inptus.junit_passed }}
+          echo inptus.junit_skipped ${{ inptus.junit_skipped }}
+          echo inptus.junit_retried ${{ inptus.junit_retried }}
+          echo inptus.junit_failed ${{ inptus.junit_failed }}
+          echo inptus.junit_summary ${{ inptus.junit_summary }}
+          echo inptus.junit_detailed_summary ${{ inptus.junit_detailed_summary }}
+          echo inptus.junit_flaky_summary ${{ inptus.junit_flaky_summary }}
+          echo inptus.allure_report_url ${{ inptus.allure_report_url }}
+          echo inptus.allure_test_result_icon ${{ inptus.allure_test_result_icon }}
+          echo inptus.github_job_url ${{ inptus.github_job_url }}
+
