@@ -50,6 +50,11 @@ jobs:
           gh_pages: 'gh-pages'
           report_dir: 'artifact_dir/allure-results'
 
+      - name: show test result
+        run: |
+          echo test result: ${{ steps.allure.outputs.test_result }}
+          echo test result icon: ${{ steps.allure.outputs.test_result_icon }}
+
       - name: Comment PR with Allure Report link
         if: github.event_name == 'pull_request'
         continue-on-error: true
