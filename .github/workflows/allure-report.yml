@@ -59,6 +59,7 @@ jobs:
           report_id: 'ci'
           gh_pages: 'gh-pages'
           report_dir: 'artifact_dir/allure-results'
+          max_reports: 100
 
       - name: show test result
         run: |
