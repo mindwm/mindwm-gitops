@@ -1,4 +1,4 @@
-name: Upload Allure Report
+name: Allure Report
 
 on:
   workflow_call:
@@ -10,8 +10,13 @@ on:
       MINDWM_TOKEN:
         required: true
 
+    outputs:
+      test_result:
+        description: "Test result"
+        value: $${{ jobs.allure_report.outputs.test_result }}
+
 jobs:
-  upload_allure_report:
+  allure_report:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
@@ -70,5 +75,3 @@ jobs:
           git config --global user.name "ryabin.ss@gmail.com"
           git commit -m 'allure update' || echo "nothing to commit"
           git push origin main
-
-

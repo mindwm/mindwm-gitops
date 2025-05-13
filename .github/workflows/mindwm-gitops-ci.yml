@@ -80,7 +80,7 @@ jobs:
     secrets:
       SSH_KEY: ${{ secrets.CI_SSH_KEY }}
 
-  upload-report:
+  allure_report:
     needs: [set_env, compute_deploy, run_tests, download_test_artifacts]
     uses: ./.github/workflows/allure-report-reusable.yml
     with:
@@ -104,6 +104,13 @@ jobs:
       LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
       ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
       SSH_KEY: ${{ secrets.CI_SSH_KEY }}
+
+  test_result:
+    needs: [set_env, allure_report]
+    uses: ./.github/workflows/test_result.yml
+    with:
+      artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
+      test_result: ${{ needs.allure_report.outputs.test_result }}
 
   cleanup_artifacts:
     needs: [set_env, compute_destroy, upload-report, junit]
