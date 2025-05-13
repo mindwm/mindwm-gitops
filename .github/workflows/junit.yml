@@ -51,6 +51,10 @@ jobs:
           name: ${{ inputs.artifact_name }}
           path: ${{ inputs.artifact_name }}
 
+      - name: Job summary
+        run: |
+          echo "Summary: {{ inputs.junit_summary }}" >> $GITHUB_STEP_SUMMARY
+
       - name: Publish Test Report
         id: junit
         uses: mikepenz/action-junit-report@v5
