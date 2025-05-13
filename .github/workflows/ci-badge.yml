@@ -60,7 +60,8 @@ jobs:
       - name: Create destination directory
         env:
           BADGE_PATH: ${{ env.badge_path }}
-        run: mkdir -p gh-pages/"${BADGE_PATH}"
+        run: |
+          mkdir -p ${BADGE_PATH}"
 
       - name: Generate the badge SVG image
         uses: emibcn/badge-action@v2.0.3
