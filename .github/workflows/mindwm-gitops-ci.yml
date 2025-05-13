@@ -119,8 +119,8 @@ jobs:
     with:
       artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
       github_job_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      allure_report_url: "url"
-      allure_test_result_icon: "icon"
+      allure_report_url: ${{ needs.allure_report.outputs.test_result_url }}
+      allure_test_result_icon: ${{ needs.allure_report.outputs.test_result_icon }}
       junit_total: ${{ needs.junit.outputs.junit_total }}
       junit_passed: ${{ needs.junit.outputs.junit_passed }}
       junit_skipped: ${{ needs.junit.outputs.junit_skipped }}

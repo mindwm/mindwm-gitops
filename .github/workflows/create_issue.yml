@@ -67,10 +67,8 @@ jobs:
           JUNIT_SUMMARY: ${{ inputs.junit_summary }}
           JUNIT_DETAILED_SUMMARY: ${{ inputs.junit_detailed_summary }}
           JUNIT_FLAKY_SUMMARY: ${{ inputs.junit_flaky_summary }}
-          #ALLURE_TEST_RESULT_ICON: ${{ steps.allure.outputs.test_result_icon }}
-          #ALLURE_REPORT_URL: ${{ steps.allure.outputs.report_url }}
-          ALLURE_TEST_RESULT_ICON: fail
-          ALLURE_REPORT_URL: https://github.com/mindwm/mindwm-gitops
+          ALLURE_TEST_RESULT_ICON: ${{ inputs.allure_test_result_icon }}
+          ALLURE_REPORT_URL: ${{ inputs.allure_report_url }}
           GITHUB_FAILED_JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           update_existing: true
