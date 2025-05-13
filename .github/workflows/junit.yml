@@ -35,7 +35,8 @@ on:
 jobs:
   junit:
     outputs:
-      junit_total: ${{ steps.junit.outputs.total }}
+      #junit_total: ${{ steps.junit.outputs.total }}
+      junit_total: XXX
       junit_passed: ${{ steps.junit.outputs.passed }}
       junit_skipped: ${{ steps.junit.outputs.skipped }}
       junit_retried: ${{ steps.junit.outputs.retried }}
