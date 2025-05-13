@@ -5,8 +5,44 @@ on:
         required: true
         type: string
 
+    outputs:
+      junit_total:
+        description: "junit total"
+        value: ${{ jobs.junit.outputs.total }}
+      junit_passed:
+        description: "junit passed"
+        value: ${{ jobs.junit.outputs.passed }}
+      junit_skipped:
+        description: "junit skipped"
+        value: ${{ jobs.junit.outputs.skipped }}
+      junit_retried:
+        description: "junit retried"
+        value: ${{ jobs.junit.outputs.retried }}
+      junit_failed:
+        description: "junit failed"
+        value: ${{ jobs.junit.outputs.failed }}
+      junit_summary:
+        description: "junit summary"
+        value: ${{ jobs.junit.outputs.summary }}
+      junit_detailed_summary:
+        description: "junit detailed_summary"
+        value: ${{ jobs.junit.outputs.detailed_summary }}
+      junit_flaky_summary:
+        description: "junit flaky_summary"
+        value: ${{ jobs.junit.outputs.flaky_summary }}
+
+
 jobs:
   junit:
+    outputs:
+      junit_total: ${{ steps.junit.outputs.total }}
+      junit_passed: ${{ steps.junit.outputs.passed }}
+      junit_skipped: ${{ steps.junit.outputs.skipped }}
+      junit_retried: ${{ steps.junit.outputs.retried }}
+      junit_failed: ${{ steps.junit.outputs.failed }}
+      junit_summary: ${{ steps.junit.outputs.summary }}
+      junit_detailed_summary: ${{ steps.junit.outputs.detailed_summary }}
+      junit_flaky_summary: ${{ steps.junit.outputs.flaky }}
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
@@ -16,6 +52,7 @@ jobs:
           path: ${{ inputs.artifact_name }}
 
       - name: Publish Test Report
+        id: junit
         uses: mikepenz/action-junit-report@v5
         with:
           report_paths: '${{ inputs.artifact_name }}/report.xml'
