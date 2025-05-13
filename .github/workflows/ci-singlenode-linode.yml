@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   pull_request:
     branches-ignore: [ "dev/*" ]
+  schedule:
+    - cron: "20 4 * * *" # Runs every day at 4:20 AM
 
 permissions:
   checks: write
