@@ -82,7 +82,7 @@ jobs:
         id: update_mindwm_github_io
         run: |
           cd gh-pages/
-          git add ${{ env.badge_file }}
+          git add -A badges/
           git config --global user.email "metacoma"
           git config --global user.name "ryabin.ss@gmail.com"
           git commit -m 'Upload badge' || echo "nothing to commit"
