@@ -119,16 +119,16 @@ jobs:
     with:
       artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
       github_job_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      allure_report_url: ""
-      allure_test_result_icon: ""
-      junit_total: ""
-      junit_passed: ""
-      junit_skipped: ""
-      junit_retried: ""
-      junit_failed: ""
-      junit_summary: ""
-      junit_detailed_summary: ""
-      junit_flaky_summary: ""
+      allure_report_url: "url"
+      allure_test_result_icon: "icon"
+      junit_total: "${{ needs.junit.junit_total }}"
+      junit_passed: "${{ needs.junit.outputs.junit_passed }}"
+      junit_skipped: "${{ needs.junit.outputs.junit_skipped }}"
+      junit_retried: "${{ needs.junit.outputs.junit_retried }}"
+      junit_failed: "${{ needs.junit.outputs.junit_failed }}"
+      junit_summary: "${{ needs.junit.outputs.junit_summary }}"
+      junit_detailed_summary: "${{ needs.junit.outputs.junit_detailed_summary }}"
+      junit_flaky_summary: "${{ needs.junit.outputs.junit_flaky_summary }}"
 
   cleanup_artifacts:
     needs: [set_env, compute_destroy, allure_report, junit, test_result]
