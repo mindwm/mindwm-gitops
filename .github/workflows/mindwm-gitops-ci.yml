@@ -88,6 +88,12 @@ jobs:
     secrets:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
+  junit:
+    needs: [set_env, compute_deploy, run_tests, download_test_artifacts]
+    uses: ./.github/workflows/junit.yml
+    with:
+      artifact_name: ${{ needs.set_env.outputs.test_artifact_name }}
+
   compute_destroy:
     if: always()
     needs: [set_env, download_test_artifacts]

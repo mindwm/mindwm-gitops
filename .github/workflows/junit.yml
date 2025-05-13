@@ -1,0 +1,21 @@
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: true
+        type: string
+
+jobs:
+  junit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_name }}
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: '${{ inputs.artifact_name }}/report.xml'
