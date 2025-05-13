@@ -1,11 +1,12 @@
 [dependencies]
   [dependencies.argo-cd-order]
     name = "argo-cd-order"
-    full_name = "argo-cd-order_0.2.0"
-    version = "0.2.0"
+    full_name = "argo-cd-order_0.2.1"
+    version = "0.2.1"
+    sum = "TQzd9SQd6AgOmZ/vbuIATDjd5lnrpHAPQkPRYETkraE="
     reg = "ghcr.io"
     repo = "kcl-lang/argo-cd-order"
-    oci_tag = "0.2.0"
+    oci_tag = "0.2.1"
   [dependencies.argoproj]
     name = "argoproj"
     full_name = "argoproj_0.1.0"
@@ -49,6 +50,7 @@
     name = "knative"
     full_name = "knative_0.2.0"
     version = "0.2.0"
+    sum = "GVwNctjleycGcWU8nEl5vJF5bliKeLeGK2V3pE/PXgg="
     reg = "ghcr.io"
     repo = "kcl-lang/knative"
     oci_tag = "0.2.0"
