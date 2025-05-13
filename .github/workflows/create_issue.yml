@@ -1,7 +1,7 @@
 on:
   workflow_call:
     secrets:
-      GITHUB_TOKEN:
+      MINDWM_TOKEN:
         required: true
     inputs:
       artifact_name:
@@ -52,7 +52,7 @@ jobs:
         env:
           #ISSUE_TITLE: ${{ env.JUNIT_FAILED_TEST_TITLE }}
           ISSUE_TITLE: test issue
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MINDWM_TOKEN }}
           JUNIT_TOTAL: ${{ inputs.junit_total }}
           JUNIT_PASSED: ${{ inputs.junit_passed }}
           JUNIT_SKIPPED: ${{ inputs.junit_skipped }}
