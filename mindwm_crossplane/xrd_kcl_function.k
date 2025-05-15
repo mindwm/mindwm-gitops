@@ -669,7 +669,9 @@ kind: InMemoryChannel
             name = "http"
             protocol = "HTTP"
           }
-          hosts = ctx.gateway.hosts
+          hosts = [
+            "*." + getData(ctx.name) + ".mindwm.local"
+          ]
         }]
       }
     }
