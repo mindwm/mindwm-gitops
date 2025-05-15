@@ -248,6 +248,18 @@ items = [
         }
     }
   }
+  crossplane_helm.Release {
+    metadata.name = ctx.name.data + "-node-red"
+    spec.forProvider = {
+        namespace = getData(ctx.namespace)
+        chart = {
+          name = "${charts.node_red.name}"
+          repository = "${charts.node_red.repoURL}"
+          version = "${config.node_red.version}"
+        }
+        values = {}
+    }
+  }
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.broker.configMapName) 
     spec.forProvider.manifest = k8core.ConfigMap {
