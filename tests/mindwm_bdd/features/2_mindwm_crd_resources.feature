@@ -15,7 +15,7 @@ Feature: MindWM Custom kubernetes resources
     And statefulset "cyan-neo4j" in namespace "context-cyan" is in ready state
     Then the following deployments are in a ready state in the "context-cyan" namespace
       | Deployment name |
-      | node-red        |
+      | cyan-node-red        |
     And the following resources of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "context-cyan" namespace
       | Knative service name |
       | dead-letter          |
