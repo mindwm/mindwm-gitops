@@ -11,7 +11,7 @@ Feature: MindWM Custom kubernetes resources
     Then the context should be ready and operable
     And namespace "context-cyan" should exist 
     And helm release "cyan-neo4j" is deployed in "context-cyan" namespace
-    And helm release "node-red" is deployed in "context-cyan" namespace
+    And helm release "cyan-node-red" is deployed in "context-cyan" namespace
     And statefulset "cyan-neo4j" in namespace "context-cyan" is in ready state
     Then the following deployments are in a ready state in the "context-cyan" namespace
       | Deployment name |
