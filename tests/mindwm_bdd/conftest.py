@@ -497,7 +497,7 @@ def tracesql_get_trace(step, kube, traceparent, trace_data):
         headers = {
             "Host": "tempo.mindwm.local"
         }
-        time.sleep(10)
+        time.sleep(30)
         response = requests.get(url, headers = headers)
         logging.info(f"Response code: {response.status_code}")
         assert response.status_code == 200, f"Response code {response.status_code} != 200"
