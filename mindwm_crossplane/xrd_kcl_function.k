@@ -697,7 +697,7 @@ kind: InMemoryChannel
         http = [{
           match = [{ uri.prefix = "/", port = 80}]
           route = [{
-            destination.host = "node-red"
+            destination.host = getData(ctx.name) + "-node-red"
             destination.port.number = 1880 # TODO(@metacoma) hardcode
           }]
 
