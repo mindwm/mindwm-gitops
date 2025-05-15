@@ -683,13 +683,36 @@ kind: InMemoryChannel
       metadata.name = getData(ctx.neo4j_virtual_service.name)
       metadata.namespace = getData(ctx.namespace)
       spec = {
-        hosts = ctx.gateway.hosts
+        hosts = [
+          "neo4j." + getData(ctx.name) + ".mindwm.local"
+        ]
         gateways = [ getData(ctx.gateway.name) ]
         http = [{
           match = [{ uri.prefix = "/", port = 80}]
-          route = [{ 
+          route = [{
             destination.host = getData(ctx.name) + "-" + getData(ctx.neo4j.name)
             destination.port.number = ctx.neo4j.port # TODO(@metacoma) hardcode
+          }]
+
+        }]
+      }
+    }
+  }
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.node_red_virtual_service.name)
+    spec.forProvider.manifest = istio_virtual_service.VirtualService {
+      metadata.name = "node-red"
+      metadata.namespace = getData(ctx.namespace)
+      spec = {
+        hosts = [
+          "node-red." + getData(ctx.name) + ".mindwm.local"
+        ]
+        gateways = [ getData(ctx.gateway.name) ]
+        http = [{
+          match = [{ uri.prefix = "/", port = 80}]
+          route = [{
+            destination.host = "node-red"
+            destination.port.number = 1880 # TODO(@metacoma) hardcode
           }]
 
         }]
