@@ -255,7 +255,7 @@ items = [
         chart = {
           name = "${charts.node_red.name}"
           repository = "${charts.node_red.repoURL}"
-          version = "${config.node_red.version}"
+          version = "${config.node_red.helm_chart_version}"
         }
         values = {}
     }
