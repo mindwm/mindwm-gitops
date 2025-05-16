@@ -948,3 +948,31 @@ def pod_age_greater(step, kube, namespace, label, age):
             logging.info(f"Pod {pod.metadata.name} has age {pod_age_seconds} seconds")
             assert pod_age_seconds > age, f"Pod {pod.metadata.name} is not older than {age} seconds"
         pass
+
+@then('node-red should have a tab named "{tab_name}" in context "{context_name}"')
+def node_red_tab_exists(step, kube, tab_name, context_name):
+    with allure.step("then f{step.text}"):
+        logging.info(f"check {tab_name} in {context_name}")
+
+        ingress_host = utils.get_lb(kube)
+        url = f"http://{ingress_host}/flows"
+        logging.info(f"URL: {url}")
+
+        NODE_RED_HOST = f"node-red.{context_name}.mindwm.local"
+        headers = {
+            **{
+                "Host": NODE_RED_HOST,
+                "Content-Type": "application/json",
+            },
+        }
+
+
+        response = requests.get(url, headers=headers)
+        pprint.pprint(response)
+        flows = response.json()
+
+        tab_exists = any(
+            flow.get("type") == "tab" and flow.get("label") == tab_name
+            for flow in flows
+        )
+        assert tab_exists, f"Tab named '{tab_name}' not found in Node-RED"

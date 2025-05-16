@@ -36,8 +36,6 @@ Feature: MindWM Custom kubernetes resources
     Then the user resource should be ready and operable
     And namespace "user-bob" should exist 
     And resource "user-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
-
-
     And resource "context-cyan-to-user-bob" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "context-cyan" namespace
     And resource "user-bob-to-context-cyan" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
 
@@ -51,6 +49,14 @@ Feature: MindWM Custom kubernetes resources
       | user-broker-to-workstation-broker-trigger    |
     And resource "workstation-host-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
 
+  Scenario: Check that Node-RED contains the expected tabs for context,user,host xrd resources
+    Then node-red should have a tab named "<tab_name>" in context "cyan"
+  Examples:
+    | tab_name         |
+    | context-cyan     |
+    | user-bob         |
+    | host-workstation |
+
   Scenario: Delete Resources and Verify Cleanup
 
     When God deletes the MindWM host resource "workstation"
@@ -63,6 +69,3 @@ Feature: MindWM Custom kubernetes resources
     When God deletes the MindWM context resource "cyan"
     Then the context "cyan" should be deleted
     And namespace "context-cyan" should not exist
-
-
-
