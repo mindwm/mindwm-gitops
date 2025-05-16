@@ -335,6 +335,7 @@ mindwm_app = ArgoCdOrder.make({
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.kcl)
             CrossPlaneFunction.makeCrossPlaneFunction(CrossPlaneFunction.auto_ready)
             CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.kubernetes)
+            CrossPlaneProvider.makeCrossPlaneProvider(CrossPlaneProvider.http)
             argocdSchema.argoHelmRelease({
                 namespace = config.istio.gateway.namespace
                 name = "istio-ingressgateway"
