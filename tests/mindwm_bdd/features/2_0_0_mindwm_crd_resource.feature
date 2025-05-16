@@ -5,11 +5,11 @@ Feature: MindWM Custom kubernetes resources
   Background:
     Given a MindWM environment
     Then all nodes in Kubernetes are ready
-    
+
   Scenario: Prepare environment, context: cyan
     When God creates a MindWM context with the name "cyan"
     Then the context should be ready and operable
-    And namespace "context-cyan" should exist 
+    And namespace "context-cyan" should exist
     And helm release "cyan-neo4j" is deployed in "context-cyan" namespace
     And helm release "cyan-node-red" is deployed in "context-cyan" namespace
     And statefulset "cyan-neo4j" in namespace "context-cyan" is in ready state
@@ -41,7 +41,7 @@ Feature: MindWM Custom kubernetes resources
   Scenario: Create User bob
     When God creates a MindWM user resource with the name "bob" and connects it to the context "cyan"
     Then the user resource should be ready and operable
-    And namespace "user-bob" should exist 
+    And namespace "user-bob" should exist
     And resource "user-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
     And resource "context-cyan-to-user-bob" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "context-cyan" namespace
     And resource "user-bob-to-context-cyan" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
@@ -56,6 +56,7 @@ Feature: MindWM Custom kubernetes resources
       | user-broker-to-workstation-broker-trigger    |
     And resource "workstation-host-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
 
+<<<<<<< HEAD:tests/mindwm_bdd/features/2_0_0_mindwm_crd_resource.feature
   Scenario: Check that Node-RED <resource_name> disposable requests in ready state
     Then cluster resource "<resource_name>" of type "disposablerequests.http.crossplane.io/v1alpha2" has a status "Ready" equal "True"
     Examples:
@@ -69,6 +70,14 @@ Feature: MindWM Custom kubernetes resources
       | tab_name                  |
       | context-cyan              |
       | user-bob                  |
+
+  Scenario: Check that Node-RED contains the expected tabs for context,user,host xrd resources
+    Then node-red should have a tab named "<tab_name>" in context "cyan"
+  Examples:
+    | tab_name         |
+    | context-cyan     |
+    | user-bob         |
+    | host-workstation |
 
   Scenario: Delete Resources and Verify Cleanup
 
