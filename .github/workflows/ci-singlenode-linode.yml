@@ -101,7 +101,8 @@ jobs:
   compute_destroy:
     if: always()
     needs: [set_env, download_test_artifacts]
-    uses: ./.github/workflows/linode-compute-destroy.yml
+    # uses: ./.github/workflows/linode-compute-destroy.yml
+    uses: ./.github/workflows/fake-step.yml
     with:
       artifact_name: ${{ needs.set_env.outputs.terraform_state_artifact_name }}
     secrets:
