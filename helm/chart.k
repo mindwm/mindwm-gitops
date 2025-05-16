@@ -80,3 +80,8 @@ zot_registry : schema.HelmChart = {
   name = "zot"
   repoURL = "https://zotregistry.dev/helm-charts/"
 }
+
+node_red : schema.HelmChart = {
+  name = "node-red"
+  repoURL = "https://schwarzit.github.io/node-red-chart/"
+}

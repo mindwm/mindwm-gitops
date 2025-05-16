@@ -76,6 +76,9 @@ schema MindwmContext:
     neo4j_virtual_service: IstioVirtualService {
       name.data = "neo4j-virtual-service"
     } 
+    node_red_virtual_service: IstioVirtualService {
+      name.data = "node-red-virtual-service"
+    } 
     kafkaSource: KafkaSource = {
         name.data = getData(cdc_topic.name) + "-kafkasource"
         topicName = cdc_topic.name

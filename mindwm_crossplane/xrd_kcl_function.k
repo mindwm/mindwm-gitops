@@ -248,6 +248,32 @@ items = [
         }
     }
   }
+  crossplane_helm.Release {
+    metadata.name = ctx.name.data + "-node-red"
+    spec.forProvider = {
+        namespace = getData(ctx.namespace)
+        chart = {
+          name = "${charts.node_red.name}"
+          repository = "${charts.node_red.repoURL}"
+          version = "${config.node_red.helm_chart_version}"
+        }
+        values = {
+          resources = {
+            limits = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu = "75m"
+              memory = "64Mi"
+            }
+          }
+          podLabels = {
+            "sidecar.istio.io/inject" = "false"
+          }
+        }
+    }
+  }
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.broker.configMapName) 
     spec.forProvider.manifest = k8core.ConfigMap {
@@ -643,7 +669,9 @@ kind: InMemoryChannel
             name = "http"
             protocol = "HTTP"
           }
-          hosts = ctx.gateway.hosts
+          hosts = [
+            "*." + getData(ctx.name) + ".mindwm.local"
+          ]
         }]
       }
     }
@@ -655,13 +683,36 @@ kind: InMemoryChannel
       metadata.name = getData(ctx.neo4j_virtual_service.name)
       metadata.namespace = getData(ctx.namespace)
       spec = {
-        hosts = ctx.gateway.hosts
+        hosts = [
+          "neo4j." + getData(ctx.name) + ".mindwm.local"
+        ]
         gateways = [ getData(ctx.gateway.name) ]
         http = [{
           match = [{ uri.prefix = "/", port = 80}]
-          route = [{ 
+          route = [{
             destination.host = getData(ctx.name) + "-" + getData(ctx.neo4j.name)
             destination.port.number = ctx.neo4j.port # TODO(@metacoma) hardcode
+          }]
+
+        }]
+      }
+    }
+  }
+  crossplane_kubernetes.Object {
+    metadata.name = crossplaneResourceName(ctx, ctx.node_red_virtual_service.name)
+    spec.forProvider.manifest = istio_virtual_service.VirtualService {
+      metadata.name = "node-red"
+      metadata.namespace = getData(ctx.namespace)
+      spec = {
+        hosts = [
+          "node-red." + getData(ctx.name) + ".mindwm.local"
+        ]
+        gateways = [ getData(ctx.gateway.name) ]
+        http = [{
+          match = [{ uri.prefix = "/", port = 80}]
+          route = [{
+            destination.host = getData(ctx.name) + "-node-red"
+            destination.port.number = 1880 # TODO(@metacoma) hardcode
           }]
 
         }]

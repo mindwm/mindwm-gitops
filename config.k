@@ -144,6 +144,10 @@ knative = {
     }
 }
 
+node_red = {
+  helm_chart_version = "0.34.0"
+} 
+
 cert_manager = {
   helm_chart_version = "1.17.2"
   namespace = "cert-manager"
