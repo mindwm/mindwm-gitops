@@ -103,12 +103,12 @@ jobs:
     needs: [set_env, download_test_artifacts]
     # uses: ./.github/workflows/linode-compute-destroy.yml
     uses: ./.github/workflows/fake-step.yml
-    with:
-      artifact_name: ${{ needs.set_env.outputs.terraform_state_artifact_name }}
-    secrets:
-      LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
-      ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
-      SSH_KEY: ${{ secrets.CI_SSH_KEY }}
+    # with:
+    #   artifact_name: ${{ needs.set_env.outputs.terraform_state_artifact_name }}
+    # secrets:
+    #   LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
+    #   ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
+    #   SSH_KEY: ${{ secrets.CI_SSH_KEY }}
 
   test_result:
     needs: [set_env, allure_report]
