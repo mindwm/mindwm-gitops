@@ -221,7 +221,7 @@ items = [
                         "-Lo"
                         "apoc.jar"
                         "--no-clobber"
-                        "https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/4.4.0.23/apoc-4.4.0.23-all.jar"
+                        "https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/4.4.0.36/apoc-4.4.0.36-all.jar"
                     ]
                 }
                 {
@@ -240,7 +240,7 @@ items = [
                         "-Lo"
                         "streams.jar"
                         "--no-clobber"
-                        "https://github.com/neo4j-contrib/neo4j-streams/releases/download/4.1.3/neo4j-streams-4.1.3.jar"
+                        "https://github.com/neo4j-contrib/neo4j-streams/releases/download/4.1.6/neo4j-streams-4.1.6.jar"
                     ]
                 }
             ]
