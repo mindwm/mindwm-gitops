@@ -2,13 +2,6 @@ name: "workflow: Fake step"
 
 on:
   workflow_call:
-    inputs:
-      artifact_name:
-        required: true
-        type: string
-      test_result:
-        required: true
-        type: string
 
 jobs:
   fake_step:
