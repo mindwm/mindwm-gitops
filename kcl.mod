@@ -11,6 +11,7 @@ json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1
 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.31.2", version = "1.31.2" }
 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.3.0" }
+crossplane_provider_http = { oci = "oci://ghcr.io/mindwm/crossplane-provider-http", tag = "1.0.8" }
 
 [profile]
 entries = ["main.k"]
