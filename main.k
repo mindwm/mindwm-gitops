@@ -19,6 +19,7 @@ import util
 #import argoproj.v1alpha1 as argoproj
 import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
 import istio.v1alpha3.networking_istio_io_v1alpha3_virtual_service as istio_virtual_service
+import crossplane_provider_http.v1alpha1.http_crossplane_io_v1alpha1_provider_config as ProviderConfigHttp
 import crossplane.v1 as crossplane
 
 
@@ -355,6 +356,14 @@ mindwm_app = ArgoCdOrder.make({
         #
         #]
         [
+            ProviderConfigHttp.ProviderConfig {
+              metadata.name = "http-conf"
+              metadata.namespace = config.config.crossplane.namespace
+              spec.credentials.source = "None"
+              metadata.annotations = {
+                "argocd.argoproj.io/sync-options" = "SkipDryRunOnMissingResource=true"
+              }
+            }
             {
                 apiVersion = "kubernetes.crossplane.io/v1alpha1"
                 kind = "ProviderConfig"
