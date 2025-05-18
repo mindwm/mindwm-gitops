@@ -33,7 +33,6 @@ Feature: MindWM Custom kubernetes resources
     And resource "context-cyan-cdc" of type "topics.cluster.redpanda.com/v1alpha2" has a status "Ready" equal "True" in "redpanda" namespace
     And resource "context-cyan-cdc-kafkasource" of type "kafkasources.sources.knative.dev/v1beta1" has a status "Ready" equal "True" in "context-cyan" namespace
     And resource "gateway" of type "gateways.networking.istio.io/v1" exists in "context-cyan" namespace
-
     And the following VirtualServices in the "monitoring" namespace should return the correct HTTP codes.
       | VirtualService             | URI      | Code |
       | neo4j-virtual-service"     | /        | 200  |
@@ -63,12 +62,11 @@ Feature: MindWM Custom kubernetes resources
   #     | context-cyan-tab              |
   #     | user-bob-host-workstation-tab | 
   #     | user-bob-tab                  |
-
     Then node-red should have a tab named "<tab_name>" in context "cyan"
-  Examples:
-    | tab_name                  |
-    | context-cyan-tab          |
-    | user-bob-tab              |
+    Examples:
+      | tab_name                  |
+      | context-cyan-tab          |
+      | user-bob-tab              |
 
   Scenario: Delete Resources and Verify Cleanup
 
