@@ -34,7 +34,7 @@ Feature: MindWM Custom kubernetes resources
     And resource "context-cyan-cdc-kafkasource" of type "kafkasources.sources.knative.dev/v1beta1" has a status "Ready" equal "True" in "context-cyan" namespace
     And resource "gateway" of type "gateways.networking.istio.io/v1" exists in "context-cyan" namespace
     Then the VirtualService "neo4j-virtual-service" in the "context-cyan" namespace should return HTTP status code "200" for the "/" URI
-    Then the VirtualService "node-red-virtual-service" in the "context-cyan" namespace should return HTTP status code "200" for the "/" URI
+    Then the VirtualService "node-red" in the "context-cyan" namespace should return HTTP status code "200" for the "/" URI
 
   Scenario: Create User bob
     When God creates a MindWM user resource with the name "bob" and connects it to the context "cyan"
@@ -68,6 +68,3 @@ Feature: MindWM Custom kubernetes resources
     When God deletes the MindWM context resource "cyan"
     Then the context "cyan" should be deleted
     And namespace "context-cyan" should not exist
-
-
-
