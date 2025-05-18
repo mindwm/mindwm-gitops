@@ -725,7 +725,7 @@ kind: InMemoryChannel
 
   # node-red context tab
   crossplane_kubernetes.Object {
-    metadata.name = getData(ctx.name) + "-node-red-context-tab)
+    metadata.name = getData(ctx.name) + "-node-red-context-tab"
     spec.forProvider.manifest = DisposableRequest.DisposableRequest {
       metadata.name = "context-" + getData(ctx.name) + "-tab"
       metadata.namespace = getData(ctx.namespace)
