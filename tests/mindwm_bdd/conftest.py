@@ -929,6 +929,7 @@ def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri,
             
         except client.ApiException as e:
             logging.error(f"Error retrieving VirtualService: {e}")
+            raise e
 
 @then('pods matching the label "{label}" in "{namespace}" namespace, have an age greater than {age}')
 def pod_age_greater(step, kube, namespace, label, age):
