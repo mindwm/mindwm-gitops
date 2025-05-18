@@ -730,6 +730,7 @@ kind: InMemoryChannel
       metadata.name = "context-" + getData(ctx.name) + "-tab"
       metadata.namespace = getData(ctx.namespace)
       spec = {
+        deletionPolicy = "Delete"
         forProvider = {
             url = "http://" + getData(ctx.name) + "-node-red." + getData(ctx.namespace) + ".svc.cluster.local:1880/flow"
             method = "POST"
@@ -913,6 +914,7 @@ items = [
         metadata.name = "context-" + getData(ctx.name) +  "-user-" + getData(user.name) + "-tab"
         metadata.namespace = getData(user.namespace)
         spec = {
+          deletionPolicy = "Delete"
           forProvider = {
               url = "http://" + getData(ctx.name) + "-node-red." + getData(ctx.namespace) + ".svc.cluster.local:1880/flow"
               method = "POST"
