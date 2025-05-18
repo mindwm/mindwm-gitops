@@ -103,6 +103,7 @@ import knative.v1.serving_knative_dev_v1_service as knative_service
 import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
 import istio.v1alpha3.networking_istio_io_v1alpha3_virtual_service as istio_virtual_service
 import crossplane_provider_http.v1alpha2.http_crossplane_io_v1alpha2_disposable_request as DisposableRequest
+import json
 ${kcl_util_func}
 ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
