@@ -964,6 +964,7 @@ def pod_age_greater(step, kube, namespace, label, age):
             logging.info(f"Pod {pod.metadata.name} has age {pod_age_seconds} seconds")
             assert pod_age_seconds > age, f"Pod {pod.metadata.name} is not older than {age} seconds"
         pass
+<<<<<<< HEAD
 
 @then('node-red should have a tab named "{tab_name}" in context "{context_name}"')
 def node_red_tab_exists(step, kube, tab_name, context_name):
@@ -1000,3 +1001,5 @@ def domain_should_exist(step, domain_name):
             socket.gethostbyname(domain_name)
         except socket.gaierror:
             raise AssertionError(f"Domain name '{domain_name}' does not exist")
+=======
+>>>>>>> cdfe5949 (fix: raise exception if virtualservice not found)
