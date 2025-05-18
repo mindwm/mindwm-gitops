@@ -87,6 +87,7 @@ makeContextXR = lambda {
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
                 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.17.3" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.2" }
+                crossplane_provider_http = { oci = "oci://ghcr.io/mindwm/crossplane-provider-http", tag = "1.0.8" }
                 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.3.0" }
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
                 istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.21.5" }
@@ -101,6 +102,7 @@ import knative.v1.eventing_knative_dev_v1_broker as knative_broker
 import knative.v1.serving_knative_dev_v1_service as knative_service
 import istio.v1alpha3.networking_istio_io_v1alpha3_gateway as istio_gateway
 import istio.v1alpha3.networking_istio_io_v1alpha3_virtual_service as istio_virtual_service
+import crossplane_provider_http.v1alpha2.http_crossplane_io_v1alpha2_disposable_request as DisposableRequest
 ${kcl_util_func}
 ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
@@ -719,6 +721,37 @@ kind: InMemoryChannel
       }
     }
   } 
+
+  # node-red context tab
+  crossplane_kubernetes.Object {
+    metadata.name = getData(ctx.name) + "-node-red-context-tab)
+    spec.forProvider.manifest = DisposableRequest.DisposableRequest {
+      metadata.name = "context-" + getData(ctx.name) + "-tab"
+      metadata.namespace = getData(ctx.namespace)
+      spec = {
+        forProvider = {
+            url = "http://" + getData(ctx.name) + "-node-red." + getData(ctx.namespace) + ".svc.cluster.local:1880/flow"
+            method = "POST"
+            headers = {
+              "Content-type" = [ "application/json" ]
+            }
+            rollbackRetriesLimit = 128
+            shouldLoopInfinitely = True
+            nextReconcile = "30s"
+            body = json.encode({
+              "id" = getData(ctx.namespace)
+              "type" = "tab"
+              "label" = getData(ctx.namespace)
+              "nodes" = []
+              "configs" = []
+            })
+        }
+        providerConfigRef = {
+          name = "http-conf"
+        }
+      }
+    }
+  }
 
 ]
 """, {
