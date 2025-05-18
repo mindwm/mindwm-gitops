@@ -134,6 +134,7 @@ Feature: Mindwm event driven architecture
       | Crossplane function |
       | provider-helm       |
       | provider-kubernetes |
+      | provider-http       |
     And the following cluster resources of type "functions.pkg.crossplane.io/v1" has a status "Healthy" equal "True"
       | Crossplane function |
       | function-auto-ready |
