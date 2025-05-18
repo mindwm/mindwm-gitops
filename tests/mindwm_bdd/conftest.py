@@ -919,11 +919,20 @@ def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri,
                 name=virtual_service_name
             )
 
+            ingress_host = utils.get_lb(kube)
             hosts = virtual_service.get("spec", {}).get("hosts", [])
             host = hosts[0]
+            url = f"http://{ingress_host}/{uri}"
+            logging.info(f"URL: {url}")
+
+            headers = {
+                **{
+                    "Host": f"{host}",
+                },
+            }
+
             logging.info(f"VirtualService '{virtual_service_name}' in namespace '{namespace}' has host: {host}")
-            url = f'http://{host}{uri}'
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             assert response.status_code == int(http_code), f"HTTP code {http_code} != {response.status_code} for url {url}"
             
             
