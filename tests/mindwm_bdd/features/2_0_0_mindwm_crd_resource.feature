@@ -56,7 +56,7 @@ Feature: MindWM Custom kubernetes resources
       | user-broker-to-workstation-broker-trigger    |
     And resource "workstation-host-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
 
-  Scenario: Check that Node-RED contains the expected tabs for context,user,host xrd resources
+  Scenario: Check that Node-RED <resource_name> disposable requests in ready state
     Then cluster resource "<resource_name>" of type "disposablerequests.http.crossplane.io/v1alpha2" has a status "Ready" equal "True"
     Examples:
       | resource_name                 |
