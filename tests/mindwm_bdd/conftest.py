@@ -961,7 +961,7 @@ def pod_age_greater(step, kube, namespace, label, age):
 
 @then('node-red should have a tab named "{tab_name}" in context "{context_name}"')
 def node_red_tab_exists(step, kube, tab_name, context_name):
-    with allure.step("then f{step.text}"):
+    with allure.step(f"then {step.text}"):
         logging.info(f"check {tab_name} in {context_name}")
 
         ingress_host = utils.get_lb(kube)

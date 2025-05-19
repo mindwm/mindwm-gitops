@@ -65,8 +65,8 @@ Feature: MindWM Custom kubernetes resources
     Then node-red should have a tab named "<tab_name>" in context "cyan"
     Examples:
       | tab_name                  |
-      | context-cyan-tab          |
-      | user-bob-tab              |
+      | context-cyan              |
+      | user-bob                  |
 
   Scenario: Delete Resources and Verify Cleanup
 
