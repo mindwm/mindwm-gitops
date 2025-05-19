@@ -251,7 +251,7 @@ def nats_stream_wait_for_ready(kube, nats_stream_name, namespace):
     def is_ready():
         try:
             nats_stream = nats_stream_wait_for(kube, nats_stream_name, namespace)
-            pprint.pprint(nats_stream)
+            #pprint.pprint(nats_stream)
             is_ready = resource_get_condition(nats_stream['status'], 'Ready')
             return is_ready
         except Exception as e:
@@ -556,6 +556,7 @@ def cluster_custom_object_status_waiting_for(kube, group, version, plural, name,
         name,
         timeout
     )
+    #pprint.pprint(f"{resource}")
     condition_name = f"Wait for {group}/{version} {plural} {name} state {status_name} equal {status} in cluster, timeout = {timeout}"
     with allure.step(condition_name):
         try:

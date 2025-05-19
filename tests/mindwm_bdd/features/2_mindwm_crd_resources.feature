@@ -57,11 +57,13 @@ Feature: MindWM Custom kubernetes resources
     And resource "workstation-host-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
 
   Scenario: Check that Node-RED contains the expected tabs for context,user,host xrd resources
-  #   Then the following cluster resources of type "disposablerequests.http.crossplane.io/v1alpha2" has a status "Available" equal "True"
-  #     | resource name                 |
-  #     | context-cyan-tab              |
-  #     | user-bob-host-workstation-tab | 
-  #     | user-bob-tab                  |
+    Then cluster resource "<resource_name>" of type "disposablerequests.http.crossplane.io/v1alpha2" has a status "Ready" equal "True"
+    Examples:
+      | resource_name                 |
+      | context-cyan-tab              |
+      | context-cyan-user-bob-tab     |
+
+  Scenario: Check that Node-RED contains the expected tabs for context,user,host xrd resources
     Then node-red should have a tab named "<tab_name>" in context "cyan"
     Examples:
       | tab_name                  |
