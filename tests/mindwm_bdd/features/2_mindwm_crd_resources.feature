@@ -35,7 +35,7 @@ Feature: MindWM Custom kubernetes resources
     And resource "gateway" of type "gateways.networking.istio.io/v1" exists in "context-cyan" namespace
     And the following VirtualServices in the "context-cyan" namespace should return the correct HTTP codes.
       | VirtualService             | URI      | Code |
-      | neo4j-virtual-service"     | /        | 200  |
+      | neo4j-virtual-service      | /        | 200  |
       | node-red                   | /        | 200  |
 
   Scenario: Create User bob
