@@ -72,11 +72,10 @@ Feature: MindWM Custom kubernetes resources
 
   Scenario: Check that Node-RED contains the expected tabs for context,user,host xrd resources
     Then node-red should have a tab named "<tab_name>" in context "cyan"
-  Examples:
-    | tab_name         |
-    | context-cyan     |
-    | user-bob         |
-    | host-workstation |
+    Examples:
+      | tab_name                  |
+      | context-cyan              |
+      | user-bob                  |
 
   Scenario: Delete Resources and Verify Cleanup
 

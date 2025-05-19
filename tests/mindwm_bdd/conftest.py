@@ -1001,5 +1001,3 @@ def domain_should_exist(step, domain_name):
             socket.gethostbyname(domain_name)
         except socket.gaierror:
             raise AssertionError(f"Domain name '{domain_name}' does not exist")
-=======
->>>>>>> cdfe5949 (fix: raise exception if virtualservice not found)
