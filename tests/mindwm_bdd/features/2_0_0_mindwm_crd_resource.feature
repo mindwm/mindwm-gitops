@@ -33,16 +33,16 @@ Feature: MindWM Custom kubernetes resources
     And resource "context-cyan-cdc" of type "topics.cluster.redpanda.com/v1alpha2" has a status "Ready" equal "True" in "redpanda" namespace
     And resource "context-cyan-cdc-kafkasource" of type "kafkasources.sources.knative.dev/v1beta1" has a status "Ready" equal "True" in "context-cyan" namespace
     And resource "gateway" of type "gateways.networking.istio.io/v1" exists in "context-cyan" namespace
-    Then the VirtualService "neo4j-virtual-service" in the "context-cyan" namespace should return HTTP status code "200" for the "/" URI
-    Then the VirtualService "node-red" in the "context-cyan" namespace should return HTTP status code "200" for the "/" URI
+    And the following VirtualServices in the "context-cyan" namespace should return the correct HTTP codes.
+      | VirtualService             | URI      | Code |
+      | neo4j-virtual-service      | /        | 200  |
+      | node-red                   | /        | 200  |
 
   Scenario: Create User bob
     When God creates a MindWM user resource with the name "bob" and connects it to the context "cyan"
     Then the user resource should be ready and operable
     And namespace "user-bob" should exist 
     And resource "user-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
-
-
     And resource "context-cyan-to-user-bob" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "context-cyan" namespace
     And resource "user-bob-to-context-cyan" of type "triggers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
 
@@ -55,6 +55,20 @@ Feature: MindWM Custom kubernetes resources
       | user-bob-to-context-cyan              |
       | user-broker-to-workstation-broker-trigger    |
     And resource "workstation-host-broker" of type "brokers.eventing.knative.dev/v1" has a status "Ready" equal "True" in "user-bob" namespace
+
+  Scenario: Check that Node-RED <resource_name> disposable requests in ready state
+    Then cluster resource "<resource_name>" of type "disposablerequests.http.crossplane.io/v1alpha2" has a status "Ready" equal "True"
+    Examples:
+      | resource_name                 |
+      | context-cyan-tab              |
+      | context-cyan-user-bob-tab     |
+
+  Scenario: Check that Node-RED contains the expected tabs for context,user,host xrd resources
+    Then node-red should have a tab named "<tab_name>" in context "cyan"
+    Examples:
+      | tab_name                  |
+      | context-cyan              |
+      | user-bob                  |
 
   Scenario: Delete Resources and Verify Cleanup
 

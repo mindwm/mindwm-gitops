@@ -86,7 +86,7 @@ forward_dns_cluster_local:
 
 crossplane_rolebinding_workaround:
 	$(KUBECTL_RUN) '\
-		for i in kcl-function provider-kubernetes provider-helm; do \
+		for i in kcl-function provider-kubernetes provider-helm provider-http; do \
 			SA=`kubectl -n crossplane-system get sa -o name | grep $$i | sed -e "s|serviceaccount\/|crossplane-system:|g"`; \
 			test -n "$$SA" || continue; \
 			kubectl get clusterrolebinding $$i-admin-binding || kubectl create clusterrolebinding $$i-admin-binding --clusterrole cluster-admin --serviceaccount=$$SA; \

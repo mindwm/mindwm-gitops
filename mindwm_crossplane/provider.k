@@ -16,6 +16,11 @@ helm : CrossPlaneSchema.CrossPlaneProvider = {
     package = "xpkg.upbound.io/crossplane-contrib/provider-helm:v0.20.4"
 } 
 
+http : CrossPlaneSchema.CrossPlaneProvider = {
+    name = "provider-http"
+    package = "xpkg.upbound.io/crossplane-contrib/provider-http:v1.0.8"
+}
+
 makeCrossPlaneProvider = lambda cross_provider : CrossPlaneSchema.CrossPlaneProvider {
     {  
         apiVersion = "pkg.crossplane.io/v1"
