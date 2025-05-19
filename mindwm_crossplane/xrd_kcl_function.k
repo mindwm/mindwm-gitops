@@ -87,7 +87,7 @@ makeContextXR = lambda {
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
                 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.17.3" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.2" }
-                crossplane_provider_http = { oci = "oci://ghcr.io/mindwm/crossplane-provider-http", tag = "1.0.8" }
+                crossplane_provider_http = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-http", tag = "1.0.8" }
                 knative-operator = { oci = "oci://ghcr.io/kcl-lang/knative-operator", tag = "0.3.0" }
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
                 istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.21.5" }
@@ -788,7 +788,7 @@ makeUserXR = lambda {
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.21.5" }
-                crossplane_provider_http = { oci = "oci://ghcr.io/mindwm/crossplane-provider-http", tag = "1.0.8" }
+                crossplane_provider_http = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-http", tag = "1.0.8" }
                 """
                 spec.source = template.execute("""\
 import k8s.api.core.v1 as k8core

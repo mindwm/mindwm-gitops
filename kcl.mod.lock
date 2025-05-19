@@ -28,7 +28,7 @@
     version = "1.0.8"
     sum = "gskoC/zMOXMXVox2pOVkd8lLppHNoKKtVPlKvop4TQk="
     reg = "ghcr.io"
-    repo = "mindwm/crossplane-provider-http"
+    repo = "kcl-lang/crossplane-provider-http"
     oci_tag = "1.0.8"
   [dependencies.istio]
     name = "istio"
