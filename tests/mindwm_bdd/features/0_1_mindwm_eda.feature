@@ -126,6 +126,7 @@ Feature: Mindwm event driven architecture
 
   Scenario: Crossplane
     And namespace "crossplane-system" should exist
+    And cluster resource "http-conf" of type "providerconfigs.http.crossplane.io/v1alpha1" exists
     And the following deployments are in a ready state in the "crossplane-system" namespace
       | Deployment name                         |
       | crossplane                              |
