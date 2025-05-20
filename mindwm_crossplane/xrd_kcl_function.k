@@ -1145,7 +1145,6 @@ makeFunctionXR = lambda {
         kind = "function"
     }, {
         type = "object"
-        properties.data.type = "string"
     }, [
         {
             step = "resources"
@@ -1180,13 +1179,13 @@ items = [
             namespace = "default"
         }
         data = {
-          test = "{{ function }}"
+          test = yaml.encode("{{ function }}")
         } 
     }
   }
 ]
 """, {
-    function = r"${function}"
+    function = yaml.decode_all(r"${function}")
     function_name = r"test"
 })
             }
