@@ -1139,6 +1139,61 @@ items = [
     ])
 }
 
+makeFunctionXR = lambda {
+    mkComposition({
+        apiVersion = "mindwm.io/" + composite_version
+        kind = "function"
+    }, {
+        type = "object"
+        properties.data.type = "string"
+    }, [
+        {
+            step = "resources"
+            functionRef.name = "function-kcl"
+            input = {
+                apiVersion = "krm.kcl.dev/v1alpha1"
+                kind = "KCLInput"
+                # TODO (@metacoma) add kcl_util_func to template data in mk function
+                spec.dependencies = """\
+                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
+                knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
+                crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
+                """
+                spec.source = template.execute("""\
+import yaml
+import k8s.api.core.v1 as k8core
+import knative.v1.serving_knative_dev_v1_service as knative_service
+import knative.v1.eventing_knative_dev_v1_broker as knative_broker
+import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
+${kcl_util_func}
+${kcl_config_schema}
+function = option("params").oxr.spec.data
+function_name = "test"
+xxx = "abc"
+
+items = [
+  crossplane_kubernetes.Object {
+    metadata.name = "mindwm-function-{{ function_name }}"
+    spec.forProvider.manifest = k8core.ConfigMap {
+        metadata = {
+            name = "mindwm-function-{{ function_name }}"
+            namespace = "default"
+        }
+        data = {
+          test = "{{ function }}"
+        } 
+    }
+  }
+]
+""", {
+    function = r"${function}"
+    function_name = r"test"
+})
+            }
+        }
+    ])
+}
+
 manifests.yaml_stream([
     makeContextXR()
 #    makeUserXR()
