@@ -1168,9 +1168,8 @@ import knative.v1.eventing_knative_dev_v1_broker as knative_broker
 import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
 ${kcl_util_func}
 ${kcl_config_schema}
-function = option("params").oxr.spec.data
-function_name = "test"
-xxx = "abc"
+function = yaml.encode(option("params").oxr.spec.data)
+function_name = option("params").oxr.metadata.name
 
 items = [
   crossplane_kubernetes.Object {
@@ -1180,13 +1179,13 @@ items = [
             name = "mindwm-function-{{ function_name }}"
             namespace = "default"
         }
-        data = {"a" = "b"}
+        data = yaml.decode("{{ function }}")
     }
   }
 ]
 """, {
-    function = "AAA"
-    function_name = r"test"
+  function = r"${function}"
+  function_name = r"${function_name}"
 })
             }
         }
