@@ -1145,6 +1145,7 @@ makeFunctionXR = lambda {
         kind = "function"
     }, {
         type = "object"
+        properties.data.type = "object"
     }, [
         {
             step = "resources"
