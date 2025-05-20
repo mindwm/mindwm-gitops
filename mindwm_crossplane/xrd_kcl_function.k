@@ -1145,7 +1145,7 @@ makeFunctionXR = lambda {
         kind = "function"
     }, {
         type = "object"
-        properties.data.type = "object"
+        properties.data.type = "string"
     }, [
         {
             step = "resources"
@@ -1179,14 +1179,13 @@ items = [
             name = "mindwm-function-{{ function_name }}"
             namespace = "default"
         }
-        data = {
-          test = yaml.encode("{{ function }}")
+        data = yaml.decode_all("{{ function }}")
         } 
     }
   }
 ]
 """, {
-    function = yaml.decode_all(r"${function}")
+    function = r"${function}"
     function_name = r"test"
 })
             }
