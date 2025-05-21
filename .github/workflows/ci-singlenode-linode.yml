@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: set outputs with default values
         id: set
-        run: |    
+        run: |
           echo "terraform_artifact_name=${{ env.terraform_artifact_name }}" >> $GITHUB_OUTPUT
           echo "terraform_state_artifact_name=${{ env.terraform_state_artifact_name }}" >> $GITHUB_OUTPUT
           echo "test_artifact_name=${{ env.test_artifact_name }}" >> $GITHUB_OUTPUT
@@ -39,7 +39,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref || 'master' }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
 
-      - name: Upload terraform manifest 
+      - name: Upload terraform manifest
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.set.outputs.terraform_artifact_name }}"
@@ -98,17 +98,17 @@ jobs:
       allure_report_url: ${{ needs.allure_report.outputs.test_result_url }}
       allure_test_result_icon: ${{ needs.allure_report.outputs.test_result_icon }}
 
-  compute_destroy:
-    if: always()
-    needs: [set_env, download_test_artifacts]
-    uses: ./.github/workflows/linode-compute-destroy.yml
-    with:
-      artifact_name: ${{ needs.set_env.outputs.terraform_state_artifact_name }}
-    secrets:
-      LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
-      ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
-      SSH_KEY: ${{ secrets.CI_SSH_KEY }}
-
+  # compute_destroy:
+  #   if: always()
+  #   needs: [set_env, download_test_artifacts]
+  #   uses: ./.github/workflows/linode-compute-destroy.yml
+  #   with:
+  #     artifact_name: ${{ needs.set_env.outputs.terraform_state_artifact_name }}
+  #   secrets:
+  #     LINODE_TOKEN: ${{ secrets.CI_LINODE_TOKEN }}
+  #     ROOT_PASSWORD: ${{ secrets.CI_ROOT_PASSWORD }}
+  #     SSH_KEY: ${{ secrets.CI_SSH_KEY }}
+  #
   test_result:
     needs: [set_env, allure_report]
     uses: ./.github/workflows/test-result.yml
@@ -148,7 +148,7 @@ jobs:
       MINDWM_TOKEN: ${{ secrets.MINDWM_TOKEN }}
 
   cleanup_artifacts:
-    needs: [set_env, compute_destroy, allure_report, junit, test_result]
+    needs: [set_env, allure_report, junit, test_result]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -158,4 +158,3 @@ jobs:
             ${{ needs.set_env.outputs.terraform_artifact_name }}
             ${{ needs.set_env.outputs.test_artifact_name }}
             ${{ needs.set_env.outputs.terraform_state_artifact_name }}
-
