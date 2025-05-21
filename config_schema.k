@@ -5,6 +5,8 @@ userPrefix = "user"
 contextPrefix = "context"
 hostPrefix = "host"
 
+minwdm_host_registry = "mindwm-host-registry:30001"
+
 schema ResourceNameStr:
     data: str
     check:
@@ -24,11 +26,11 @@ crossplaneResourceName = lambda entity: any, resourceName : ResourceNameStr -> s
 
 crossplane_user2context_trigger_name = lambda user : MindwmUser, ctx: MindwmContext -> str {
   "user-" + getData(user.name) + "-to-context-" + getData(ctx.name)
-} 
+}
 
 crossplane_context2user_trigger_name = lambda user : MindwmUser, ctx: MindwmContext -> str {
   "context-" + getData(ctx.name) + "-to-user-" + getData(user.name)
-} 
+}
 
 domain: DomainStr { data = "mindwm.local" }
 
@@ -45,7 +47,7 @@ schema MindwmHost:
     # from user_broker to host broker trigger
     trigger_back: Trigger {
       name.data = "user-broker-to-" + getData(name) + "-broker-trigger"
-    } 
+    }
 
 schema MindwmUser:
     name: ResourceNameStr
@@ -55,30 +57,30 @@ schema MindwmUser:
 schema MindwmContext:
     name: ResourceNameStr
     namespace: ResourceNameStr = { data = "${contextPrefix}-${getData(name)}" }
-    broker: Broker { 
+    broker: Broker {
       name.data = "context-broker"
       virtual_service = {
         name.data = "broker-virtual-service"
-      } 
-    } 
+      }
+    }
     kafka: Kafka {}
     neo4j: Neo4j {}
     vector: Vector {}
-    cdc_topic: KafkaTopic { 
+    cdc_topic: KafkaTopic {
       name.data = "context-" + getData(name) + "-cdc"
-    } 
-    gateway: IstioGateway { 
-      name.data = "gateway" 
+    }
+    gateway: IstioGateway {
+      name.data = "gateway"
       hosts = [
         "neo4j." + getData(name) + "." + getData(domain)
-      ] 
-    } 
+      ]
+    }
     neo4j_virtual_service: IstioVirtualService {
       name.data = "neo4j-virtual-service"
-    } 
+    }
     node_red_virtual_service: IstioVirtualService {
       name.data = "node-red-virtual-service"
-    } 
+    }
     kafkaSource: KafkaSource = {
         name.data = getData(cdc_topic.name) + "-kafkasource"
         topicName = cdc_topic.name
@@ -111,7 +113,7 @@ schema Broker:
         { data = "${getData(brokerName)}-config" }
     })(name)
     deadLetter: DeadLetter { name.data = "dead-letter" }
-    virtual_service?: IstioVirtualService 
+    virtual_service?: IstioVirtualService
 
 schema DeadLetter:
     name: ResourceNameStr
@@ -152,13 +154,13 @@ schema Crossplane:
     domain: DomainStr { data = "mindwm.io" }
 
 schema IstioGateway:
-    name: ResourceNameStr 
+    name: ResourceNameStr
     hosts: [str]
 
 schema IstioVirtualService:
     name: ResourceNameStr
 
 schema KnativeFunction:
-    name: ResourceNameStr 
+    name: ResourceNameStr
     image: str
 #ctx = MindwmContext { name.data = "pink" }

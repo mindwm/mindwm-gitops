@@ -4,6 +4,8 @@ ARGOCD_HOST_PORT := 38080
 ARGOCD_HELM_CHART_VERSION := 7.9.1
 ARGOCD_APP_VERSION := 2.14.11
 
+MINDWM_HOST_REGISTRY = mindwm-host-registry:30001
+
 TEST_NAME := mindwm_test
 
 TARGET_REVISION := $(shell git branch ls --show-current)
@@ -37,12 +39,12 @@ dns_search_domain:
 	https://github.com/k3s-io/k3s/issues/5567
 	https://github.com/k3s-io/k3s/issues/9286
 	EOF
-	exit 1 
+	exit 1
 
 
 .ONESHELL: docker_insecure_registry
 docker_insecure_registry:
-	INSECURE_REGISTRY="zot-int.zot.svc.cluster.local:5000"
+	INSECURE_REGISTRY="$(MINDWM_HOST_REGISTRY):30001"
 	DOCKER_CONFIG="/etc/docker/daemon.json"
 
 	if [[ ! -f "$$DOCKER_CONFIG" ]]; then
@@ -237,7 +239,7 @@ service_dashboard:
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	export INGRESS_PORT=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
 	cat<<EOF
-	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) | sudo tee -a /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) $(MINDWM_HOST_REGISTRY) | sudo tee -a /etc/hosts
 	http://argocd.$(DOMAIN):$$INGRESS_PORT
 	http://grafana.$(DOMAIN):$$INGRESS_PORT
 	http://loki.$(DOMAIN):$$INGRESS_PORT
@@ -248,7 +250,7 @@ service_dashboard:
 	EOF
 
 .ONESHELL: edit_hosts
-edit_hosts:	
+edit_hosts:
 	export INGRESS_NAME=istio-ingressgateway
 	export INGRESS_NS=istio-system
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -256,7 +258,7 @@ edit_hosts:
 	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) loki.$(DOMAIN) neo4j.cyan.$(DOMAIN) | sudo tee -a /etc/hosts
 
 .PHONY: mindwm_test
-mindwm_test: 
+mindwm_test:
 	test -d $(ARTIFACT_DIR) || mkdir -p $(ARTIFACT_DIR)
 	cd tests/mindwm_bdd && \
 	python3 -m venv .venv && \
@@ -268,7 +270,7 @@ mindwm_test:
 
 
 #pytest -s --md-report --md-report-tee --md-report-verbose=7 :wait --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --kube-config=$${HOME}/.kube/config --alluredir $(ARTIFACT_DIR)/allure-results . --order-dependencies
-	
+
 sleep-%:
 	sleep $(@:sleep-%=%)
 

@@ -111,7 +111,7 @@ Feature: Mindwm event driven architecture
     Then the configmap "<configmap_name>" should exists in namespace "<namespace>"
     #When God applies kubernetes manifest in the "<namespace>" namespace
     When God creates "mindwm-function-build-run" resource of type "pipelineruns.tekton.dev/v1beta1" in the "<namespace>" namespace
-    """ 
+    """
     apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
     metadata:
@@ -138,16 +138,16 @@ Feature: Mindwm event driven architecture
           - name: buildpack
             params:
               - name: REGISTRY_ENDPOINT
-                value: zot-int.zot.svc.cluster.local:5000
+                value: mindwm-host-registry:30001
             taskSpec:
               steps:
                 - name: pack-build
                   env:
-                    - name: CNB_INSECURE_REGISTRIES 
+                    - name: CNB_INSECURE_REGISTRIES
                       value: zot-int.zot:5000;zot.zot.svc.cluster.local:5000
                   image: buildpacksio/pack:latest
                   workingDir: /workspace/build
-                  command: 
+                  command:
                     - pack
                     - build
                     - $(params.REGISTRY_ENDPOINT)/test3:latest
@@ -189,7 +189,7 @@ Feature: Mindwm event driven architecture
       - name: source
         configMap:
           name: test-function
-    """ 
+    """
     Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace, timeout = "180"
     And container "step-pack-build" in pod "mindwm-function-build-run-buildpack-pod" in namespace "<namespace>" should contain "Successfully built image" regex
     # TODO @(metacoma) use zot-int.zot.svc.clusetr.local:5000
@@ -207,7 +207,7 @@ Feature: Mindwm event driven architecture
             - image: zot-int.zot.svc.cluster.local:5000/test3:latest
     """
     Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "<namespace>" namespace
-    Examples: 
+    Examples:
     | namespace     | configmap_name |
     | test-function | test-function  |
   Scenario: Send ping message to the service
