@@ -17,7 +17,7 @@ Feature: Mindwm Lifecycle Management
     Then the argocd "mindwm-gitops" application appears in "argocd" namespace
 
     When God executes "make argocd_app_sync_async"
-    Then the argocd "mindwm-gitops" application is argocd namespace in a progressing status 
+    Then the argocd "mindwm-gitops" application is argocd namespace in a progressing status
 
     When God executes "make argocd_app_async_wait"
     Then all argocd applications are in a healthy state
@@ -43,3 +43,9 @@ Feature: Mindwm Lifecycle Management
       | crossplane-admin               |
     When God executes "make edit_hosts"
     Then file "/etc/hosts" contain "mindwm.local" regex
+
+    When God executes "make forward_dns_cluster_local"
+    Then domain name "<registry_domain>" should exist
+    Examples:
+    | registry_domain               |
+    | zot-int.zot.svc.cluster.local |
