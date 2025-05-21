@@ -111,7 +111,7 @@ Feature: Mindwm event driven architecture
     Then the configmap "<configmap_name>" should exists in namespace "<namespace>"
     #When God applies kubernetes manifest in the "<namespace>" namespace
     When God creates "mindwm-function-build-run" resource of type "pipelineruns.tekton.dev/v1beta1" in the "<namespace>" namespace
-    """ 
+    """
     apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
     metadata:
@@ -143,11 +143,11 @@ Feature: Mindwm event driven architecture
               steps:
                 - name: pack-build
                   env:
-                    - name: CNB_INSECURE_REGISTRIES 
+                    - name: CNB_INSECURE_REGISTRIES
                       value: zot-int.zot:5000;zot.zot.svc.cluster.local:5000
                   image: buildpacksio/pack:latest
                   workingDir: /workspace/build
-                  command: 
+                  command:
                     - pack
                     - build
                     - $(params.REGISTRY_ENDPOINT)/test3:latest
@@ -189,11 +189,11 @@ Feature: Mindwm event driven architecture
       - name: source
         configMap:
           name: test-function
-    """ 
+    """
     Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace, timeout = "180"
     And container "step-pack-build" in pod "mindwm-function-build-run-buildpack-pod" in namespace "<namespace>" should contain "Successfully built image" regex
     # TODO @(metacoma) use zot-int.zot.svc.clusetr.local:5000
-    Then image "test3" with tag "latest" should exists in "0.0.0.0:30001" registry
+    Then image "test3" with tag "latest" should exists in "<registry_domain>:5000" registry
     When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
     """
     apiVersion: serving.knative.dev/v1
@@ -207,9 +207,9 @@ Feature: Mindwm event driven architecture
             - image: zot-int.zot.svc.cluster.local:5000/test3:latest
     """
     Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "<namespace>" namespace
-    Examples: 
-    | namespace     | configmap_name |
-    | test-function | test-function  |
+    Examples:
+    | namespace     | configmap_name | registry_domain |
+    | test-function | test-function  | zot-int.zot.svc.cluster.local |
   Scenario: Send ping message to the service
     When God creates a new cloudevent
       And sets cloudevent header "ce-subject" to "#ping"

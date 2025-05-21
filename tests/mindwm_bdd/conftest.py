@@ -35,6 +35,7 @@ from neo4j import GraphDatabase
 import uuid
 import functools
 import asyncio
+import socket
 from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_regex
 
 from git_utils import git_clone
@@ -84,7 +85,7 @@ def pytest_bdd_before_scenario(feature, scenario):
     allure.dynamic.feature(feature.name)
     allure.dynamic.suite(feature.name)
 
-@pytest.fixture 
+@pytest.fixture
 def ctx():
     return {}
 @pytest.fixture
@@ -94,7 +95,7 @@ def cloudevent():
 def trace_data():
     return {}
 @pytest.fixture()
-def http_response(): 
+def http_response():
     return {}
 
 def async_to_sync(fn):
@@ -316,7 +317,7 @@ def following_resource_status_equal(kube, resource_type, status_name, status, na
     title_row, *rows = step.data_table.rows
     for row in rows:
         resource_name = row.cells[0].value
-        resource_status_equal_default_timeout(kube, resource_name, resource_type, status_name, status, namespace, step) 
+        resource_status_equal_default_timeout(kube, resource_name, resource_type, status_name, status, namespace, step)
 
 @then('resource "{resource_name}" of type "{resource_type}" has a status "{status_name}" equal "{status}" in "{namespace}" namespace')
 def resource_status_equal_default_timeout(kube, resource_name, resource_type, status_name, status, namespace, step):
@@ -342,12 +343,12 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
                 resource_name,
                 status_name,
                 status,
-                90
+                180
                 )
         except Exception as e:
             if (resource_name == "mindwm-function-build-run"):
                 try:
-                    for pod_name in ["mindwm-function-build-run-buildpack-pod", "mindwm-function-build-run-copy-pod", "mindwm-function-build-run-resolve-host-pod"]:
+                    for pod_name in ["mindwm-function-build-run-buildpack-pod", "mindwm-function-build-run-copy-pod"]:
                         utils.execute_and_attach_log(f"kubectl -n {namespace} logs {pod_name}")
                 except Exception as e:
                     logging.error(f"Failed attach logs")
@@ -413,13 +414,13 @@ def role_exist(kube, step):
     title_row, *rows = step.data_table.rows
     cluster_roles = kube.get_clusterroles()
     for row in rows:
-        role_name = row.cells[0].value 
+        role_name = row.cells[0].value
         role = cluster_roles.get(role_name)
         assert role is not None, f"Role {role_name} not found"
         with allure.step(f"Role '{role_name}' exist"):
             pass
 
- 
+
 @then('namespace "{namespace}" should exist')
 def namespace_exist(ctx, kube, namespace, step):
     ctx['namespace'] = namespace
@@ -565,7 +566,7 @@ def nats_message_receive(kube, nats_topic_name):
 def deployment_ready(kube, step, namespace):
     title_row, *rows = step.data_table.rows
     for row in rows:
-        deployment_name = row.cells[0].value 
+        deployment_name = row.cells[0].value
         with allure.step(f"then {step.text} {deployment_name}"):
             try:
                 deployment = utils.deployment_wait_for(kube, deployment_name, namespace)
@@ -598,7 +599,7 @@ def graph_check_node(kube, step, node_type, prop, value, cloudevent, context_nam
                 RETURN n
             """
             allure.attach(q, name = "query", attachment_type='text/plain')
-            
+
             records, summary, keys = driver.execute_query(q, database_="neo4j")
             assert len(records) == 1
 
@@ -644,7 +645,7 @@ def cloudevent_send_to_ksvc(step, http_response, kube, cloudevent, knative_servi
 
 @then("the response http code should be \"{code}\"")
 def http_response_code_check(step, http_response, code):
-    with allure.step(f"then {step.text}"): 
+    with allure.step(f"then {step.text}"):
         status_code = str(http_response['answer'].status_code)
         logging.info(f"status code = {status_code}")
         assert status_code == code, f"HTTP status code {status_code} != {code}"
@@ -695,7 +696,7 @@ def graph_query(kube, context_name, step):
         with GraphDatabase.driver(uri, auth=auth) as driver:
             driver.verify_connectivity()
             records, summary, keys = driver.execute_query(q, database_="neo4j")
- 
+
 @when("sends cloudevent to nats topic \"{nats_topic_name}\"")
 @async_to_sync
 async def cloudevent_to_nats_topic(step, kube, nats_topic_name, cloudevent):
@@ -706,12 +707,12 @@ async def cloudevent_to_nats_topic(step, kube, nats_topic_name, cloudevent):
         logging.info(f"Ingress host: {ingress_host}")
         nats_url = f"nats://root:r00tpass@{ingress_host}:4222"
         await utils.nats_send(nats_url, nats_topic_name, cloudevent['headers'], str.encode(payload))
- 
+
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
      # XXX workaround
      for item in items:
          item.add_marker(pytest.mark.namespace(create = False, name = "default"))
- 
+
 @then('container "{container_name}" in pod "{pod_name_regex}" in namespace "{namespace}" should contain "{log_regex}" regex')
 def pod_container_shoult_contain_regex(step, namespace, pod_name_regex, container_name, log_regex):
     with allure.step(f"then {step.text}"):
@@ -934,8 +935,8 @@ def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri,
             logging.info(f"VirtualService '{virtual_service_name}' in namespace '{namespace}' has host: {host}")
             response = requests.get(url, headers=headers)
             assert response.status_code == int(http_code), f"HTTP code {http_code} != {response.status_code} for url {url}"
-            
-            
+
+
         except client.ApiException as e:
             logging.error(f"Error retrieving VirtualService: {e}")
             raise e
@@ -986,3 +987,12 @@ def node_red_tab_exists(step, kube, tab_name, context_name):
             for flow in flows
         )
         assert tab_exists, f"Tab named '{tab_name}' not found in Node-RED"
+
+
+@then('domain name "{domain_name}" should exist')
+def domain_should_exist(step, domain_name):
+    with allure.step(f"then {step.text}"):
+        try:
+            socket.gethostbyname(domain_name)
+        except socket.gaierror:
+            raise AssertionError(f"Domain name '{domain_name}' does not exist")

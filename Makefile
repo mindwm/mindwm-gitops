@@ -4,6 +4,8 @@ ARGOCD_HOST_PORT := 38080
 ARGOCD_HELM_CHART_VERSION := 7.9.1
 ARGOCD_APP_VERSION := 2.14.11
 
+MINDWM_HOST_REGISTRY = zot-int.zot.svc.cluster.local:5000
+
 TEST_NAME := mindwm_test
 
 TARGET_REVISION := $(shell git branch ls --show-current)
@@ -37,7 +39,7 @@ dns_search_domain:
 	https://github.com/k3s-io/k3s/issues/5567
 	https://github.com/k3s-io/k3s/issues/9286
 	EOF
-	exit 1 
+	exit 1
 
 
 .ONESHELL: docker_insecure_registry
@@ -76,13 +78,18 @@ fix_dns_upstream:
 
 .ONESHELL: forward_dns_cluster_local
 forward_dns_cluster_local:
-	(test -d /etc/systemd/resolved.conf.d || sudo mkdir -p /etc/systemd/resolved.conf.d)
-	cat<<EOF | sudo tee /etc/systemd/resolved.conf.d/k8s-dns.conf
-	[Resolve]
-	DNS=127.0.0.1:30002
-	Domains=~svc.cluster.local
+	cat<<EOF | sudo tee /etc/dnsmasq.conf
+	server=/svc.cluster.local/127.0.0.1#30002
+	server=8.8.8.8
+	no-resolv
+	listen-address=127.0.0.1
 	EOF
-	sudo systemctl restart systemd-resolved
+	cat<<EOF | sudo tee /etc/resolv.conf
+	nameserver 127.0.0.1
+	EOF
+	sudo systemctl stop systemd-resolved
+	sudo systemctl disable systemd-resolved
+	sudo systemctl restart dnsmasq
 
 crossplane_rolebinding_workaround:
 	$(KUBECTL_RUN) '\
@@ -107,7 +114,7 @@ cluster: deinstall precheck
 	curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.33.0+k3s1 INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
 	test -d ~/.kube || mkdir ~/.kube ;\
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
-	$(MAKE) fix_dns_upstream forward_dns_cluster_local
+	$(MAKE) fix_dns_upstream
 
 
 .PHONY: argocd
@@ -248,7 +255,7 @@ service_dashboard:
 	EOF
 
 .ONESHELL: edit_hosts
-edit_hosts:	
+edit_hosts:
 	export INGRESS_NAME=istio-ingressgateway
 	export INGRESS_NS=istio-system
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -256,7 +263,7 @@ edit_hosts:
 	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) loki.$(DOMAIN) neo4j.cyan.$(DOMAIN) | sudo tee -a /etc/hosts
 
 .PHONY: mindwm_test
-mindwm_test: 
+mindwm_test:
 	test -d $(ARTIFACT_DIR) || mkdir -p $(ARTIFACT_DIR)
 	cd tests/mindwm_bdd && \
 	python3 -m venv .venv && \
@@ -268,11 +275,11 @@ mindwm_test:
 
 
 #pytest -s --md-report --md-report-tee --md-report-verbose=7 :wait --md-report-tee --md-report-output=$(ARTIFACT_DIR)/report.md --kube-config=$${HOME}/.kube/config --alluredir $(ARTIFACT_DIR)/allure-results . --order-dependencies
-	
+
 sleep-%:
 	sleep $(@:sleep-%=%)
 
-mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts service_dashboard
+mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts forward_dns_cluster_local service_dashboard
 
 
 debug_pod:
