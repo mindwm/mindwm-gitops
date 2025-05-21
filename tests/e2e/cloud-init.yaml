@@ -13,6 +13,7 @@ packages:
   - tmux
   - ripgrep
   - xmlstarlet
+  - dnsmasq
 groups:
   - ci
   - docker
