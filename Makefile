@@ -4,7 +4,7 @@ ARGOCD_HOST_PORT := 38080
 ARGOCD_HELM_CHART_VERSION := 7.9.1
 ARGOCD_APP_VERSION := 2.14.11
 
-MINDWM_HOST_REGISTRY = mindwm-host-registry:30001
+MINDWM_HOST_REGISTRY = host-registry.mindwm.local:30001
 
 TEST_NAME := mindwm_test
 
@@ -255,7 +255,7 @@ edit_hosts:
 	export INGRESS_NS=istio-system
 	export INGRESS_HOST=$$(kubectl -n "$$INGRESS_NS" get service "$$INGRESS_NAME" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 	sudo sed -i -e '/$(DOMAIN)/d' /etc/hosts
-	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) loki.$(DOMAIN) neo4j.cyan.$(DOMAIN) | sudo tee -a /etc/hosts
+	echo $$INGRESS_HOST argocd.$(DOMAIN) grafana.$(DOMAIN) vm.$(DOMAIN) nats.$(DOMAIN) neo4j.$(CONTEXT_NAME).$(DOMAIN) tempo.$(DOMAIN) loki.$(DOMAIN) neo4j.cyan.$(DOMAIN) $(MINDWM_HOST_REGISTRY) | sudo tee -a /etc/hosts
 
 .PHONY: mindwm_test
 mindwm_test:

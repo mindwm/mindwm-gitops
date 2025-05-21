@@ -138,7 +138,7 @@ Feature: Mindwm event driven architecture
           - name: buildpack
             params:
               - name: REGISTRY_ENDPOINT
-                value: mindwm-host-registry:30001
+                value: host-registry.mindwm.local:30001
             taskSpec:
               steps:
                 - name: pack-build

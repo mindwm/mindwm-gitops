@@ -5,7 +5,7 @@ userPrefix = "user"
 contextPrefix = "context"
 hostPrefix = "host"
 
-minwdm_host_registry = "mindwm-host-registry:30001"
+minwdm_host_registry = "host-registry.mindwm.local:30001"
 
 schema ResourceNameStr:
     data: str
