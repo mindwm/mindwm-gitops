@@ -5,7 +5,7 @@ userPrefix = "user"
 contextPrefix = "context"
 hostPrefix = "host"
 
-minwdm_host_registry = "host-registry.mindwm.local:30001"
+minwdm_host_registry = "zot-int.zot.svc.cluster.local:5000"
 
 schema ResourceNameStr:
     data: str

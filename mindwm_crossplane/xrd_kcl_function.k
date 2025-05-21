@@ -1310,14 +1310,9 @@ items = [
                 {
                     name = "buildpack"
                     params = [
-<<<<<<< HEAD
                         { name = "REGISTRY_ENDPOINT", value = "zot-int.zot.svc.cluster.local:5000" }
                         { name = "REPO", value = "{{ function_namespace }}" }
                         { name = "IMAGE", value = "{{ function_name }}" }
-
-=======
-                        { name = "REGISTRY_ENDPOINT", value = "zot-int.zot.svc.cluster.local:30001" }
->>>>>>> 306496e2 (feat: add tekton push and build pipeline)
                     ]
                     taskSpec.steps = [
                         {
