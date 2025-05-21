@@ -22,6 +22,14 @@
     reg = "ghcr.io"
     repo = "kcl-lang/crossplane"
     oci_tag = "1.17.3"
+  [dependencies.crossplane_provider_http]
+    name = "crossplane_provider_http"
+    full_name = "crossplane-provider-http_1.0.8"
+    version = "1.0.8"
+    sum = "gskoC/zMOXMXVox2pOVkd8lLppHNoKKtVPlKvop4TQk="
+    reg = "ghcr.io"
+    repo = "kcl-lang/crossplane-provider-http"
+    oci_tag = "1.0.8"
   [dependencies.istio]
     name = "istio"
     full_name = "istio_1.21.5"

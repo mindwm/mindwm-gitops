@@ -920,20 +920,30 @@ def istio_virtualservice_check(step, kube, virtual_service_name, namespace, uri,
                 name=virtual_service_name
             )
 
+            ingress_host = utils.get_lb(kube)
             hosts = virtual_service.get("spec", {}).get("hosts", [])
             host = hosts[0]
+            url = f"http://{ingress_host}/{uri}"
+            logging.info(f"URL: {url}")
+
+            headers = {
+                **{
+                    "Host": f"{host}",
+                },
+            }
+
             logging.info(f"VirtualService '{virtual_service_name}' in namespace '{namespace}' has host: {host}")
-            url = f'http://{host}{uri}'
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             assert response.status_code == int(http_code), f"HTTP code {http_code} != {response.status_code} for url {url}"
 
 
         except client.ApiException as e:
             logging.error(f"Error retrieving VirtualService: {e}")
+            raise e
 
 @then('pods matching the label "{label}" in "{namespace}" namespace, have an age greater than {age}')
 def pod_age_greater(step, kube, namespace, label, age):
-    with allure.step("then f{step.text}"):
+    with allure.step(f"then {step.text}"):
         api_client = client.ApiClient()
         pods = client.CoreV1Api(api_client=api_client).list_namespaced_pod(
             namespace=namespace, label_selector=label
@@ -977,6 +987,7 @@ def node_red_tab_exists(step, kube, tab_name, context_name):
             for flow in flows
         )
         assert tab_exists, f"Tab named '{tab_name}' not found in Node-RED"
+
 
 @then('domain name "{domain_name}" should exist')
 def domain_should_exist(step, domain_name):

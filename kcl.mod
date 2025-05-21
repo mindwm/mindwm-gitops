@@ -6,6 +6,7 @@ version = "0.1.0"
 argo-cd-order = { oci = "oci://ghcr.io/kcl-lang/argo-cd-order", tag = "0.2.1" }
 argoproj = { oci = "oci://ghcr.io/kcl-lang/argoproj", tag = "0.1.0" }
 crossplane = { oci = "oci://ghcr.io/kcl-lang/crossplane", tag = "1.17.3" }
+crossplane_provider_http = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-http", tag = "1.0.8" }
 istio = { oci = "oci://ghcr.io/kcl-lang/istio", tag = "1.21.5" }
 json_merge_patch = { oci = "oci://ghcr.io/kcl-lang/json_merge_patch", tag = "0.1.1" }
 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.31.2", version = "1.31.2" }
