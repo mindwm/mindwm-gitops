@@ -194,7 +194,7 @@ Feature: Mindwm event driven architecture
     Then resource "mindwm-function-build-run" of type "pipelineruns.tekton.dev/v1" has a status "Succeeded" equal "True" in "<namespace>" namespace, timeout = "180"
     And container "step-pack-build" in pod "mindwm-function-build-run-buildpack-pod" in namespace "<namespace>" should contain "Successfully built image" regex
     # TODO @(metacoma) use zot-int.zot.svc.clusetr.local:5000
-    Then image "test3" with tag "latest" should exists in "0.0.0.0:30001" registry
+    Then image "test3" with tag "latest" should exists in "<registry_domain>:5000" registry
     When God creates "mindwm-function-test" resource of type "services.serving.knative.dev/v1" in the "<namespace>" namespace
     """
     apiVersion: serving.knative.dev/v1
@@ -209,8 +209,8 @@ Feature: Mindwm event driven architecture
     """
     Then resource "knative-function-test" of type "services.serving.knative.dev/v1" has a status "Ready" equal "True" in "<namespace>" namespace
     Examples:
-    | namespace     | configmap_name |
-    | test-function | test-function  |
+    | namespace     | configmap_name | registry_domain |
+    | test-function | test-function  | zot-int.zot.svc.cluster.local |
   Scenario: Send ping message to the service
     When God creates a new cloudevent
       And sets cloudevent header "ce-subject" to "#ping"
@@ -236,8 +236,8 @@ Feature: Mindwm event driven architecture
     And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "<namespace>" should not contain "Traceback \(most recent call last\):" regex
 
     Examples:
-    | namespace     | configmap_name | registry_domain               |
-    | test-function | test-function  | zot-int.zot.svc.cluster.local |
+    | namespace     | configmap_name |
+    | test-function | test-function  |
 
   Scenario: cleanup
     When God deletes the namespace "<namespace>"
