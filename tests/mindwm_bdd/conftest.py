@@ -811,13 +811,19 @@ def kubernetes_manifest_apply(step, kube, namespace):
 
 @then('the configmap "{configmap_name}" should exists in namespace "{namespace}"')
 def configmap_exists(step, kube, namespace, configmap_name):
-    #ns.wait_until_ready(timeout=60)
-    pass
+    with allure.step(f"when {step.text}"):
+
+        try:
+            utils.configmap_wait_for(kube, configmap_name, namespace)
+        except Exception as e:
+            utils.execute_and_attach_log(f"kubectl -n {namespace} get statefulset")
+            raise e
 
 @when('God creates "{resource_name}" resource of type "{resource_type}" in the "{namespace}" namespace')
 def kubernetes_create_resource(step, kube, resource_name, resource_type, namespace):
     with allure.step(f"when {step.text}"):
         manifest = yaml.safe_load(step.doc_string.content)
+        pprint.pprint(manifest)
         api_instance = client.CustomObjectsApi(kube.api_client)
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
         response = api_instance.create_namespaced_custom_object(
