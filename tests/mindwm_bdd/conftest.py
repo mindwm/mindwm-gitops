@@ -343,7 +343,7 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
                 resource_name,
                 status_name,
                 status,
-                90
+                180
                 )
         except Exception as e:
             if (resource_name == "mindwm-function-build-run"):
