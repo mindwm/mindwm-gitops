@@ -1218,6 +1218,9 @@ items = [
                     name = "buildpack"
                     params = [
                         { name = "REGISTRY_ENDPOINT", value = "zot-int.zot.svc.cluster.local:30001" }
+                        { name = "REPO", value = "{{ function_namespace }}" }
+                        { name = "IMAGE", value = "{{ function_name }}" }
+
                     ]
                     taskSpec.steps = [
                         {
@@ -1231,7 +1234,7 @@ items = [
                             command = [
                                 "pack"
                                 "build"
-                                "$(params.REGISTRY_ENDPOINT)/test3:latest"
+                                "$(params.REGISTRY_ENDPOINT)/$(params.REPO)/$(params.IMAGE):latest"
                                 "--builder"
                                 "gcr.io/buildpacks/builder:google-22"
                                 "--workspace"

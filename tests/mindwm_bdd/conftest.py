@@ -823,7 +823,6 @@ def configmap_exists(step, kube, namespace, configmap_name):
 def kubernetes_create_resource(step, kube, resource_name, resource_type, namespace):
     with allure.step(f"when {step.text}"):
         manifest = yaml.safe_load(step.doc_string.content)
-        pprint.pprint(manifest)
         api_instance = client.CustomObjectsApi(kube.api_client)
         plural, group, version = re.match(r"([^\.]+)\.(.+)/(.+)", resource_type).groups()
         response = api_instance.create_namespaced_custom_object(

@@ -128,7 +128,7 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
 
 def configmap_wait_for(kube, configmap_name, namespace):
-    timeout = 5
+    timeout = 60
     def exists():
         try:
             configmap = kube.get_configmaps(namespace = namespace, fields = {'metadata.name': configmap_name}).get(configmap_name)
