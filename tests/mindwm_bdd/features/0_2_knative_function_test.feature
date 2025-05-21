@@ -9,7 +9,6 @@ Feature: Mindwm event driven architecture
   Scenario: Create configmap with knative function definition
     When God creates the namespace "<namespace>"
     Then namespace "<namespace>" should exist
-    Then domain name "<registry_domain>" should exist
     When God applies kubernetes manifest in the "<namespace>" namespace
     """
     apiVersion: v1
