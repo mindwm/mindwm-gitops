@@ -1217,7 +1217,7 @@ items = [
                 {
                     name = "buildpack"
                     params = [
-                        { name = "REGISTRY_ENDPOINT", value = "host-registry.mindwm.local:30001" }
+                        { name = "REGISTRY_ENDPOINT", value = "zot-int.zot.svc.cluster.local:5000" }
                         { name = "REPO", value = "{{ function_namespace }}" }
                         { name = "IMAGE", value = "{{ function_name }}" }
 
