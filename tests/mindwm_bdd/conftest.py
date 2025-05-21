@@ -348,7 +348,7 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
         except Exception as e:
             if (resource_name == "mindwm-function-build-run"):
                 try:
-                    for pod_name in ["mindwm-function-build-run-buildpack-pod", "mindwm-function-build-run-copy-pod", "mindwm-function-build-run-resolve-host-pod"]:
+                    for pod_name in ["mindwm-function-build-run-buildpack-pod", "mindwm-function-build-run-copy-pod""]:
                         utils.execute_and_attach_log(f"kubectl -n {namespace} logs {pod_name}")
                 except Exception as e:
                     logging.error(f"Failed attach logs")
