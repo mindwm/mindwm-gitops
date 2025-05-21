@@ -44,7 +44,7 @@ dns_search_domain:
 
 .ONESHELL: docker_insecure_registry
 docker_insecure_registry:
-	INSECURE_REGISTRY="$(MINDWM_HOST_REGISTRY):30001"
+	INSECURE_REGISTRY="$(MINDWM_HOST_REGISTRY)"
 	DOCKER_CONFIG="/etc/docker/daemon.json"
 
 	if [[ ! -f "$$DOCKER_CONFIG" ]]; then
