@@ -4,7 +4,7 @@ ARGOCD_HOST_PORT := 38080
 ARGOCD_HELM_CHART_VERSION := 7.9.1
 ARGOCD_APP_VERSION := 2.14.11
 
-MINDWM_HOST_REGISTRY = host-registry.mindwm.local:30001
+MINDWM_HOST_REGISTRY = zot-int.zot.svc.cluster.local:5000
 
 TEST_NAME := mindwm_test
 
@@ -78,13 +78,18 @@ fix_dns_upstream:
 
 .ONESHELL: forward_dns_cluster_local
 forward_dns_cluster_local:
-	(test -d /etc/systemd/resolved.conf.d || sudo mkdir -p /etc/systemd/resolved.conf.d)
-	cat<<EOF | sudo tee /etc/systemd/resolved.conf.d/k8s-dns.conf
-	[Resolve]
-	DNS=127.0.0.1:30002
-	Domains=~svc.cluster.local
+	cat<<EOF | sudo tee /etc/dnsmasq.conf
+	server=/svc.cluster.local/127.0.0.1#30002
+	server=8.8.8.8
+	no-resolv
+	listen-address=127.0.0.1
 	EOF
-	sudo systemctl restart systemd-resolved
+	cat<<EOF | sudo tee /etc/resolv.conf
+	nameserver 127.0.0.1
+	EOF
+	sudo systemctl stop systemd-resolved
+	sudo systemctl disable systemd-resolved
+	sudo systemctl restart dnsmasq
 
 crossplane_rolebinding_workaround:
 	$(KUBECTL_RUN) '\
@@ -109,7 +114,7 @@ cluster: deinstall precheck
 	curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.33.0+k3s1 INSTALL_K3S_EXEC="server --disable=traefik --cluster-init" sh -s - --docker && sleep 30 && \
 	test -d ~/.kube || mkdir ~/.kube ;\
 	sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config && \
-	$(MAKE) fix_dns_upstream forward_dns_cluster_local
+	$(MAKE) fix_dns_upstream
 
 
 .PHONY: argocd
@@ -274,7 +279,7 @@ mindwm_test:
 sleep-%:
 	sleep $(@:sleep-%=%)
 
-mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts service_dashboard
+mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts forward_dns_cluster_local service_dashboard
 
 
 debug_pod:
