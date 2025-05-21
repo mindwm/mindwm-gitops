@@ -1188,7 +1188,8 @@ items = [
   crossplane_kubernetes.Object {
     metadata.name = "mindwm-function-{{ function_name }}"
     spec.forProvider.manifest = PipelineRun.PipelineRun {
-        metadata.name = name
+        metadata.name = "mindwm-function-{{ function_name }}-build-and-push"
+        metadata.namespace = "default"
         spec.pipelineSpec = {
             workspaces: [
                 { name = "build" }
