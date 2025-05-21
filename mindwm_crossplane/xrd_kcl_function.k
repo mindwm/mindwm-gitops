@@ -1310,10 +1310,14 @@ items = [
                 {
                     name = "buildpack"
                     params = [
+<<<<<<< HEAD
                         { name = "REGISTRY_ENDPOINT", value = "zot-int.zot.svc.cluster.local:5000" }
                         { name = "REPO", value = "{{ function_namespace }}" }
                         { name = "IMAGE", value = "{{ function_name }}" }
 
+=======
+                        { name = "REGISTRY_ENDPOINT", value = "zot-int.zot.svc.cluster.local:30001" }
+>>>>>>> 306496e2 (feat: add tekton push and build pipeline)
                     ]
                     taskSpec.steps = [
                         {
@@ -1327,7 +1331,11 @@ items = [
                             command = [
                                 "pack"
                                 "build"
+<<<<<<< HEAD
                                 "$(params.REGISTRY_ENDPOINT)/$(params.REPO)/$(params.IMAGE):latest"
+=======
+                                "$(params.REGISTRY_ENDPOINT)/test3:latest"
+>>>>>>> 306496e2 (feat: add tekton push and build pipeline)
                                 "--builder"
                                 "gcr.io/buildpacks/builder:google-22"
                                 "--workspace"
@@ -1380,7 +1388,11 @@ items = [
             }
             {
                 name = "source"
+<<<<<<< HEAD
                 configMap.name = "{{ configmap_name }}"
+=======
+                configMap.name = "mindwm-function-python-function-2qltk"
+>>>>>>> 306496e2 (feat: add tekton push and build pipeline)
             }
         ]
     }
