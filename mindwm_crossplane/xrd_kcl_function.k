@@ -1171,25 +1171,28 @@ import tekton_pipelines.v1beta1.tekton_dev_v1beta1_pipeline_run as PipelineRun
 ${kcl_util_func}
 ${kcl_config_schema}
 function = yaml.encode(option("params").oxr.spec.data)
-function_name = option("params").oxr.metadata.name
+#function = yaml.encode(option("params"))
+function_name = option("params").oxr.spec.claimRef.name
+function_namespace = option("params").oxr.spec.claimRef.namespace
+configmap_name = "mindwm-function-" + function_name + "-configmap"
 
 items = [
   crossplane_kubernetes.Object {
-    metadata.name = "mindwm-function-{{ function_name }}"
+    metadata.name = "mindwm-function-{{ function_name }}-configmap"
     spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
-            name = "mindwm-function-{{ function_name }}"
-            namespace = "default"
+            name = "{{ configmap_name }}"
+            namespace = "{{ function_namespace }}"
         }
         data = yaml.decode("{{ function }}")
     }
   }
 
   crossplane_kubernetes.Object {
-    metadata.name = "mindwm-function-{{ function_name }}"
+    metadata.name = "mindwm-function-{{ function_name }}-pipeline"
     spec.forProvider.manifest = PipelineRun.PipelineRun {
         metadata.name = "mindwm-function-{{ function_name }}-build-and-push"
-        metadata.namespace = "default"
+        metadata.namespace = "{{ function_namespace }}"
         spec.pipelineSpec = {
             workspaces: [
                 { name = "build" }
@@ -1281,7 +1284,7 @@ items = [
             }
             {
                 name = "source"
-                configMap.name = "mindwm-function-python-function-2qltk"
+                configMap.name = "{{ configmap_name }}"
             }
         ]
     }
@@ -1291,6 +1294,8 @@ items = [
 """, {
   function = r"${function}"
   function_name = r"${function_name}"
+  function_namespace = r"${function_namespace}"
+  configmap_name = r"${configmap_name}"
 })
             }
         }
