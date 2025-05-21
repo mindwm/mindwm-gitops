@@ -9,6 +9,7 @@ Feature: Mindwm event driven architecture
   Scenario: Create configmap with knative function definition
     When God creates the namespace "<namespace>"
     Then namespace "<namespace>" should exist
+    Then domain name "<registry_domain>" should exist
     When God applies kubernetes manifest in the "<namespace>" namespace
     """
     apiVersion: v1
@@ -235,8 +236,8 @@ Feature: Mindwm event driven architecture
     And container "user-container" in pod "^.*-00001-deployment-.*" in namespace "<namespace>" should not contain "Traceback \(most recent call last\):" regex
 
     Examples:
-    | namespace     | configmap_name |
-    | test-function | test-function  |
+    | namespace     | configmap_name | registry_domain               |
+    | test-function | test-function  | zot-int.zot.svc.cluster.local |
 
   Scenario: cleanup
     When God deletes the namespace "<namespace>"
