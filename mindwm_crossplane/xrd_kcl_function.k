@@ -1171,7 +1171,7 @@ import tekton_pipelines.v1beta1.tekton_dev_v1beta1_pipeline_run as PipelineRun
 ${kcl_util_func}
 ${kcl_config_schema}
 
-function = json.encode({
+function = yaml.encode({
   ".funcignore" = "filestoignore"
   ".gitignore" = "/.func"
   "Procfile" = "web: python -m parliament ."
