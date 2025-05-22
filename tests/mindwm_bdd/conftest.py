@@ -41,6 +41,7 @@ from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_
 from git_utils import git_clone
 from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists, capture_pane
 import yaml
+from function import MindwmFunction
 
 nats_messages = []
 
@@ -290,12 +291,36 @@ def mindwm_context_deleted(kube, context_name):
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
 
-@when('God deletes mindwm function "{function_name}" in the "{namespace}"' namespace)
-def mindwm_function_delete(kube, function_name):
-    with allure.step(f"Mindwm function {function_name} delete"):
-        #function = mindwm_crd.host_get(kube, function_name)
-        #host.delete(None)
-        pass
+@when('God deletes mindwm function "{function_name}" in the "{namespace}" namespace')
+def mindwm_function_delete(step, kube, function_name, namespace):
+    pprint.pprint(namespace)
+    with allure.step(f'when {step.text}'):
+        api_instance = client.CustomObjectsApi(kube.api_client)
+        function = MindwmFunction(api_instance.get_namespaced_custom_object(
+            group="mindwm.io",
+            version="v1beta1",
+            namespace=namespace,
+            plural="functions",
+            name=function_name
+            ))
+        function.delete(options = {"namespace": namespace})
+        function.wait_until_deleted()
+
+@then('the mindwm function "{function_name}" in the "{namespace}" namespace should be deleted')
+def mindwm_function_delete(step, kube, function_name, namespace):
+    with allure.step(f"then {step.text}"):
+        try:
+            api_instance = client.CustomObjectsApi(kube.api_client)
+            MindwmFunction(api_instance.get_namespaced_custom_object(
+                group="mindwm.io",
+                version="v1beta1",
+                namespace=namespace,
+                plural="functions",
+                name=function_name
+                ))
+            raise ValueError
+        except:
+            pass
 
 @then('the following resources of type "{resource_type}" exists in "{namespace}" namespace')
 def following_resource_exists(kube, resource_type, namespace, step):
@@ -971,7 +996,6 @@ def pod_age_greater(step, kube, namespace, label, age):
             logging.info(f"Pod {pod.metadata.name} has age {pod_age_seconds} seconds")
             assert pod_age_seconds > age, f"Pod {pod.metadata.name} is not older than {age} seconds"
         pass
-<<<<<<< HEAD
 
 @then('node-red should have a tab named "{tab_name}" in context "{context_name}"')
 def node_red_tab_exists(step, kube, tab_name, context_name):
