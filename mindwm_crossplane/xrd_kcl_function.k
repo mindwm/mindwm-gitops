@@ -1168,10 +1168,14 @@ import knative.v1.serving_knative_dev_v1_service as knative_service
 import knative.v1.eventing_knative_dev_v1_broker as knative_broker
 import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
 import tekton_pipelines.v1beta1.tekton_dev_v1beta1_pipeline_run as PipelineRun
+import regex
 ${kcl_util_func}
 ${kcl_config_schema}
 
 function_xrd = option("params").oxr.spec.data
+
+python_indent = '''\
+    '''
 
 function = yaml.encode({
   ".funcignore" = "filestoignore"
@@ -1233,14 +1237,7 @@ def main(context: Context):
     # Add your business logic here
     print("Received request")
 
-    if 'request' in context.keys():
-        ret = pretty_print(context.request)
-        print(ret, flush=True)
-        return payload_print(context.request), 200
-    else:
-        print("Empty request", flush=True)
-        return "{}", 200
-'''
+''' + regex.replace(function_xrd["func.py"], "(^|\n)", python_indent)
   "func.yaml" = '''\
 specVersion: 0.36.0
 name: mindwm-function
