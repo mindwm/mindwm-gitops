@@ -1157,7 +1157,7 @@ makeFunctionXR = lambda {
                 # TODO (@metacoma) add kcl_util_func to template data in mk function
                 spec.dependencies = """\
                 k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
-                tekton_pipelines = { oci = "oci://ghcr.io/mindwm/tekton-pipelines", tag = "1.0.0" }
+                tekton_pipelines = { oci = "oci://ghcr.io/kcl-lang/tekton-pipelines", tag = "1.0.0" }
                 knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
                 crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
                 """
