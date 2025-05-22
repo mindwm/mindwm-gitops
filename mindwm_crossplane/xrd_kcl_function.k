@@ -1171,6 +1171,8 @@ import tekton_pipelines.v1beta1.tekton_dev_v1beta1_pipeline_run as PipelineRun
 ${kcl_util_func}
 ${kcl_config_schema}
 
+function_xrd = option("params").oxr.spec.data
+
 function = yaml.encode({
   ".funcignore" = "filestoignore"
   ".gitignore" = "/.func"
@@ -1260,6 +1262,10 @@ if __name__ == "__main__":
   unittest.main()
 '''
 })
+
+function."requirements.txt" = function_xrd."requirements.txt"
+
+
 #function = yaml.encode(option("params").oxr.spec.data)
 
 #function = yaml.encode(option("params"))
