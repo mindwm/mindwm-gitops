@@ -1171,13 +1171,13 @@ import tekton_pipelines.v1beta1.tekton_dev_v1beta1_pipeline_run as PipelineRun
 ${kcl_util_func}
 ${kcl_config_schema}
 
-function = json.encode({
-  ".funcignore" = "filestoignore"
-  ".gitignore" = "/.func"
-  "Procfile" = "web: python -m parliament ."
-  "README.md" = "README"
-})
-#function = yaml.encode(option("params").oxr.spec.data)
+#function = json.encode({
+#  ".funcignore" = "filestoignore"
+#  ".gitignore" = "/.func"
+#  "Procfile" = "web: python -m parliament ."
+#  "README.md" = "README"
+#})
+function = yaml.encode(option("params").oxr.spec.data)
 
 #function = yaml.encode(option("params"))
 function_name = option("params").oxr.spec.claimRef.name
