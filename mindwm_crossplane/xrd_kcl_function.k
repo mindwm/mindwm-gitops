@@ -1237,7 +1237,8 @@ def main(context: Context):
     # Add your business logic here
     print("Received request")
 
-''' + regex.replace(function_xrd["func.py"], "(^|\n)", python_indent)
+''' + regex.replace(function_xrd["func.py"], "(^|\\n)", python_indent)
+
   "func.yaml" = '''\
 specVersion: 0.36.0
 name: mindwm-function
