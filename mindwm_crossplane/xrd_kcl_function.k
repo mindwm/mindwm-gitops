@@ -1238,27 +1238,6 @@ def main(context: Context):
     else:
         print("Empty request", flush=True)
         return "{}", 200
-func.yaml: |
-specVersion: 0.36.0
-name: mindwm-function
-runtime: python
-created: 2024-12-17T21:55:03.525539663+01:00
-requirements.txt: |
-parliament-functions==0.1.0
-test_func.py: |
-import unittest
-
-func = __import__("func")
-
-class TestFunc(unittest.TestCase):
-
-  def test_func_empty_request(self):
-    resp, code = func.main({})
-    self.assertEqual(resp, "{}")
-    self.assertEqual(code, 200)
-
-if __name__ == "__main__":
-  unittest.main()
 '''
   "func.yaml" = '''\
 specVersion: 0.36.0
@@ -1268,6 +1247,17 @@ created: 2024-12-17T21:55:03.525539663+01:00
 '''
   "requirements.txt" = '''\
 parliament-functions==0.1.0
+'''
+  "test_func.py" = '''\
+import unittest
+func = __import__("func")
+class TestFunc(unittest.TestCase):
+  def test_func_empty_request(self):
+    resp, code = func.main({})
+    self.assertEqual(resp, "{}")
+    self.assertEqual(code, 200)
+if __name__ == "__main__":
+  unittest.main()
 '''
 })
 #function = yaml.encode(option("params").oxr.spec.data)
