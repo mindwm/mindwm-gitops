@@ -1174,7 +1174,7 @@ ${kcl_config_schema}
 
 function_xrd = option("params").oxr.spec.data
 
-python_indent = '''\
+python_indent = '''
     '''
 
 function = yaml.encode({
