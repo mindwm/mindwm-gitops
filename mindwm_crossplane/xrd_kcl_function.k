@@ -1249,7 +1249,7 @@ created: 2024-12-17T21:55:03.525539663+01:00
 '''
   "requirements.txt" = '''\
 parliament-functions==0.1.0
-'''
+''' + function_xrd["requirements.txt"]
   "test_func.py" = '''\
 import unittest
 func = __import__("func")
@@ -1262,9 +1262,6 @@ if __name__ == "__main__":
   unittest.main()
 '''
 })
-
-function."requirements.txt" = function_xrd."requirements.txt"
-
 
 #function = yaml.encode(option("params").oxr.spec.data)
 
