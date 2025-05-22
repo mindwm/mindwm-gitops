@@ -290,6 +290,13 @@ def mindwm_context_deleted(kube, context_name):
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
 
+@when('God deletes mindwm function "{function_name}" in the "{namespace}"' namespace)
+def mindwm_function_delete(kube, function_name):
+    with allure.step(f"Mindwm function {function_name} delete"):
+        #function = mindwm_crd.host_get(kube, function_name)
+        #host.delete(None)
+        pass
+
 @then('the following resources of type "{resource_type}" exists in "{namespace}" namespace')
 def following_resource_exists(kube, resource_type, namespace, step):
     title_row, *rows = step.data_table.rows
