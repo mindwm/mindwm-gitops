@@ -1192,8 +1192,8 @@ from flask import Request
 import json
 
 def main(context: Context):
-    # Add your business logic here
-    print("Received request")
+    print(f"Method: {context.request.method}")
+    print(f"Event data {context.cloud_event.data})
 
 ''' + regex.replace(function_xrd["func.py"], "(^|\\n)", python_indent)
 
