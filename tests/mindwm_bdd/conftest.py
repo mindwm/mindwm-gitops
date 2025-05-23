@@ -1032,7 +1032,7 @@ def domain_should_exist(step, domain_name):
             socket.gethostbyname(domain_name)
         except socket.gaierror:
             raise AssertionError(f"Domain name '{domain_name}' does not exist")
-
+            
 @when('God creates a MindWM function resource with the name "{func_name}" in the "{namespace}" namespace')
 def mindwm_function_create(step, kube, func_name, namespace):
     with allure.step(f"then {step.text}"):
@@ -1057,3 +1057,4 @@ def mindwm_function_create(step, kube, func_name, namespace):
 @then('the mindwm function "{func_name}" in the "{namespace}" namespace should be ready and operable')
 def mindwm_function_check(step, kube, func_name, namespace):
     return resource_status_equal(kube, func_name, 'functions.mindwm.io/v1beta1', "Ready", "True", namespace, 180, step)
+
