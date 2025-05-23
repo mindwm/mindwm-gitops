@@ -1192,6 +1192,7 @@ from flask import Request
 import json
 
 def main(context: Context):
+    print("Received CloudEvent: ", context.cloud_event)
     print(f"Method: {context.request.method}")
     print(f"Event data {context.cloud_event.data}")
     data = context.cloud_event.data
