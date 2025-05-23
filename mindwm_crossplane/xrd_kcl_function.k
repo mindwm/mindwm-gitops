@@ -1193,7 +1193,7 @@ import json
 
 def main(context: Context):
     print(f"Method: {context.request.method}")
-    print(f"Event data {context.cloud_event.data})
+    print(f"Event data {context.cloud_event.data}")
 
 ''' + regex.replace(function_xrd["func.py"], "(^|\\n)", python_indent)
 
