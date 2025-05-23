@@ -1187,6 +1187,7 @@ function = yaml.encode({
 exec python -m parliament "$(dirname "$0")"
 '''
   "func.py" = '''\
+from cloudevents.http import CloudEvent
 from parliament import Context
 from flask import Request
 import json
@@ -1195,6 +1196,7 @@ def main(context: Context):
     print("Received CloudEvent: ", context.cloud_event)
     print(f"Method: {context.request.method}")
     print(f"Event data {context.cloud_event.data}")
+    attributes = context.cloud_event.get_attributes()
     data = context.cloud_event.data
 
 ''' + regex.replace(function_xrd["func.py"], "(^|\\n)", python_indent)
