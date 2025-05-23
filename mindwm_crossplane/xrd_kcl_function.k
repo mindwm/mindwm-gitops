@@ -258,23 +258,23 @@ items = [
         chart = {
           name = "${charts.node_red.name}"
           repository = "${charts.node_red.repoURL}"
-          values = {
-            resources = {
-              limits = {
-                cpu = "100m"
-                memory = "128Mi"
-              }
-              requests = {
-                cpu = "75m"
-                memory = "64Mi"
-              }
-            }
-            podLabels = {
-              "sidecar.istio.io/inject" = "false"
-            }
-          }
           version = "${config.node_red.helm_chart_version}"
         }
+        values = {
+          resources = {
+            limits = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu = "75m"
+              memory = "64Mi"
+            }
+          }
+          podLabels = {
+            "sidecar.istio.io/inject" = "false"
+          }
+       }
     }
   }
   crossplane_kubernetes.Object {
