@@ -1247,6 +1247,9 @@ items = [
     spec.forProvider.manifest = PipelineRun.PipelineRun {
         metadata.name = "mindwm-function-{{ function_name }}-build-and-push"
         metadata.namespace = "{{ function_namespace }}"
+        metadata.annotations = {
+          "sidecar.istio.io/inject" = "false"
+        }
         spec.pipelineSpec = {
             workspaces: [
                 { name = "build" }

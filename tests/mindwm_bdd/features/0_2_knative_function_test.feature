@@ -116,6 +116,8 @@ Feature: Mindwm event driven architecture
     kind: PipelineRun
     metadata:
       name: mindwm-function-build-run
+      annotations:
+        sidecar.istio.io/inject: "false"
     spec:
       pipelineSpec:
         workspaces:
