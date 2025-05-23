@@ -138,7 +138,7 @@ Feature: Mindwm event driven architecture
           - name: buildpack
             params:
               - name: REGISTRY_ENDPOINT
-                value: host-registry.mindwm.local:30001
+                value: zot-int.zot.svc.cluster.local:5000
             taskSpec:
               steps:
                 - name: pack-build
