@@ -127,6 +127,30 @@ def statefulset_wait_for(kube, statefulset_name, namespace):
             raise e
     return kube.get_statefulsets(namespace = namespace, fields = {'metadata.name': statefulset_name}).get(statefulset_name)
 
+def configmap_wait_for(kube, configmap_name, namespace):
+    timeout = 60
+    def exists():
+        try:
+            configmap = kube.get_configmaps(namespace = namespace, fields = {'metadata.name': configmap_name}).get(configmap_name)
+            if configmap is None:
+                return False
+            return True
+        except Exception as e:
+            return False
+
+    condition_name = f"Waiting for configmap {configmap_name} in {namespace} namespace, timeout = {timeout}"
+    with allure.step(condition_name):
+        try:
+            kubetest_utils.wait_for_condition(
+                condition=condition.Condition(condition_name, exists),
+                timeout=timeout,
+                interval=5
+            )
+        except Exception as e:
+            execute_and_attach_log(f"kubectl -n {namespace} get configmap")
+            raise e
+    return kube.get_configmaps(namespace = namespace, fields = {'metadata.name': configmap_name}).get(configmap_name)
+
 def knative_service_wait_for(kube, knative_service_name, namespace):
     return custom_object_wait_for(
             kube,  

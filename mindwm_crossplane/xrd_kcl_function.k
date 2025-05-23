@@ -109,12 +109,12 @@ ${kcl_config_schema}
 context_name = option("params").oxr.spec.name
 ctx = MindwmContext {
     name.data = "{{ context_name }}"
-} 
+}
 items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = crossplaneResourceName(ctx, ctx.namespace) 
+    metadata.name = crossplaneResourceName(ctx, ctx.namespace)
     spec.forProvider.manifest = k8core.Namespace {
       metadata.name = getData(ctx.namespace)
       metadata.labels = {
@@ -125,7 +125,7 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = crossplaneResourceName(ctx, ctx.neo4j.plugin_pvc_name) 
+    metadata.name = crossplaneResourceName(ctx, ctx.neo4j.plugin_pvc_name)
     spec.forProvider.manifest = k8core.PersistentVolumeClaim {
         metadata.name = getData(ctx.neo4j.plugin_pvc_name)
         metadata.namespace = getData(ctx.namespace)
@@ -133,7 +133,7 @@ items = [
           accessModes = [ "ReadWriteOnce" ]
           resources.requests.storage = "1Gi"
         }
-    } 
+    }
   }
   # redpanda (kafka topic) for broadcast graph changes to process eventing
   {
@@ -165,7 +165,7 @@ items = [
           name = "${charts.neo4j.name}"
           repository = "${charts.neo4j.repoURL}"
           version = "${config.neo4j.version}"
-        } 
+        }
         values = {
             additionalVolumeMounts = [
                 {
@@ -274,25 +274,25 @@ items = [
           podLabels = {
             "sidecar.istio.io/inject" = "false"
           }
-        }
+       }
     }
   }
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(ctx, ctx.broker.configMapName) 
+    metadata.name = crossplaneResourceName(ctx, ctx.broker.configMapName)
     spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
             name = getData(ctx.broker.configMapName)
             namespace = getData(ctx.namespace)
-        } 
+        }
         data = {
             "channel-template-spec" = '''\
 apiVersion: messaging.knative.dev/v1
 kind: InMemoryChannel
 '''
         }
-    } 
+    }
 
-  } 
+  }
   # contextBroker
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.broker.name)
@@ -304,14 +304,14 @@ kind: InMemoryChannel
           "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
         }
 
-      } 
+      }
       spec.config = {
           apiVersion = "v1"
           kind = "ConfigMap"
           name = getData(ctx.broker.configMapName)
       }
     }
-  } 
+  }
   # kafkaSource
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.kafkaSource.name)
@@ -331,9 +331,9 @@ kind: InMemoryChannel
                 name = getData(ctx.broker.name)
             }
             topics = [ getData(ctx.cdc_topic.name) ]
-      }  
+      }
     }
-  } 
+  }
   # deadLetter service
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.broker.deadLetter.name)
@@ -347,10 +347,10 @@ kind: InMemoryChannel
           env = [{
             name = "REQUEST_LOGGING_ENABLED"
             value = "1"
-          }] 
+          }]
       }]
-    } 
-  } 
+    }
+  }
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.broker.virtual_service.name)
     spec.forProvider.manifest = istio_virtual_service.VirtualService {
@@ -376,7 +376,7 @@ kind: InMemoryChannel
         }]
       }
     }
-  } 
+  }
   # io_context
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.io_context.name)
@@ -412,10 +412,10 @@ kind: InMemoryChannel
               name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
               value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
             }
-          ] 
+          ]
       }]
-    } 
-  } 
+    }
+  }
 
   # io-trigger
   crossplane_kubernetes.Object {
@@ -431,7 +431,7 @@ kind: InMemoryChannel
         broker = getData(ctx.broker.name)
         delivery.deadLetterSink.ref = {
           apiVersion = "serving.knative.dev/v1"
-          kind = "Service" 
+          kind = "Service"
           name = getData(ctx.broker.deadLetter.name)
         }
         filters = [{
@@ -449,8 +449,8 @@ kind: InMemoryChannel
           kind = "Service"
           name = getData(ctx.io_context.name)
         }
-      } 
-    } 
+      }
+    }
   }
 
   # pong
@@ -472,10 +472,10 @@ kind: InMemoryChannel
               name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
               value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
             }
-          ] 
+          ]
       }]
-    } 
-  } 
+    }
+  }
   #pong trigger
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.pong.name) + "-trigger"
@@ -490,7 +490,7 @@ kind: InMemoryChannel
         broker = getData(ctx.broker.name)
         delivery.deadLetterSink.ref = {
           apiVersion = "serving.knative.dev/v1"
-          kind = "Service" 
+          kind = "Service"
           name = getData(ctx.broker.deadLetter.name)
         }
         filters = [{
@@ -499,7 +499,7 @@ kind: InMemoryChannel
               exact.type = "org.mindwm.v1.iodocument"
             }
             {
-              prefix.subject = "#" 
+              prefix.subject = "#"
             }
           ]
         }]
@@ -508,8 +508,8 @@ kind: InMemoryChannel
           kind = "Service"
           name = getData(ctx.pong.name)
         }
-      } 
-    } 
+      }
+    }
   }
 
   # kafka_cdc
@@ -547,10 +547,10 @@ kind: InMemoryChannel
               name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
               value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
             }
-          ] 
+          ]
       }]
-    } 
-  } 
+    }
+  }
 
   #kafka-cdc trigger
   crossplane_kubernetes.Object {
@@ -622,10 +622,10 @@ kind: InMemoryChannel
               name = "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
               value = "http://${config.monitoring.tempo.release_name}.${config.monitoring.namespace}:4317/v1/traces"
             }
-          ] 
+          ]
       }]
-    } 
-  } 
+    }
+  }
   #clipboard trigger
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.clipboard.name) + "-trigger"
@@ -640,7 +640,7 @@ kind: InMemoryChannel
         broker = getData(ctx.broker.name)
         delivery.deadLetterSink.ref = {
           apiVersion = "serving.knative.dev/v1"
-          kind = "Service" 
+          kind = "Service"
           name = getData(ctx.broker.deadLetter.name)
         }
         filters = [{
@@ -655,8 +655,8 @@ kind: InMemoryChannel
           kind = "Service"
           name = getData(ctx.clipboard.name)
         }
-      } 
-    } 
+      }
+    }
   }
 
   crossplane_kubernetes.Object {
@@ -678,7 +678,7 @@ kind: InMemoryChannel
         }]
       }
     }
-  } 
+  }
 
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(ctx, ctx.neo4j_virtual_service.name)
@@ -721,7 +721,7 @@ kind: InMemoryChannel
         }]
       }
     }
-  } 
+  }
 
   # node-red context tab
   crossplane_kubernetes.Object {
@@ -812,7 +812,7 @@ items = [
   {
     apiVersion = "kubernetes.crossplane.io/v1alpha2"
     kind = "Object"
-    metadata.name = crossplaneResourceName(user, user.namespace) 
+    metadata.name = crossplaneResourceName(user, user.namespace)
     spec.forProvider.manifest = k8core.Namespace {
       metadata.name = getData(user.namespace)
       metadata.labels = {
@@ -833,24 +833,24 @@ items = [
           env = [{
             name = "REQUEST_LOGGING_ENABLED"
             value = "1"
-          }] 
+          }]
       }]
-    } 
-  } 
+    }
+  }
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(user, user.broker.configMapName) 
+    metadata.name = crossplaneResourceName(user, user.broker.configMapName)
     spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
             name = getData(user.broker.configMapName)
             namespace = getData(user.namespace)
-        } 
+        }
         data = {
             "channel-template-spec" = '''\
   apiVersion: messaging.knative.dev/v1
   kind: InMemoryChannel
   '''
         }
-    } 
+    }
   }
 
   crossplane_kubernetes.Object {
@@ -862,14 +862,14 @@ items = [
         annotations = {
           "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
         }
-      } 
+      }
       spec.config = {
           apiVersion = "v1"
           kind = "ConfigMap"
           name = getData(user.broker.configMapName)
       }
     }
-  } 
+  }
 
 ] + [
     # user broker -> context broker
@@ -886,7 +886,7 @@ items = [
           broker = getData(user.broker.name)
           delivery.deadLetterSink.ref = {
             apiVersion = "serving.knative.dev/v1"
-            kind = "Service" 
+            kind = "Service"
             name = getData(user.broker.deadLetter.name)
           }
           filters = [{
@@ -902,8 +902,8 @@ items = [
             namespace = getData(ctx.namespace)
             name = getData(ctx.broker.name)
           }
-        } 
-      } 
+        }
+      }
     }
     for ctx in contexts
 ] + [
@@ -954,7 +954,7 @@ items = [
           broker = getData(ctx.broker.name)
           delivery.deadLetterSink.ref = {
             apiVersion = "serving.knative.dev/v1"
-            kind = "Service" 
+            kind = "Service"
             name = getData(ctx.broker.deadLetter.name)
           }
           filters = [{
@@ -970,8 +970,8 @@ items = [
             namespace = getData(user.namespace)
             name = getData(user.broker.name)
           }
-        } 
-      } 
+        }
+      }
     }
     for ctx in contexts
 ]
@@ -1022,12 +1022,12 @@ host = MindwmHost { name.data = host_name }
 user = MindwmUser { name.data = user_name }
 items = [
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(host, host.broker.configMapName) 
+    metadata.name = crossplaneResourceName(host, host.broker.configMapName)
     spec.forProvider.manifest = k8core.ConfigMap {
         metadata = {
             name = getData(host.broker.configMapName)
             namespace = getData(user.namespace)
-        } 
+        }
         data = {
             "channel-template-spec" = '''\
   apiVersion: messaging.knative.dev/v1alpha1
@@ -1040,7 +1040,7 @@ items = [
         overrideName: {{ host_name }}
   '''
         }
-    } 
+    }
   }
   crossplane_kubernetes.Object {
     metadata.name = crossplaneResourceName(host, host.broker.name)
@@ -1052,17 +1052,17 @@ items = [
           "eventing.knative.dev/broker.class" = "MTChannelBasedBroker"
         }
 
-      } 
+      }
       spec.config = {
           apiVersion = "v1"
           kind = "ConfigMap"
           name = getData(host.broker.configMapName)
       }
     }
-  } 
+  }
   # hostBroker -> UserBroker trigger
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(host, host.trigger.name) 
+    metadata.name = crossplaneResourceName(host, host.trigger.name)
     spec.forProvider.manifest = {
       apiVersion = "eventing.knative.dev/v1"
       kind = "Trigger"
@@ -1075,7 +1075,7 @@ items = [
         broker = getData(host.broker.name)
         delivery.deadLetterSink.ref = {
           apiVersion = "serving.knative.dev/v1"
-          kind = "Service" 
+          kind = "Service"
           name = getData(user.broker.deadLetter.name)
         }
         filters = [{
@@ -1092,24 +1092,24 @@ items = [
           name = getData(user.broker.name)
           namespace = getData(user.namespace)
         }
-      } 
+      }
 
-    } 
+    }
   }
   crossplane_kubernetes.Object {
-    metadata.name = crossplaneResourceName(host, host.trigger_back.name) 
+    metadata.name = crossplaneResourceName(host, host.trigger_back.name)
     spec.forProvider.manifest = {
       apiVersion = "eventing.knative.dev/v1"
       kind = "Trigger"
       metadata = {
-        name = getData(host.trigger_back.name) 
+        name = getData(host.trigger_back.name)
         namespace = getData(user.namespace)
       }
       spec = {
         broker = getData(user.broker.name)
         delivery.deadLetterSink.ref = {
           apiVersion = "serving.knative.dev/v1"
-          kind = "Service" 
+          kind = "Service"
           name = getData(user.broker.deadLetter.name)
         }
         filters = [{
@@ -1125,14 +1125,236 @@ items = [
           name = getData(host.broker.name)
           namespace = getData(user.namespace)
         }
-      } 
+      }
 
-    } 
+    }
   }
 ]
 """, {
     user_name = r"${user_name}"
     host_name = r"${host_name}"
+})
+            }
+        }
+    ])
+}
+
+makeFunctionXR = lambda {
+    mkComposition({
+        apiVersion = "mindwm.io/" + composite_version
+        kind = "function"
+    }, {
+        type = "object"
+        properties.data.type = "object"
+        properties.data.additionalProperties.type = "string"
+    }, [
+        {
+            step = "resources"
+            functionRef.name = "function-kcl"
+            input = {
+                apiVersion = "krm.kcl.dev/v1alpha1"
+                kind = "KCLInput"
+                # TODO (@metacoma) add kcl_util_func to template data in mk function
+                spec.dependencies = """\
+                k8s = { oci = "oci://ghcr.io/kcl-lang/k8s", tag = "1.32.4" }
+                tekton_pipelines = { oci = "oci://ghcr.io/kcl-lang/tekton-pipelines", tag = "1.0.0" }
+                knative = { oci = "oci://ghcr.io/kcl-lang/knative", tag = "0.2.0" }
+                crossplane-provider-kubernetes = { oci = "oci://ghcr.io/kcl-lang/crossplane-provider-kubernetes", tag = "0.9.0" }
+                """
+                spec.source = template.execute("""\
+import yaml
+import k8s.api.core.v1 as k8core
+import knative.v1.serving_knative_dev_v1_service as knative_service
+import knative.v1.eventing_knative_dev_v1_broker as knative_broker
+import crossplane_provider_kubernetes.v1alpha1.kubernetes_crossplane_io_v1alpha1_object as crossplane_kubernetes
+import tekton_pipelines.v1beta1.tekton_dev_v1beta1_pipeline_run as PipelineRun
+import regex
+${kcl_util_func}
+${kcl_config_schema}
+
+function_xrd = option("params").oxr.spec.data
+
+python_indent = '''
+    '''
+
+function = yaml.encode({
+  ".funcignore" = "filestoignore"
+  ".gitignore" = "/.func"
+  "Procfile" = "web: python -m parliament ."
+  "README.md" = "README"
+  "app.sh" = '''\
+#!/bin/sh
+exec python -m parliament "$(dirname "$0")"
+'''
+  "func.py" = '''\
+from cloudevents.http import CloudEvent
+from parliament import Context
+from flask import Request
+import json
+
+def main(context: Context):
+    print("Received CloudEvent: ", context.cloud_event)
+    print(f"Method: {context.request.method}")
+    print(f"Event data {context.cloud_event.data}")
+    attributes = context.cloud_event.get_attributes()
+    data = context.cloud_event.data
+
+''' + regex.replace(function_xrd["func.py"], "(^|\\n)", python_indent)
+
+  "func.yaml" = '''\
+specVersion: 0.36.0
+name: mindwm-function
+runtime: python
+created: 2024-12-17T21:55:03.525539663+01:00
+'''
+  "requirements.txt" = '''\
+parliament-functions==0.1.0
+''' + function_xrd["requirements.txt"]
+  "test_func.py" = '''\
+import unittest
+func = __import__("func")
+class TestFunc(unittest.TestCase):
+  def test_func_empty_request(self):
+    resp, code = func.main({})
+    self.assertEqual(resp, "{}")
+    self.assertEqual(code, 200)
+if __name__ == "__main__":
+  unittest.main()
+'''
+})
+
+#function = yaml.encode(option("params").oxr.spec.data)
+
+#function = yaml.encode(option("params"))
+function_name = option("params").oxr.spec.claimRef.name
+function_namespace = option("params").oxr.spec.claimRef.namespace
+configmap_name = "mindwm-function-" + function_name + "-configmap"
+
+items = [
+  crossplane_kubernetes.Object {
+    metadata.name = "mindwm-function-{{ function_name }}-configmap"
+    spec.forProvider.manifest = k8core.ConfigMap {
+        metadata = {
+            name = "{{ configmap_name }}"
+            namespace = "{{ function_namespace }}"
+        }
+        data = yaml.decode("{{ function }}")
+    }
+  }
+
+  crossplane_kubernetes.Object {
+    metadata.name = "mindwm-function-{{ function_name }}-pipeline"
+    spec.forProvider.manifest = PipelineRun.PipelineRun {
+        metadata.name = "mindwm-function-{{ function_name }}-build-and-push"
+        metadata.namespace = "{{ function_namespace }}"
+        metadata.annotations = {
+          "sidecar.istio.io/inject" = "false"
+        }
+        spec.pipelineSpec = {
+            workspaces: [
+                { name = "build" }
+                { name = "source" }
+            ]
+            tasks = [
+                {
+                    name = "copy-function-files"
+                    taskSpec.steps = [{
+                        name = "copy-function-files"
+                        image = "busybox"
+                        script = '''#!/bin/sh
+                        find /workspace
+                        cp -vLr /workspace/source/* /workspace/build
+                        '''
+                    }]
+                    workspaces = [
+                        {name = "source", workspace = "source" }
+                        {name = "build", workspace = "build" }
+                    ]
+                }
+                {
+                    name = "buildpack"
+                    params = [
+                        { name = "REGISTRY_ENDPOINT", value = "zot-int.zot.svc.cluster.local:5000" }
+                        { name = "REPO", value = "{{ function_namespace }}" }
+                        { name = "IMAGE", value = "{{ function_name }}" }
+                    ]
+                    taskSpec.steps = [
+                        {
+                            name = "pack-build"
+                            env = [
+                             { name = "CNB_INSECURE_REGISTRIES" value = "zot-int.zot:5000;zot.zot.svc.cluster.local:5000" }
+                            ]
+                            image = "buildpacksio/pack:latest"
+                            workingDir = "/workspace/build"
+
+                            command = [
+                                "pack"
+                                "build"
+                                "$(params.REGISTRY_ENDPOINT)/$(params.REPO)/$(params.IMAGE):latest"
+                                "--builder"
+                                "gcr.io/buildpacks/builder:google-22"
+                                "--workspace"
+                                "/workspace/build"
+                                "--docker-host=inherit"
+                                "--publish"
+                            ]
+
+                            securityContext = {
+                                privileged = True
+                                runAsUser = 0
+                                runAsGroup = 0
+                                allowPrivilegeEscalation = True
+                                capabilities.add = ["ALL"]
+                            }
+
+                            volumeMounts = [{
+                                name = "docker-socket"
+                                mountPath = "/var/run/docker.sock"
+                            }]
+
+
+
+                        }
+                    ]
+                    taskSpec.volumes = [
+                        {
+                            name = "docker-socket"
+                            hostPath = {
+                                path = "/var/run/docker.sock"
+                                type = "Socket"
+                            }
+                        }
+                    ]
+                    workspaces = [
+                        {name = "source", workspace = "source" }
+                        {name = "build", workspace = "build" }
+                    ]
+                }
+            ]
+        }
+        spec.workspaces = [
+            {
+                name = "build"
+                subPath = "source"
+                volumeClaimTemplate.spec = {
+                    accessModes = [ "ReadWriteOnce" ]
+                    resources.requests.storage = "1Gi"
+                }
+            }
+            {
+                name = "source"
+                configMap.name = "{{ configmap_name }}"
+            }
+        ]
+    }
+  }
+
+]
+""", {
+  function = r"${function}"
+  function_name = r"${function_name}"
+  function_namespace = r"${function_namespace}"
+  configmap_name = r"${configmap_name}"
 })
             }
         }

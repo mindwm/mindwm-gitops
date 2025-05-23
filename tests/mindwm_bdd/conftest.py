@@ -41,6 +41,7 @@ from api_loki import pod_logs_should_contain_regex, pod_logs_should_not_contain_
 from git_utils import git_clone
 from tmux import create_tmux_session, send_command_to_pane, vertically_split_window, tmux_session_exists, capture_pane
 import yaml
+from function import MindwmFunction
 
 nats_messages = []
 
@@ -290,6 +291,37 @@ def mindwm_context_deleted(kube, context_name):
     with allure.step(f"Mindwm context {context_name} has been deleted"):
         pass
 
+@when('God deletes mindwm function "{function_name}" in the "{namespace}" namespace')
+def mindwm_function_delete(step, kube, function_name, namespace):
+    pprint.pprint(namespace)
+    with allure.step(f'when {step.text}'):
+        api_instance = client.CustomObjectsApi(kube.api_client)
+        function = MindwmFunction(api_instance.get_namespaced_custom_object(
+            group="mindwm.io",
+            version="v1beta1",
+            namespace=namespace,
+            plural="functions",
+            name=function_name
+            ))
+        function.delete(options = {"namespace": namespace})
+        function.wait_until_deleted()
+
+@then('the mindwm function "{function_name}" in the "{namespace}" namespace should be deleted')
+def mindwm_function_deleted(step, kube, function_name, namespace):
+    with allure.step(f"then {step.text}"):
+        try:
+            api_instance = client.CustomObjectsApi(kube.api_client)
+            MindwmFunction(api_instance.get_namespaced_custom_object(
+                group="mindwm.io",
+                version="v1beta1",
+                namespace=namespace,
+                plural="functions",
+                name=function_name
+                ))
+            raise ValueError
+        except:
+            pass
+
 @then('the following resources of type "{resource_type}" exists in "{namespace}" namespace')
 def following_resource_exists(kube, resource_type, namespace, step):
     title_row, *rows = step.data_table.rows
@@ -343,7 +375,7 @@ def resource_status_equal(kube, resource_name, resource_type, status_name, statu
                 resource_name,
                 status_name,
                 status,
-                180
+                timeout
                 )
         except Exception as e:
             if (resource_name == "mindwm-function-build-run"):
@@ -812,8 +844,13 @@ def kubernetes_manifest_apply(step, kube, namespace):
 
 @then('the configmap "{configmap_name}" should exists in namespace "{namespace}"')
 def configmap_exists(step, kube, namespace, configmap_name):
-    #ns.wait_until_ready(timeout=60)
-    pass
+    with allure.step(f"when {step.text}"):
+
+        try:
+            utils.configmap_wait_for(kube, configmap_name, namespace)
+        except Exception as e:
+            utils.execute_and_attach_log(f"kubectl -n {namespace} get statefulset")
+            raise e
 
 @when('God creates "{resource_name}" resource of type "{resource_type}" in the "{namespace}" namespace')
 def kubernetes_create_resource(step, kube, resource_name, resource_type, namespace):
@@ -988,7 +1025,6 @@ def node_red_tab_exists(step, kube, tab_name, context_name):
         )
         assert tab_exists, f"Tab named '{tab_name}' not found in Node-RED"
 
-
 @then('domain name "{domain_name}" should exist')
 def domain_should_exist(step, domain_name):
     with allure.step(f"then {step.text}"):
@@ -996,3 +1032,29 @@ def domain_should_exist(step, domain_name):
             socket.gethostbyname(domain_name)
         except socket.gaierror:
             raise AssertionError(f"Domain name '{domain_name}' does not exist")
+            
+@when('God creates a MindWM function resource with the name "{func_name}" in the "{namespace}" namespace')
+def mindwm_function_create(step, kube, func_name, namespace):
+    with allure.step(f"then {step.text}"):
+        function_body = yaml.safe_load(step.doc_string.content)
+        mindwm_function = {
+            'apiVersion': 'mindwm.io/v1beta1',
+            'kind': 'Function',
+            'metadata': {
+                'name': func_name,
+                'namespace': namespace
+             },
+            'spec': {
+                'data': function_body
+             }
+        }
+        api_instance = client.CustomObjectsApi(kube.api_client)
+        response = api_instance.create_namespaced_custom_object(
+            group='mindwm.io', version='v1beta1', namespace=namespace, plural='functions', body=mindwm_function
+        )
+
+
+@then('the mindwm function "{func_name}" in the "{namespace}" namespace should be ready and operable')
+def mindwm_function_check(step, kube, func_name, namespace):
+    return resource_status_equal(kube, func_name, 'functions.mindwm.io/v1beta1', "Ready", "True", namespace, 180, step)
+

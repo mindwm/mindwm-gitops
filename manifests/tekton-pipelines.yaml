@@ -24513,7 +24513,7 @@ data:
   #
   # See more in the Affinity Assistant documentation
   # https://github.com/tektoncd/pipeline/blob/main/docs/affinityassistants.md
-  coschedule: "workspaces"
+  coschedule: "disabled"
   # Setting this flag to "true" will prevent Tekton scanning attached
   # service accounts and injecting any credentials it finds into your
   # Steps.
