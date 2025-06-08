@@ -2,13 +2,13 @@ mindwm_domain = "mindwm.local"
 
 
 sources = {
-  mindwm_ns = "org.mindwm" 
+  mindwm_ns = "org.mindwm"
   func_ns = "knfunc"
   knfunc_action = lambda user_name host_name {
     hostname = "%" if host_name == "" else host_name
     "${sources.mindwm_ns}.${sources.func_ns}.%.%.{{ user_name }}.{{ host_name }}.tmux.%.%.action"
-  } 
-} 
+  }
+}
 
 kafka = {
     cluster_name = "neo4j-cdc"
@@ -28,8 +28,8 @@ argocd = {
   virtual_service = "argocd-vs"
   destination = lambda {
     "${argocd.release_name}-server.${argocd.namespace}.svc.cluster.local"
-  } 
-} 
+  }
+}
 
 knativeBroker = {
     deadLetterImage = "gcr.io/knative-releases/knative.dev/eventing/cmd/event_display"
@@ -104,7 +104,7 @@ Mindwm = {
     context = {
         istio_gateway = lambda context_name : str - >str {
           "context-${context_name}-gateway"
-        } 
+        }
         neo4j_vs_name = lambda context_name : str -> str {
           "${context_name}-neo4j-ui"
         }
@@ -146,7 +146,7 @@ knative = {
 
 node_red = {
   helm_chart_version = "0.34.0"
-} 
+}
 
 cert_manager = {
   helm_chart_version = "1.17.2"
@@ -202,7 +202,7 @@ monitoring = {
     destination = lambda {
       "${monitoring.victoria_metrics.release_name}-grafana"
     }
-  } 
+  }
   victoria_metrics = {
     release_name = "vm-aio"
     url = "vm.${mindwm_domain}"
@@ -214,6 +214,7 @@ monitoring = {
   }
   promtail = {
     release_name = "promtail"
+    chart_version = "6.17.0"
   }
   zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
     "http://${tempo_release_name}.${monitoring_ns}:9411/api/v2/spans"

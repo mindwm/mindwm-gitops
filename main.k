@@ -211,7 +211,7 @@ mindwm_app = ArgoCdOrder.make({
                 namespace = config.monitoring.namespace
                 name = config.monitoring.promtail.release_name
                 chart = charts.promtail
-                version = "6.16.6"
+                version = config.monitoring.promtail.chart_version
                 values = {
                   config.clients = [{
                     url = "http://${config.monitoring.loki.release_name}.${config.monitoring.namespace}:3100/loki/api/v1/push"
@@ -219,7 +219,7 @@ mindwm_app = ArgoCdOrder.make({
                   }]
                 }
             })
-            
+
 
 
             argocdSchema.argoHelmRelease({
@@ -478,8 +478,8 @@ mindwm_app = ArgoCdOrder.make({
                   ]
                 }]
               }
-            } 
-            istio_virtual_service.VirtualService {            
+            }
+            istio_virtual_service.VirtualService {
               metadata.name = config.monitoring.grafana.virtual_service
               metadata.namespace = config.monitoring.namespace
               metadata.annotations = {
@@ -490,7 +490,7 @@ mindwm_app = ArgoCdOrder.make({
                 gateways = [ config.monitoring.gateway_name ]
                 http = [{
                   match = [{ uri.prefix = "/", port = 80}]
-                  route = [{ 
+                  route = [{
                     destination.host = config.monitoring.grafana.destination()
                     destination.port.number = 80 # TODO(@metacoma) hardcode
                   }]
@@ -500,7 +500,7 @@ mindwm_app = ArgoCdOrder.make({
             }
 
 
-            istio_virtual_service.VirtualService {            
+            istio_virtual_service.VirtualService {
               metadata.name = config.monitoring.loki.virtual_service
               metadata.namespace = config.monitoring.namespace
               metadata.annotations = {
@@ -511,7 +511,7 @@ mindwm_app = ArgoCdOrder.make({
                 gateways = [ config.monitoring.gateway_name ]
                 http = [{
                   match = [{ uri.prefix = "/", port = 80}]
-                  route = [{ 
+                  route = [{
                     destination.host = config.monitoring.loki.destination()
                     destination.port.number = 80 # TODO(@metacoma) hardcode
                   }]
@@ -551,7 +551,7 @@ mindwm_app = ArgoCdOrder.make({
                 gateways = [ config.monitoring.gateway_name ]
                 http = [{
                   match = [{ uri.prefix = "/", port = 80}]
-                  route = [{ 
+                  route = [{
                     destination.host = config.monitoring.victoria_metrics.destination()
                     destination.port.number = 8429 # TODO(@metacoma) hardcode
                   }]
@@ -580,7 +580,7 @@ mindwm_app = ArgoCdOrder.make({
                   ]
                 }]
               }
-            } 
+            }
 
             istio_virtual_service.VirtualService {
               metadata.name = config.argocd.virtual_service
@@ -593,7 +593,7 @@ mindwm_app = ArgoCdOrder.make({
                 gateways = [ config.argocd.gateway_name ]
                 http = [{
                   match = [{ uri.prefix = "/", port = 80}]
-                  route = [{ 
+                  route = [{
                     destination.host = config.argocd.destination()
                     destination.port.number = 38080 # TODO(@metacoma) hardcode
                   }]
@@ -608,5 +608,3 @@ mindwm_app = ArgoCdOrder.make({
 manifests.yaml_stream([
     mindwm_app
 ])
-
-
