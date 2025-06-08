@@ -214,7 +214,7 @@ monitoring = {
   }
   promtail = {
     release_name = "promtail"
-    chart_version = "6.17.6"
+    chart_version = "6.17.0"
   }
   zipkin_endpoint = lambda tempo_release_name : str, monitoring_ns : str {
     "http://${tempo_release_name}.${monitoring_ns}:9411/api/v2/spans"
