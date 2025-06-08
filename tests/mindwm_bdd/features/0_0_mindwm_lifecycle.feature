@@ -10,7 +10,8 @@ Feature: Mindwm Lifecycle Management
     When God executes "make cluster"
     Then all nodes in Kubernetes are ready
 
-    When God executes "make argocd"
+    When God executes "make kcl_run"
+    And God executes "make argocd"
     Then helm release "argocd" is deployed in "argocd" namespace
 
     When God executes "make argocd_app"

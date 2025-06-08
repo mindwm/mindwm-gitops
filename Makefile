@@ -17,6 +17,10 @@ KUBECTL_RUN_OPTS := -i --rm -v ~/.kube:/kube -e KUBECONFIG=/kube/config --networ
 KUBECTL_RUN := docker run $(KUBECTL_RUN_OPTS)
 KUBECTL_IT_RUN := docker run -it $(KUBECTL_RUN_OPTS)
 HELM_RUN := docker run --rm -v ~/.kube:/root/.kube -e KUBECONFIG=/root/.kube/config --network=host -v`pwd`:/host -w /host --entrypoint /bin/sh alpine/helm:3.17.0 -c
+KCL_RUN := docker run --rm -v `pwd`:/host -w /host kcllang/kcl:v0.11.0
+
+
+
 
 MIN_DOCKER_SERVER_VERSION := 1.46
 DOMAIN := mindwm.local
@@ -60,6 +64,9 @@ docker_insecure_registry:
 	fi
 
 precheck: verify_docker_api_server_version docker_insecure_registry dns_search_domain
+
+kcl_run:
+	$(KCL_RUN) kcl run -q >/dev/null
 
 fix_dns_upstream:
 	$(KUBECTL_RUN) '\
@@ -279,7 +286,7 @@ mindwm_test:
 sleep-%:
 	sleep $(@:sleep-%=%)
 
-mindwm_lifecycle: cluster argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts forward_dns_cluster_local service_dashboard
+mindwm_lifecycle: cluster kcl_run argocd_app argocd_app_sync_async argocd_app_async_wait crossplane_rolebinding_workaround argocd_apps_ensure edit_hosts forward_dns_cluster_local service_dashboard
 
 
 debug_pod:
